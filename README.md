@@ -1,7 +1,7 @@
 
 # BioAttend — Biometric Smart Attendance System
 
-BioAttend is a B.Sc. Information Technology project that combines fingerprint-based attendance recording with a web-based attendance management system.
+BioAttend project that combines fingerprint-based attendance recording with a web-based attendance management system.
 
 ## Features
 
@@ -20,11 +20,3 @@ BioAttend is a B.Sc. Information Technology project that combines fingerprint-ba
 - HTML, CSS, and JavaScript
 - ESP32 and Arduino C++
 - R307S fingerprint sensor
-
-## Project Status
-
-Academic project developed as part of the B.Sc. Information Technology programme.
-
-## Setup
-
-Setup instructions and required hardware will be documented here.
