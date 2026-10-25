@@ -1,0 +1,320 @@
+<div id="student-reports" class="container-fluid py-4">
+  <h2 class="mb-3" style="color: rgba(255,255,255,0.95)">Reports for {{ student_name }}</h2>
+  <p class="text-muted">Detailed attendance summary and breakdown.</p>
+
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card frosted p-3 shadow-sm text-center h-100">
+        <h6 class="text-primary">Total Classes</h6>
+        <p class="fs-4 fw-bold mb-0">{{ total_classes }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card frosted p-3 shadow-sm text-center h-100">
+        <h6 class="text-success">Present</h6>
+        <p class="fs-4 fw-bold mb-0">{{ present_count }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card frosted p-3 shadow-sm text-center h-100">
+        <h6 class="text-danger">Absent</h6>
+        <p class="fs-4 fw-bold mb-0">{{ absent_count }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4" style="margin: 0 auto; float: none;">
+  <div class="card frosted p-3 shadow-sm text-center 
+              {% if total_classes > 0 and (present_count / total_classes * 100) < 75 %} border-danger {% else %} border-success {% endif %}">
+    <h6 class="text-info">Attendance %</h6>
+    <p class="fs-4 fw-bold mb-0">
+      {% if total_classes > 0 %}
+        {{ ((present_count / total_classes) * 100) | round(2) }}%
+      {% else %}
+        N/A
+      {% endif %}
+    </p>
+    {% if total_classes > 0 and (present_count / total_classes * 100) < 75 %}
+      <span class="badge bg-danger mt-2">⚠ Below 75%</span>
+    {% endif %}
+  </div>
+</div>
+
+  <hr class="my-4" />
+
+  <!-- Charts row -->
+  <div class="row gx-4 gy-4">
+    <!-- Donut -->
+    <div class="col-lg-4 d-flex">
+      <div class="card p-3 frosted shadow-sm flex-fill d-flex flex-column h-100">
+        <h6 class="mb-3">Present vs Absent</h6>
+        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+          <canvas id="attendanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly bar -->
+    <div class="col-lg-8 d-flex">
+      <div class="card p-3 frosted shadow-sm flex-fill d-flex flex-column h-100">
+        <h6 class="mb-3">Monthly Breakdown</h6>
+        <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily line -->
+    <div class="col-12">
+      <div class="card p-3 frosted shadow-sm mt-3">
+        <h6 class="mb-3">Daily (last 30 days)</h6>
+        <canvas id="dailyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-4">
+
+  <!-- Monthly table -->
+  <h5 class="mt-4" style="color: rgba(255,255,255,0.9)">Monthly Breakdown</h5>
+  {% if monthly_labels %}
+  <div class="table-responsive">
+    <div class="d-flex justify-content-end mb-2 gap-2">
+  <a href="{{ url_for('routes.export_csv', student_id=current_user.id) }}" class="btn btn-sm btn-outline-light">
+    📑 Export CSV
+  </a>
+  <a href="{{ url_for('routes.export_pdf', student_id=current_user.id) }}" class="btn btn-sm btn-outline-light">
+    🖨 Export PDF
+  </a>
+</div>
+
+    <table class="table table-dark table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Present</th>
+          <th>Absent</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in range(monthly_labels|length) %}
+        <tr>
+          <td>{{ monthly_labels[i] }}</td>
+          <td class="text-success fw-semibold">{{ monthly_present[i] }}</td>
+          <td class="text-danger fw-semibold">{{ monthly_absent[i] }}</td>
+          <td class="fw-bold">{{ monthly_total[i] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="text-muted">No monthly records available.</p>
+  {% endif %}
+</div>
+<script type="text/template" id="chart-data">
+  const presentCount   = {{ present_count|default(0)|tojson|safe }};
+  const absentCount    = {{ absent_count|default(0)|tojson|safe }};
+  const totalClasses   = {{ total_classes|default(0)|tojson|safe }};
+
+  const monthlyLabels  = {{ monthly_labels|tojson|safe }};
+  const monthlyPresent = {{ monthly_present|tojson|safe }};
+  const monthlyAbsent  = {{ monthly_absent|tojson|safe }};
+  const monthlyTotal   = {{ monthly_total|tojson|safe }};
+
+  const dailyLabels    = {{ daily_labels|tojson|safe }};
+  const dailyPresent   = {{ daily_present|tojson|safe }};
+  const dailyAbsent    = {{ daily_absent|tojson|safe }};
+  const dailyTotal     = {{ daily_total|tojson|safe }};
+</script>
+<script>
+  // data from server with safe JSON embedding
+  function __ensureChartData(){ 
+    if (window.__studentReportsDataBooted) return; 
+    const tpl = document.getElementById('chart-data'); 
+    if (!tpl) return; 
+    const code = tpl.textContent.replace(/\bconst\s+([A-Za-z0-9_]+)\s*=/g, 'window.$1 ='); 
+    try { new Function(code)(); window.__studentReportsDataBooted = true; } catch(e){ console.warn('chart-data eval failed', e); } // #new
+  } 
+
+  // visibility helper to avoid drawing while canvas has 0x0 size
+  function __whenVisible(el, fn){ 
+    if (!el) return;
+    const tick = () => { 
+      const r = el.getBoundingClientRect(); 
+      if (r.width > 0 && r.height > 0) fn(); else requestAnimationFrame(tick); 
+    }; 
+    requestAnimationFrame(tick); } 
+
+  function initReportsCharts() {
+    // avoids initializing twice
+    if (window.__reportsInitialized) return;
+    window.__reportsInitialized = true;
+
+    // ensures Chart is available
+    if (typeof Chart === 'undefined') {
+      console.warn("Chart.js not found. Please include Chart.js in base template or load it before the partial.");
+      return;
+    }
+
+    __ensureChartData(); 
+
+    // set base text color for the first render
+    const baseText = document.body.classList.contains('light-mode') ? '#0f172a' : '#e5e7eb';
+    Chart.defaults.color = baseText;
+
+    const c1 = document.getElementById('attendanceChart');
+    const c2 = document.getElementById('monthlyChart');
+    const c3 = document.getElementById('dailyChart');
+
+    // destroy stale charts when we’re re-entering the page
+    if (c1) { const ex = Chart.getChart(c1); if (ex) ex.destroy(); } 
+    if (c2) { const ex = Chart.getChart(c2); if (ex) ex.destroy(); } 
+    if (c3) { const ex = Chart.getChart(c3); if (ex) ex.destroy(); } 
+
+    // doughnut/pie
+    __whenVisible(c1, () => { 
+      const ctx1 = c1.getContext('2d');
+      new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Present', 'Absent'],
+          datasets: [{
+            data: [presentCount, absentCount],
+            backgroundColor: ['#22c55e', '#ef4444'],
+            borderWidth: 0
+          }]
+        },
+        options: { plugins: { legend: { display: true, labels: { color: '#e5e7eb' } } } }
+      });
+    }); 
+
+    // monthly bar
+    __whenVisible(c2, () => { 
+      const ctx2 = c2.getContext('2d');
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: monthlyLabels,
+          datasets: [
+            { label: 'Present', backgroundColor: '#22c55e', data: monthlyPresent },
+            { label: 'Absent',  backgroundColor: '#ef4444', data: monthlyAbsent }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#e5e7eb' } } },
+          scales: { x: { ticks: { color: '#e5e7eb' } }, y: { ticks: { color: '#e5e7eb' } } }
+        }
+      });
+    }); 
+
+    // daily line
+    __whenVisible(c3, () => { 
+      const ctx3 = c3.getContext('2d');
+      new Chart(ctx3, {
+        type: 'line',
+        data: {
+          labels: dailyLabels,
+          datasets: [
+            { label: 'Present', borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.15)', data: dailyPresent, tension: 0.2, fill: true },
+            { label: 'Absent',  borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.15)', data: dailyAbsent, tension: 0.2, fill: true }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#e5e7eb' } } },
+          scales: { x: { ticks: { color: '#e5e7eb' } }, y: { ticks: { color: '#e5e7eb' } } }
+        }
+      });
+    }); 
+  }
+
+  // safe boot that waits a tick so canvases have dimensions
+  function __safeInitReportsCharts(){ 
+    requestAnimationFrame(() => setTimeout(initReportsCharts, 120)); 
+  } 
+
+  // if Chart is present -> init immediately else waits until loaded 
+  if (typeof Chart !== 'undefined') {
+    __safeInitReportsCharts(); 
+  } else {
+    // if Chart is loaded later by adding script tag to head tries again after short delay
+    let retry = 0;
+    const waitForChart = setInterval(() => {
+      if (typeof Chart !== 'undefined') {
+        clearInterval(waitForChart);
+        __safeInitReportsCharts(); 
+      } else if (++retry > 20) {
+        clearInterval(waitForChart);
+        console.warn('Chart.js not found; charts not rendered.');
+      }
+    }, 150);
+  }
+
+  // re-init when partial is reinserted via SPA/AJAX
+  window.addEventListener('partial:student-reports:ready', __safeInitReportsCharts); 
+
+  // MutationObserver to catch sidebar navigations that replace the partial
+(function(){
+  const host = document.getElementById('main-content') || document.body;
+  const mo = new MutationObserver(() => {
+    const scope = document.getElementById('student-reports') ||
+                  document.getElementById('reports') || document;
+    const c = document.getElementById('attendanceChart');
+
+    if (c && c.getBoundingClientRect().width > 0) {
+      // allow re-initialization after partial swap
+      window.__reportsInitialized = false;
+      __safeInitReportsCharts();           
+    }
+  });
+  mo.observe(host, { childList: true, subtree: true });
+})();
+</script>
+<script>
+/* Student Reports — keep chart text readable when theme changes */
+(function syncChartTextWithTheme() {
+  function listCharts() {
+    const inst = Chart?.instances;
+    if (!inst) return [];
+    if (typeof inst.values === 'function') return Array.from(inst.values()); // Map
+    return Object.values(inst); // object fallback
+  }
+
+  function applyTextColor() {
+    const isLight = document.body.classList.contains('light-mode');
+    const color   = isLight ? '#0f172a' : '#e5e7eb';
+
+    listCharts().forEach((chart) => {
+      if (!chart?.options) return;
+
+      // Legend
+      if (chart.options.plugins?.legend?.labels) {
+        chart.options.plugins.legend.labels.color = color;
+      }
+      // Axes
+      if (chart.options.scales) {
+        if (chart.options.scales.x?.ticks) chart.options.scales.x.ticks.color = color;
+        if (chart.options.scales.y?.ticks) chart.options.scales.y.ticks.color = color;
+      }
+
+      chart.update('none'); // re-renders without animation
+    });
+  }
+  // run after this partial renders
+  window.addEventListener('load', () => setTimeout(applyTextColor, 60));
+  // when your SPA loader signals a reload of this partial
+  window.addEventListener('partial:reports:reload', () => setTimeout(applyTextColor, 60));
+  // hook into your existing theme button (id="themeToggle" in your base)
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+  // give your base script time to flip the body class
+  setTimeout(applyTextColor, 320);
+  });
+})();
+</script>
+
+
+

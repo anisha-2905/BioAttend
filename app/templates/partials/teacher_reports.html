@@ -1,0 +1,392 @@
+<!-- templates/partials/teacher_reports.html -->
+<div id="teacher-reports">
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h1 class="h4 mb-1">Attendance Reports</h1>
+      <p class="text-muted mb-0 ms-1">Filter, analyze, and export attendance records.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button id="btnExportCsv" class="btn btn-outline-primary">
+        <i class="bi bi-download me-1"></i> Export CSV
+      </button>
+      <button class="btn btn-outline-secondary" onclick="window.print()">
+        <i class="bi bi-printer me-1"></i> Print
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="td-card mb-3">
+    <form id="reportsFilter" class="row g-3 align-items-end" method="get" action="{{ url_for('routes.teacher_reports') }}">
+      <div class="col-12 col-md-3">
+        <label class="form-label small mb-1">Department</label>
+        <select class="form-select rounded-pill" name="department">
+          <option value="">All Departments</option>
+          {% for dept in departments %}
+            <option value="{{ dept }}" {{ 'selected' if request.args.get('department')==dept else '' }}>{{ dept }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">From</label>
+        <input class="form-control rounded-pill" type="date" name="from" value="{{ request.args.get('from','') }}">
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">To</label>
+        <input class="form-control rounded-pill" type="date" name="to" value="{{ request.args.get('to','') }}">
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">Status</label>
+        <select class="form-select rounded-pill" name="status">
+          <option value="">Any</option>
+          <option value="present" {{ 'selected' if request.args.get('status')=='present' else '' }}>Present</option>
+          <option value="absent"  {{ 'selected' if request.args.get('status')=='absent'  else '' }}>Absent</option>
+          <option value="unmarked" {{ 'selected' if request.args.get('status')=='unmarked' else '' }}>Unmarked</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3 d-flex gap-2" style="margin-bottom:8px;">
+        <button class="btn btn-primary flex-grow-1" type="submit">Apply</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('routes.teacher_reports') }}">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-3 kpi-row">
+    <div class="col-6 col-md-3">
+      <div class="td-card">
+        <div class="td-card-header"><h5 class="mb-0">Present</h5></div>
+        <div class="td-card-body">
+          <div class="display-6 fw-bold" style="color: var(--ta-success);">{{ kpis.present }}</div>
+          <div class="text-muted small">within range</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card">
+        <div class="td-card-header"><h5 class="mb-0">Absent</h5></div>
+        <div class="td-card-body">
+          <div class="display-6 fw-bold" style="color: var(--ta-danger);">{{ kpis.absent }}</div>
+          <div class="text-muted small">within range</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card">
+        <div class="td-card-header"><h5 class="mb-0">Unmarked</h5></div>
+        <div class="td-card-body">
+          <div class="display-6 fw-bold">{{ kpis.unmarked }}</div>
+          <div class="text-muted small">no record saved</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card">
+        <div class="td-card-header"><h5 class="mb-0">Attendance %</h5></div>
+        <div class="td-card-body">
+          <div class="display-6 fw-bold">{{ kpis.attendance_rate }}%</div>
+          <div class="text-muted small">present / (present+absent)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-3 mb-3">
+    <div class="col-lg-8">
+      <div class="td-card">
+        <div class="td-card-header d-flex align-items-center justify-content-between">
+          <h5 class="mb-0">Trend by Date</h5>
+          <span class="td-chip">Daily totals</span>
+        </div>
+        <div class="td-card-body">
+          <canvas id="reportTrend" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="td-card h-100">
+        <div class="td-card-header"><h5 class="mb-0">Distribution</h5></div>
+        <div class="td-card-body">
+          <canvas id="reportPie" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Table -->
+  <div class="td-card">
+    <div class="td-card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0">Results</h5>
+      <input id="reportSearch" class="form-control form-control-sm td-search" placeholder="Search name/roll...">
+    </div>
+    <div class="table-responsive">
+      <table class="table td-table table-hover align-middle mb-0" id="reportTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Marked At</th>
+          </tr>
+        </thead>
+        <tbody id="reportTbody">
+          {% for r in rows %}
+          <tr>
+            <td>{{ r.date }}</td>
+            <td>{{ r.roll_number }}</td>
+            <td>{{ r.full_name }}</td>
+            <td>{{ r.department }}</td>
+            <td>
+              {% if r.status == 'present' %}
+                <span class="td-badge td-badge-success">Present</span>
+              {% elif r.status == 'absent' %}
+                <span class="td-badge td-badge-danger">Absent</span>
+              {% else %}
+                <span class="td-badge td-badge-warn">Unmarked</span>
+              {% endif %}
+            </td>
+            <td>{{ r.source or '-' }}</td>
+            <td>{{ r.marked_at or '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if not rows %}
+      <div class="text-muted small p-3">No records found for your filters.</div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Data blobs (Jinja → JSON) -->
+<script id="trend-data" type="application/json">
+  {{ trend|default({'labels':[],'present':[],'absent':[]})|tojson }}
+</script>
+<script id="kpi-data" type="application/json">
+  {{ kpis|default({'present':0,'absent':0,'unmarked':0})|tojson }}
+</script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+function initReportsCharts() {
+  console.log("Initializing Teacher Reports Charts...");
+
+  // prevents overlapping initializations
+  if (window.__teacherReportsInitLock) {
+    console.log("Skipping duplicate init...");
+    return;
+  }
+  window.__teacherReportsInitLock = true;
+
+  // Wait until Chart.js and canvases exist - roubustness check
+  const ensureReady = (callback, tries = 0) => {
+    const ready =
+      typeof Chart !== "undefined" &&
+      document.getElementById("reportTrend") &&
+      document.getElementById("reportPie");
+
+    if (ready) {
+      return callback();
+    }
+
+    if (tries > 30) {
+      console.warn("Chart canvases not ready after multiple checks — aborting init.");
+      window.__teacherReportsInitLock = false;
+      return;
+    }
+
+    setTimeout(() => ensureReady(callback, tries + 1), 100);
+  };
+
+  ensureReady(() => {
+    // Utilities
+    const readJson = (id, fallback) => {
+      try {
+        const el = document.getElementById(id);
+        return el && el.textContent ? JSON.parse(el.textContent) : fallback;
+      } catch {
+        return fallback;
+      }
+    };
+
+    const rgba = (hex, a) => {
+      hex = (hex || "").replace("#", "").trim();
+      if (hex.length === 3) hex = hex.split("").map(h => h + h).join("");
+      const r = parseInt(hex.slice(0, 2), 16) || 0;
+      const g = parseInt(hex.slice(2, 4), 16) || 0;
+      const b = parseInt(hex.slice(4, 6), 16) || 0;
+      return `rgba(${r},${g},${b},${a})`;
+    };
+
+    // Read data
+    const TREND = readJson("trend-data", { labels: [], present: [], absent: [] });
+    const KPIS  = readJson("kpi-data",   { present: 0, absent: 0, unmarked: 0 });
+
+    // Colors
+    const scope = document.getElementById("teacher-reports") || document.documentElement;
+    const cs = getComputedStyle(scope);
+    const accent = (cs.getPropertyValue("--td-accent")  || "#3b82f6").trim();
+    const success= (cs.getPropertyValue("--ta-success") || "#10b981").trim();
+    const danger = (cs.getPropertyValue("--ta-danger")  || "#ef4444").trim();
+    const muted  = (cs.getPropertyValue("--td-muted")   || "#98a1b3").trim();
+
+    // Helper
+    const makeChart = (id, configFn) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const existing = Chart.getChart(el);
+      if (existing) existing.destroy();
+      const ctx = el.getContext("2d");
+      new Chart(ctx, configFn());
+    };
+
+    // Render PIE
+    makeChart("reportPie", () => ({
+      type: "doughnut",
+      data: {
+        labels: ["Present", "Absent", "Unmarked"],
+        datasets: [{
+          data: [KPIS.present, KPIS.absent, KPIS.unmarked],
+          backgroundColor: [success, danger, accent]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "65%",
+        plugins: { legend: { labels: { color: muted } } }
+      }
+    }));
+
+    // Render LINE
+    makeChart("reportTrend", () => ({
+      type: "line",
+      data: {
+        labels: TREND.labels || [],
+        datasets: [
+          {
+            label: "Present",
+            data: TREND.present || [],
+            borderColor: success,
+            backgroundColor: rgba(success, 0.15),
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 0
+          },
+          {
+            label: "Absent",
+            data: TREND.absent || [],
+            borderColor: danger,
+            backgroundColor: rgba(danger, 0.1),
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointRadius: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: muted } } },
+        scales: {
+          x: { ticks: { color: muted }, grid: { color: "rgba(148,163,184,.15)" } },
+          y: { ticks: { color: muted }, grid: { color: "rgba(148,163,184,.15)" }, beginAtZero: true }
+        }
+      }
+    }));
+
+    console.log("Charts Rendered");
+    setTimeout(() => (window.__teacherReportsInitLock = false), 500); // release lock for future reloads
+  });
+}
+
+initReportsCharts(); // runs immediately on first load 
+</script>
+<script>
+/* Initialize teacher reports filters & chart refresh. Runs once initially, and reattaches itself after partial reload */
+function initTeacherReportsFilters() {
+  const form = document.getElementById("reportsFilter");
+  const resetBtn = form?.querySelector("a[href*='teacher/reports']");
+  const mainContent = document.getElementById("main-content");
+
+  if (!form || !mainContent) {
+    console.warn("teacher_reports: form not found yet, retrying...");
+    setTimeout(initTeacherReportsFilters, 200);
+    return;
+  }
+
+  // Prevent double-binding
+  if (form.dataset.bound === "1") return;
+  form.dataset.bound = "1";
+
+  console.log("teacher_reports filters ready");
+
+  function loadPartial(url) {
+    fetch(url)
+      .then(res => res.text())
+      .then(html => {
+        mainContent.innerHTML = html;
+
+        // re-run chart setup + filters again
+        if (typeof initReportsCharts === "function") {
+          initReportsCharts();
+        }
+        initTeacherReportsFilters(); // rebind events again
+      })
+      .catch(err => {
+        console.error("Error loading reports partial:", err);
+        alert("Failed to refresh reports.");
+      });
+  }
+
+  // Apply AJAX
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const params = new URLSearchParams(new FormData(form)).toString();
+    loadPartial(`/teacher/reports?${params}`);
+  });
+
+  // Reset AJAX
+  if (resetBtn) {
+    resetBtn.addEventListener("click", e => {
+      e.preventDefault();
+      loadPartial(resetBtn.getAttribute("href"));
+    });
+  }
+}
+
+// Run once when partial loads
+setTimeout(initTeacherReportsFilters, 200);
+</script>
+<script>
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest("#btnExportCsv");
+  if (!btn) return;
+
+  // grab current filters
+  const form = document.getElementById("reportsFilter");
+  const params = new URLSearchParams(new FormData(form)).toString();
+
+  // trigger file download
+  const url = `/teacher/reports/export?${params}`;
+  console.log("Exporting CSV:", url);
+  window.location.href = url;
+});
+</script>
+
+
+
+
+
+
+
+

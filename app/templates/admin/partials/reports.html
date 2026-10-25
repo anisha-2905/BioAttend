@@ -1,0 +1,386 @@
+<div id="admin-reports" class="container-fluid">
+
+  <!-- Section context -->
+  <small class="section-chip">Admin • Reports</small>
+  <h1 class="page-title h4 mt-1 mb-3">Attendance Reports</h1>
+  <p class="text-muted mb-3">Analyze attendance across teachers, students, and departments.</p>
+
+  {# KPI ROW (safe defaults) #}
+  {% set _k = kpis or {} %}
+  <div class="row kpi-row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Total Records</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ _k.total_records or 0 }}</span>
+          <small class="kpi-subtle">in selected range</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Avg Attendance</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ (_k.avg_rate or 0) }}%</span>
+          <small class="kpi-subtle">overall rate</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Top Dept</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ _k.top_department or '-' }}</span>
+          <small class="kpi-subtle">highest attendance</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Lowest Dept</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ _k.low_department or '-' }}</span>
+          <small class="kpi-subtle">needs attention</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  {#FILTERS#}
+  <div class="td-card filters-card mb-3">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Filters</h5>
+      <span class="td-chip">Refine scope</span>
+    </div>
+    <div class="td-card-body">
+      <form id="adminReportsFilter" class="row g-3 align-items-end">
+        <div class="col-6 col-md-3">
+          <label class="form-label small mb-1">From</label>
+          <input type="date" class="form-control rounded-pill" name="from"
+                 value="{{ request.args.get('from','') if request else '' }}">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label small mb-1">To</label>
+          <input type="date" class="form-control rounded-pill" name="to"
+                 value="{{ request.args.get('to','') if request else '' }}">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Department</label>
+          {% set _depts = departments or [] %}
+          <select class="form-select rounded-pill" name="department">
+            <option value="">All</option>
+            {% for d in _depts %}
+              {% set _sel = 'selected' if request and request.args.get('department')==d else '' %}
+              <option value="{{ d }}" {{ _sel }}>{{ d }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Teacher</label>
+          {% set _teachers = teachers or [] %}
+          <select class="form-select rounded-pill" name="teacher_id">
+            <option value="">All</option>
+            {% for t in _teachers %}
+              {% set _sel = 'selected' if request and request.args.get('teacher_id')==t.id|string else '' %}
+              <option value="{{ t.id }}" {{ _sel }}>{{ t.full_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Status</label>
+          {% set _st = request.args.get('status') if request else '' %}
+          <select class="form-select rounded-pill" name="status">
+            <option value="" {{ 'selected' if _st=='' else '' }}>All</option>
+            <option value="present" {{ 'selected' if _st=='present' else '' }}>Present</option>
+            <option value="absent"  {{ 'selected' if _st=='absent'  else '' }}>Absent</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-4 d-flex gap-2 flex-wrap justify-content-end">
+          <input type="text" class="form-control rounded-pill td-search" name="q" placeholder="Search student/roll"
+                 value="{{ request.args.get('q','') if request else '' }}" style="max-width:220px;">
+          <button class="btn btn-primary" type="submit">Apply</button>
+          <button class="btn btn-outline-secondary" type="button" id="adminReportsReset">Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# CHARTS #}
+  <div class="row g-3 mb-3">
+    <div class="col-lg-8">
+      <div class="td-card">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Trend</h5>
+          <span class="td-chip">Daily totals</span>
+        </div>
+        <div class="td-card-body">
+          <canvas id="adminReportTrend" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="td-card">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Distribution</h5>
+          <span class="td-chip">Present vs Absent</span>
+        </div>
+        <div class="td-card-body">
+          <canvas id="adminReportPie" height="160"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# TABLE & EXPORT #}
+  <div class="td-card">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Detailed Records</h5>
+      <div class="d-flex gap-2">
+        <button id="btnAdminReportsExport" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-download me-1"></i> Export Visible CSV
+        </button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table td-table table-hover align-middle mb-0" id="adminReportsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Student</th>
+            <th>Roll No</th>
+            <th>Department</th>
+            <th>Teacher</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Marked At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set _rows = rows or [] %}
+          {% for r in _rows %}
+          <tr>
+            <td>{{ r.date or '-' }}</td>
+            <td>{{ r.full_name or r.student_name or '-' }}</td>
+            <td>{{ r.roll_number or '-' }}</td>
+            <td>{{ r.department or '-' }}</td>
+            <td>{{ r.teacher_name or '-' }}</td>
+            <td>
+              {% if r.status == 'present' %}
+                <span class="td-badge td-badge-success">Present</span>
+              {% elif r.status == 'absent' %}
+                <span class="td-badge td-badge-danger">Absent</span>
+              {% else %}
+                <span class="td-badge td-badge-warn">{{ r.status or '—' }}</span>
+              {% endif %}
+            </td>
+            <td>{{ r.source or '-' }}</td>
+            <td>{{ r.marked_at or '-' }}</td>
+          </tr>
+          {% endfor %}
+          {% if not _rows %}
+          <tr><td colspan="8" class="text-muted text-center py-4">No records for the selected criteria.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    {# Optional pagination hook 
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">Showing {{ _rows|length }} records</small>
+    </div> #}
+  </div>
+
+  {# DATA TAGS (safe defaults) #}
+  {% set _trend = trend or {'labels': [], 'present': [], 'absent': []} %}
+  <script type="application/json" id="admin-trend-data">{{ _trend|tojson }}</script>
+  <script type="application/json" id="admin-kpi-data">{{ _k|tojson }}</script>
+</div>
+<script>
+(function () {
+  if (window.__adminReportsBound) return;
+  window.__adminReportsBound = true;
+
+  const scope = document.getElementById("admin-reports");
+  const mainContent = document.getElementById("main-content");
+
+  function readTag(id, fallback) {
+    try {
+      const el = document.getElementById(id);
+      return el && el.textContent ? JSON.parse(el.textContent) : fallback;
+    } catch { return fallback; }
+  }
+
+  function whenVisible(el, fn) {
+    if (!el) return;
+    const tick = () => {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) fn();
+      else requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  function buildCharts() {
+    if (typeof Chart === "undefined") return;
+    const TREND = readTag("admin-trend-data", { labels: [], present: [], absent: [] });
+    const trendCanvas = document.getElementById("adminReportTrend");
+    const pieCanvas   = document.getElementById("adminReportPie");
+    if (!trendCanvas || !pieCanvas) return;
+
+    whenVisible(trendCanvas, () => {
+      const ex1 = Chart.getChart(trendCanvas); if (ex1) ex1.destroy();
+      const ex2 = Chart.getChart(pieCanvas);   if (ex2) ex2.destroy();
+
+      const cs      = getComputedStyle(scope);
+      const success = (cs.getPropertyValue("--td-accent-2") || "#10b981").trim();
+      const danger  = (cs.getPropertyValue("--td-danger")   || "#ef4444").trim();
+      const accent  = (cs.getPropertyValue("--td-accent")   || "#3b82f6").trim();
+      const muted   = (cs.getPropertyValue("--td-muted")    || "#98a1b3").trim();
+
+      const labels  = Array.isArray(TREND.labels)  && TREND.labels.length  ? TREND.labels  : ["No data"];
+      const present = Array.isArray(TREND.present) && TREND.present.length ? TREND.present : [0];
+      const absent  = Array.isArray(TREND.absent)  && TREND.absent.length  ? TREND.absent  : [0];
+
+      function rgba(hex, a) {
+        hex = (hex || "").replace("#","").trim();
+        if (hex.length === 3) hex = hex.split("").map(h => h+h).join("");
+        const r = parseInt(hex.slice(0,2),16)||0, g = parseInt(hex.slice(2,4),16)||0, b = parseInt(hex.slice(4,6),16)||0;
+        return `rgba(${r},${g},${b},${a})`;
+      }
+
+      new Chart(trendCanvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            { label: "Present", data: present, borderColor: success, backgroundColor: rgba(success,.18), fill: true, tension: .35, pointRadius: 0, borderWidth: 2 },
+            { label: "Absent",  data: absent,  borderColor: danger,  backgroundColor: rgba(danger,.12),  fill: true, tension: .35, pointRadius: 0, borderWidth: 2 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: muted } } },
+          scales: {
+            x: { ticks: { color: muted }, grid: { color: "rgba(148,163,184,.15)" } },
+            y: { ticks: { color: muted }, grid: { color: "rgba(148,163,184,.15)" }, beginAtZero: true }
+          }
+        }
+      });
+
+      const presentSum = present.reduce((a,b)=>a+(+b||0),0);
+      const absentSum  = absent.reduce((a,b)=>a+(+b||0),0);
+      new Chart(pieCanvas.getContext("2d"), {
+        type: "doughnut",
+        data: {
+          labels: ["Present", "Absent"],
+          datasets: [{ data: [presentSum, absentSum], backgroundColor: [success, danger] }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: "60%",
+          plugins: { legend: { labels: { color: muted } } }
+        }
+      });
+    });
+  }
+
+  function safeBuildCharts() {
+    requestAnimationFrame(() => setTimeout(buildCharts, 150));
+  }
+
+  // AJAX partial reload helper 
+  function reloadWithParams(params) {
+    const base = new URL("{{ url_for('routes.admin_reports_partial') }}", window.location.origin);
+    if (params) {
+      Object.entries(params).forEach(([k,v]) => {
+        if (v !== undefined && v !== null) base.searchParams.set(k, v);
+      });
+    }
+    base.searchParams.set("_", Date.now());
+    return fetch(base.toString(), { cache: "no-store" })
+      .then(r => r.text())
+      .then(html => {
+        if (mainContent) mainContent.innerHTML = html;
+        window.dispatchEvent(new CustomEvent("partial:admin-reports:ready"));
+      })
+      .catch(err => console.error("Failed to reload reports:", err));
+  }
+
+  // expose reload globally to persist between partial loads
+  window.__adminReportsReload = reloadWithParams;
+
+  // Delegated filter submit to work after reload
+  document.addEventListener("submit", (e) => {
+    const form = e.target.closest("#adminReportsFilter");
+    if (!form) return;
+    e.preventDefault();
+    const fd = new FormData(form);
+    window.__adminReportsReload(Object.fromEntries(fd.entries()));
+  });
+
+  // Delegated reset it works after reload
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#adminReportsReset");
+    if (!btn) return;
+    e.preventDefault();
+    const form = document.getElementById("adminReportsFilter");
+    if (form) form.reset();
+    const base = new URL("{{ url_for('routes.admin_reports_partial') }}", window.location.origin);
+    base.searchParams.set("reset", "1");
+    base.searchParams.set("_", Date.now());
+    fetch(base.toString(), { cache: "no-store" })
+      .then(r => r.text())
+      .then(html => {
+        if (mainContent) mainContent.innerHTML = html;
+        const clean = new URL(window.location.href);
+        clean.search = "";
+        history.replaceState({}, "", clean.toString());
+        window.dispatchEvent(new CustomEvent("partial:admin-reports:ready"));
+      })
+      .catch(err => console.error("Reset failed:", err));
+  });
+
+  // CSV Export
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("#btnAdminReportsExport");
+    if (!btn) return;
+    const rows = [...document.querySelectorAll("#adminReportsTable tbody tr")];
+    if (!rows.length) return alert("No rows to export.");
+    let csv = "Date,Student,Roll No,Department,Teacher,Status,Source,Marked At\n";
+    rows.forEach(tr => {
+      const cols = [...tr.children].map(td => {
+        const text = td.innerText.trim().replace(/\s+/g," ");
+        return /[\",]/.test(text) ? `"${text.replace(/"/g,'""')}"` : text;
+      });
+      csv += cols.join(",") + "\n";
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "admin_attendance_report.csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Init & reinit logic
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", safeBuildCharts);
+  } else {
+    safeBuildCharts();
+  }
+  window.addEventListener("load", safeBuildCharts);
+  window.addEventListener("partial:admin-reports:ready", safeBuildCharts);
+
+  // Observer for reinserted partial
+  const host = document.getElementById("main-content") || document.body;
+  const mo = new MutationObserver(() => {
+    const scopeNow = document.getElementById("admin-reports");
+    const trend = document.getElementById("adminReportTrend");
+    if (scopeNow && trend && trend.getBoundingClientRect().width > 0) safeBuildCharts();
+  });
+  mo.observe(host, { childList: true, subtree: true });
+})();
+</script>
+
+
+

@@ -1,0 +1,249 @@
+<div id="profile-page">
+  <!-- Header: avatar , name & role -->
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <img src="{{ profile.avatar_url or url_for('static', filename='img/profile.png') }}" alt="Avatar">
+      <span class="role-badge role-{{ profile.role_code }}">{{ display_role }}</span>
+    </div>
+
+    <h3 class="profile-name mb-0" id="profileName">{{ profile.name }}</h3>
+    <p class="profile-email small mb-0">{{ profile.email }}</p>
+  </div>
+
+  <!-- Overview -->
+  <div class="td-card mb-4">
+    <div class="td-card-header">
+      <h5 class="mb-0">Overview</h5>
+      <span class="text-muted small">Account Summary</span>
+    </div>
+    <div class="td-card-body">
+      <div class="overview-item">
+        <span>Role</span>
+        <strong>{{ display_role }}</strong>
+      </div>
+      <div class="overview-item">
+       <span>Name</span>
+       <strong id="ovName">{{ profile.name }}</strong>
+      </div>
+      <div class="overview-item">
+        <span>Department</span>
+        <strong id="ovDepartment">{{ profile.department or '-' }}</strong>
+      </div>
+      {% if profile.roll_no %}
+      <div class="overview-item">
+        <span>Roll No</span>
+        <strong>{{ profile.roll_no }}</strong>
+      </div>
+      {% endif %}
+      <div class="overview-item">
+        <span>Created At</span>
+        <strong>{{ profile.created_at.strftime('%d %b %Y') if profile.created_at else '-' }}</strong>
+      </div>
+      <div class="overview-item">
+        <span>Last Login</span>
+        <strong>{{ profile.last_login_at.strftime('%d %b %Y, %H:%M') if profile.last_login_at else 'Never' }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin -> Edit basic info -->
+  {% if can_edit_basic %}
+  <div class="td-card mb-4">
+    <div class="td-card-header">
+      <h5 class="mb-0">Edit Basic Info</h5>
+      <span class="text-muted small">Admin-level access</span>
+    </div>
+    <div class="td-card-body">
+      <form id="profileBasicForm">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small mb-1">Full Name</label>
+            <input class="form-control rounded-pill" type="text" name="name" value="{{ profile.name }}" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small mb-1">Email</label>
+            <input class="form-control rounded-pill" type="email" name="email" value="{{ profile.email }}" required disabled>
+            <div class="form-text">Email is shown for reference.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small mb-1">Department</label>
+            <input class="form-control rounded-pill" type="text" name="department" value="{{ profile.department or '' }}">
+          </div>
+        </div>
+        <div class="mt-4 d-flex justify-content-end gap-2">
+          <button class="btn btn-primary px-3" type="submit" id="btnSaveBasic">
+            <i class="bi bi-save me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Password -->
+  {% if can_self_change_password %}
+  <div class="td-card mb-4">
+    <div class="td-card-header">
+      <h5 class="mb-0">Change Password</h5>
+      <span class="text-muted small">Secure your account</span>
+    </div>
+    <div class="td-card-body">
+      <form id="profilePasswordForm">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small mb-1">Current Password</label>
+            <input class="form-control rounded-pill" type="password" name="old_password" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small mb-1">New Password</label>
+            <input class="form-control rounded-pill" type="password" name="new_password" minlength="8" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small mb-1">Confirm Password</label>
+            <input class="form-control rounded-pill" type="password" name="confirm_password" minlength="8" required>
+          </div>
+        </div>
+        <div class="mt-4 d-flex justify-content-end gap-2">
+          <button class="btn btn-danger px-3" type="submit" id="btnSavePwd">
+            <i class="bi bi-lock-fill me-1"></i> Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <!-- Students/Teachers may request a reset  -->
+  <div class="td-card mb-4">
+    <div class="td-card-header">
+      <h5 class="mb-0">Password</h5>
+      <span class="text-muted small">Managed by administrator</span>
+    </div>
+    <div class="td-card-body">
+      <p class="text-muted mb-3">If you need a password change, you can request one below.</p>
+      <button class="btn btn-outline-primary" id="btnRequestReset">
+        <i class="bi bi-envelope me-1"></i> Request Password Reset
+      </button>
+      <small class="text-muted d-block mt-2">An administrator will assist you.</small>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="soft-divider"></div>
+
+  <div class="td-card text-center py-3">
+    <small class="text-muted">
+      BioAttend — Unified Biometric Attendance System<br>
+      <span class="opacity-75">Profile portal for {{ display_role }}</span>
+    </small>
+  </div>
+</div>
+<script>
+(function () {
+  const root = document.getElementById("profile-page");
+  if (!root) return;
+
+  // Helper toast
+  function toast(msg, type="success") {
+    const el = document.createElement("div");
+    el.className = "alert alert-" + (type === "error" ? "danger" : "success") + " position-fixed";
+    el.style.right = "16px"; el.style.bottom = "16px"; el.style.zIndex = 1060;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1800);
+  }
+
+  // Basic info save
+const basicForm = document.getElementById("profileBasicForm");
+if (basicForm) {
+  basicForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(basicForm);
+    const btn = document.getElementById("btnSaveBasic");
+    btn.disabled = true;
+
+    try {
+      const res = await fetch("{{ url_for('routes.profile_update_basic') }}", {
+        method: "POST",
+        body: fd
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.msg || "Update failed");
+
+      // values user submitted
+      const newName = (fd.get("name") || "").trim();
+      const newDept = (fd.get("department") || "").trim();
+
+      // Update topbar display name instantly
+      const profileBtn = document.querySelector(".profile-btn");
+      if (profileBtn && newName) {
+        const img = profileBtn.querySelector("img");
+        profileBtn.innerHTML = "";
+        if (img) profileBtn.appendChild(img); // keeps avatar
+        profileBtn.append(" " + newName);
+      }
+
+      // Update Profile header name
+      const profileName = document.getElementById("profileName");
+      if (profileName && newName) profileName.textContent = newName;
+
+      // Update Overview values : Name / Department
+      const ovName = document.getElementById("ovName");
+      if (ovName && newName) ovName.textContent = newName;
+
+      const ovDept = document.getElementById("ovDepartment");
+      if (ovDept && newDept) ovDept.textContent = newDept;
+
+      toast("Profile updated");
+    } catch (err) {
+      toast(err.message || "Update failed", "error");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+  // Password change
+  const pwdForm = document.getElementById("profilePasswordForm");
+  if (pwdForm) {
+    pwdForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(pwdForm);
+      const btn = document.getElementById("btnSavePwd");
+      btn.disabled = true;
+
+      try {
+        const res = await fetch("{{ url_for('routes.profile_change_password') }}", {
+          method: "POST",
+          body: fd
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.msg || "Password change failed");
+        toast("Password updated");
+        pwdForm.reset();
+      } catch (err) {
+        toast(err.message || "Password change failed", "error");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // Request reset (students/teachers)
+  const reqBtn = document.getElementById("btnRequestReset");
+  if (reqBtn) {
+    reqBtn.addEventListener("click", async () => {
+      reqBtn.disabled = true;
+      try {
+        const res = await fetch("{{ url_for('routes.profile_request_reset') }}", { method: "POST" });
+        const data = await res.json();
+        if (!data.ok) throw new Error("Request failed");
+        toast("Request sent");
+      } catch {
+        toast("Request failed", "error");
+      } finally {
+        reqBtn.disabled = false;
+      }
+    });
+  }
+})();
+</script>

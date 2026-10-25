@@ -1,0 +1,261 @@
+{# ============================
+   Student Performance
+   Expected context (all optional; safe defaults used):
+   - student_name: str
+   - avg_attendance_percent: float (0..100)
+   - avg_marks_percent: float (0..100)
+   - class_rank: int
+   - class_size: int
+   - performance_trend_labels: [str]            e.g., ["Unit 1","Unit 2","Mid","Unit 3","Final"]
+   - performance_trend_values: [number]         e.g., [72, 78, 81, 84, 88]
+   - subjects: [str]                            e.g., ["Math","CS","Physics","Chem","English"]
+   - subject_scores: [number]                   e.g., [85, 91, 78, 88, 82]
+   - subject_out_of: [number]                   e.g., [100,100,100,100,100]
+   - recent_assessments: [
+       {date: date/datetime/str, name: str, subject: str, score: number, out_of: number, status: "pass"/"fail"/"pending"}
+     ]
+   ============================ #}
+
+<div id="student-performance" class="py-4" style="max-width:1230px;margin:0 auto;padding-left:10px;padding-right:10px;">
+  <h2 class="mb-2" style="color: rgba(255,255,255,0.95)">Performance Overview</h2>
+  <p class="text-muted">Hi {{ student_name or "Student" }}, here’s a quick look at your progress.</p>
+
+  <!-- KPI Row -->
+  <div class="row g-3 kpi-row">
+    <div class="col-12 col-md-3">
+      <div class="card frosted p-3 td-card h-100">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Attendance</h5>
+          <span class="td-chip">Target ≥ 75%</span>
+        </div>
+        <div class="td-card-body text-center">
+          <div class="display-6 mb-1">
+            {{ (avg_attendance_percent|default(0))|round(1) }}%
+          </div>
+          {% set att_ok = (avg_attendance_percent|default(0)) >= 75 %}
+          <span class="td-badge {{ 'td-badge-success' if att_ok else 'td-badge-danger' }}">
+            {{ 'On Track' if att_ok else 'Below Target' }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card frosted p-3 td-card h-100">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Average Marks</h5>
+          <span class="td-chip">Latest term</span>
+        </div>
+        <div class="td-card-body text-center">
+          <div class="display-6 mb-1">
+            {{ (avg_marks_percent|default(0))|round(1) }}%
+          </div>
+          <span class="td-badge {{ 'td-badge-success' if (avg_marks_percent|default(0))>=60 else 'td-badge-warn' }}">
+            {{ 'Good' if (avg_marks_percent|default(0))>=60 else 'Needs Work' }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card frosted p-3 td-card h-100">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Class Rank</h5>
+          <span class="td-chip">Relative</span>
+        </div>
+        <div class="td-card-body text-center">
+          <div class="display-6 mb-1">
+            {{ class_rank or '-' }}<small class="text-muted">/{{ class_size or '-' }}</small>
+          </div>
+          <span class="td-badge td-badge-warn">Keep improving</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-3">
+      <div class="card frosted p-3 td-card h-100">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Consistency</h5>
+          <span class="td-chip">Trend</span>
+        </div>
+        <div class="td-card-body">
+          <!-- tiny sparkline placeholder via CSS bar -->
+          {% set latest = (performance_trend_values|default([]))[-1] if performance_trend_values and performance_trend_values|length>0 else 0 %}
+          <div class="attendance-progress" style="height: 12px;">
+            <div class="present" style="width: '{{ (latest or 0)|float }}%';"></div>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <small class="text-muted">Last score</small>
+            <small class="fw-semibold">{{ (latest or 0)|round(1) }}%</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="soft-divider my-4"/>
+
+  <!-- Charts Row -->
+  <div class="row g-3">
+    <div class="col-12 col-lg-6 d-flex">
+      <div class="card frosted p-3 td-card w-100 d-flex flex-column">
+        <div class="td-card-header">
+          <h5 class="mb-0">Performance Trend</h5>
+        </div>
+        <div class="td-card-body flex-grow-1">
+          <canvas id="perfTrend" style="max-width:100%;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6 d-flex">
+      <div class="card frosted p-3 td-card w-100 d-flex flex-column">
+        <div class="td-card-header">
+          <h5 class="mb-0">Subject-wise Scores</h5>
+        </div>
+        <div class="td-card-body flex-grow-1">
+          <canvas id="subjectBars" style="max-width:100%;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="soft-divider my-4"/>
+
+<!-- Recent Assessments Table -->
+<div class="row g-3">
+  <div class="col-12">
+  <div class="card frosted p-0 td-card table-card">
+    <div class="td-card-header d-flex align-items-center justify-content-between px-3">
+      <h5 class="mb-0">Recent Assessments</h5>
+      <input class="form-control td-search" placeholder="Search…" oninput="
+        const q=this.value.toLowerCase();
+        document.querySelectorAll('#assessTable tbody tr').forEach(tr=>{
+          tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+      ">
+    </div>
+    <div class="table-responsive">
+      <table id="assessTable" class="table table-dark table-hover td-table mb-0">
+        <thead>
+          <tr>
+            <th style="min-width: 120px;">Date</th>
+            <th>Assessment</th>
+            <th>Subject</th>
+            <th>Score</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if recent_assessments and recent_assessments|length %}
+            {% for r in recent_assessments %}
+              <tr>
+                <td>
+                  {% if r.date.strftime is defined %}
+                    {{ r.date.strftime('%Y-%m-%d') }}
+                  {% else %}
+                    {{ r.date or '-' }}
+                  {% endif %}
+                </td>
+                <td class="fw-semibold">{{ r.name or '-' }}</td>
+                <td>{{ r.subject or '-' }}</td>
+                <td>
+                  {{ (r.score or 0)|round(1) }} / {{ (r.out_of or 100)|round(0) }}
+                </td>
+                <td>
+                  {% set st = (r.status or 'pending')|lower %}
+                  {% if st == 'pass' %}
+                    <span class="td-badge td-badge-success">Pass</span>
+                  {% elif st == 'fail' %}
+                    <span class="td-badge td-badge-danger">Fail</span>
+                  {% else %}
+                    <span class="td-badge td-badge-warn">Pending</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">No assessments available.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </div>
+  </div>
+</div>
+
+<!-- Data bridge *safe JSON -->
+<script id="perf-data" type="application/json">
+{{ {
+  "labels": performance_trend_labels|default([]),
+  "values": performance_trend_values|default([]),
+  "slabels": subjects|default([]),
+  "sscores": subject_scores|default([])
+}|tojson|safe }}
+</script>
+<script>
+/* Build function made idempotent that is Returns true if built, false otherwise. */
+window.__buildStudentPerf = function () {
+  const t = document.getElementById('perfTrend');
+  const s = document.getElementById('subjectBars');
+  if (!t || !s || typeof Chart === 'undefined') return false;
+
+  // Parse JSON data
+  let data = {labels:[], values:[], slabels:[], sscores:[]};
+  try {
+    const blob = document.getElementById('perf-data');
+    if (blob && blob.textContent) data = JSON.parse(blob.textContent) || data;
+  } catch {}
+
+  // Destroy old charts if they exist (idempotent)
+  const kill = (cv) => { const c = Chart.getChart(cv); if (c) c.destroy(); };
+  kill(t); kill(s);
+
+  // Trend line
+  new Chart(t.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        label: 'Score %',
+        data: data.values,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.15)',
+        tension: 0.25,
+        fill: true,
+        pointRadius: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#e5e7eb' } } },
+      scales: {
+        x: { ticks: { color: '#e5e7eb' } },
+        y: { ticks: { color: '#e5e7eb' }, suggestedMin: 0, suggestedMax: 100 }
+      }
+    }
+  });
+
+  // Subjects bar
+  new Chart(s.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: data.slabels,
+      datasets: [{ label: 'Score %', data: data.sscores, backgroundColor: '#10b981' }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#e5e7eb' } } },
+      scales: {
+        x: { ticks: { color: '#e5e7eb' } },
+        y: { ticks: { color: '#e5e7eb' }, suggestedMin: 0, suggestedMax: 100 }
+      }
+    }
+  });
+
+  return true;
+};
+</script>
+

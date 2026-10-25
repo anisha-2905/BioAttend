@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block content %}
+<div class="dashboard-container d-flex">
+
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar p-3">
+    <h4 class="text-white mb-4 d-flex align-items-center justify-content-between">
+      <span><i class="bi bi-fingerprint me-2"></i>BioAttend</span>
+      <button id="toggleSidebar" class="btn btn-sm btn-outline-light">
+        <i class="bi bi-list"></i>
+      </button>
+    </h4>
+    <ul class="nav flex-column">
+      {% if role == "student" %}
+      <!-- Student Sidebar -->
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('routes.dashboard') }}#home" data-url="{{ url_for('routes.student_home_partial') }}" class="nav-link text-white nav-link-load">
+          <i class="bi bi-house-door me-2"></i>Home
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('routes.dashboard') }}#attendance" data-url="{{ url_for('routes.student_attendance_partial') }}" class="nav-link text-white nav-link-load">
+          <i class="bi bi-calendar-check me-2"></i>Attendance
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('routes.dashboard') }}#Performance" data-url="{{ url_for('routes.student_performance_partial') }}" class="nav-link text-white nav-link-load">
+          <i class="bi bi-graph-up me-2"></i>Performance
+        </a>
+      </li>
+      <li class="nav-item mb-2">
+        <a href="{{ url_for('routes.dashboard') }}#reports" data-url="{{ url_for('routes.student_reports_partial') }}" class="nav-link text-white nav-link-load">
+          <i class="bi bi-bar-chart-line me-2"></i>Reports
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url_for('routes.logout') }}" class="nav-link text-white">
+          <i class="bi bi-box-arrow-right me-2"></i>Logout
+        </a>
+      </li>
+      {% elif role == "teacher" %}
+    <!-- Teacher Sidebar -->
+    <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.dashboard') }}#home" data-url="{{ url_for('routes.teacher_home_partial') }}" class="nav-link text-white nav-link-load">
+      <i class="bi bi-house-door me-2"></i>Home
+    </a>
+    </li>
+    <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.dashboard') }}#manage-students" data-url="{{ url_for('routes.teacher_students_partial') }}" class="nav-link text-white nav-link-load">
+      <i class="bi bi-people me-2"></i>Manage Students
+    </a>
+    </li>
+    <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.dashboard') }}#attendance" data-url="{{ url_for('routes.teacher_attendance_partial') }}" class="nav-link text-white nav-link-load">
+      <i class="bi bi-calendar-check me-2"></i>Attendance
+    </a>
+    </li>
+          <li class="nav-item mb-2">
+        <a href="{{ url_for('routes.dashboard') }}#reports" data-url="{{ url_for('routes.teacher_reports') }}" class="nav-link text-white nav-link-load">
+          <i class="bi bi-bar-chart-line me-2"></i>Reports
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+          <a href="{{ url_for('routes.logout') }}" class="nav-link text-white">
+          <i class="bi bi-box-arrow-right me-2"></i>Logout
+        </a>
+    </li>
+    {% elif role == "admin" %}
+  <!-- Admin Sidebar -->
+  <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.admin_dashboard') }}#home"
+       data-url="{{ url_for('routes.admin_home_partial') }}"
+       class="nav-link text-white nav-link-load">
+      <i class="bi bi-speedometer2 me-2"></i>Dashboard
+    </a>
+  </li>
+
+  <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.admin_dashboard') }}#teachers"
+       data-url="{{ url_for('routes.admin_teachers_partial') }}"
+       class="nav-link text-white nav-link-load">
+      <i class="bi bi-person-badge me-2"></i>Manage Teachers
+    </a>
+  </li>
+
+  <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.admin_dashboard') }}#students"
+       data-url="{{ url_for('routes.admin_students_partial') }}"
+       class="nav-link text-white nav-link-load">
+      <i class="bi bi-people me-2"></i>Manage Students
+    </a>
+  </li>
+
+  <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.admin_dashboard') }}#reports"
+       data-url="{{ url_for('routes.admin_reports_partial') }}"
+       class="nav-link text-white nav-link-load">
+      <i class="bi bi-bar-chart-line me-2"></i>Attendance Reports
+    </a>
+  </li>
+
+  <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.admin_dashboard') }}#biologs"
+       data-url="{{ url_for('routes.admin_bio_logs_partial') }}"
+       class="nav-link text-white nav-link-load">
+      <i class="bi bi-cpu me-2"></i>Biometric Logs
+    </a>
+  </li>
+
+  <li class="nav-item mb-2">
+    <a href="{{ url_for('routes.admin_dashboard') }}#settings"
+       data-url="{{ url_for('routes.admin_settings_partial') }}"
+       class="nav-link text-white nav-link-load">
+      <i class="bi bi-gear me-2"></i>System Settings
+    </a>
+  </li>
+
+  <li class="nav-item mt-3">
+    <a href="{{ url_for('routes.admin_logout') }}" class="nav-link text-white">
+      <i class="bi bi-box-arrow-right me-2"></i>Logout
+    </a>
+  </li>
+       {% endif %}
+    </ul>
+  </div>
+
+  <!-- Ghost toggle only when sidebar is collapsed -->
+<button id="sidebarGhostToggle"
+        class="btn btn-dark btn-sm"
+        aria-label="Open sidebar"
+        style="display:none">
+  <i class="bi bi-list"></i>
+</button>
+
+  <!-- Main Content -->
+  <div class="content flex-grow-1 p-4">
+  <!-- Top Navbar -->
+<nav>
+<div class="dashboard-topbar">
+  <div class="title">Dashboard</div>
+     <div class="d-flex align-items-center gap-3">
+  <!-- Dark/Light Mode Toggle -->
+<button id="themeToggle" class="btn btn-outline-light theme-toggle-btn" title="Toggle dark/light mode">
+  <i class="bi bi-moon-fill"></i>
+</button>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtn = document.getElementById("themeToggle");
+    const body = document.body;
+    const mainContent = document.getElementById("main-content");
+
+// Helper: Load partials
+function loadContent(url) {
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            mainContent.innerHTML = html;
+            window.dispatchEvent(new Event("partial:reports:reload"));
+            window.dispatchEvent(new Event("partial:admin-home:ready"));
+
+            // Re-run inline & external scripts from partial safely
+            mainContent.querySelectorAll("script").forEach((oldScript) => {
+                const newScript = document.createElement("script");
+
+                if (oldScript.src) {
+                    // skip Chart.js duplicate reloads
+                    if (oldScript.src.includes("chart.js") && typeof Chart !== "undefined") return;
+                    newScript.src = oldScript.src;
+                    newScript.async = false;
+                    document.body.appendChild(newScript);
+                } else {
+                    // handle inline scripts
+                    newScript.textContent = oldScript.textContent;
+                    document.body.appendChild(newScript);
+                }
+            });
+
+            // Deterministic fallback achieved rebuild charts if teacher_reports is present
+            if (mainContent.querySelector("#teacher-reports")) {
+                const waitForCharts = (tries = 0) => {
+                    const trendCanvas = document.getElementById("reportTrend");
+                    const pieCanvas   = document.getElementById("reportPie");
+                    const hasCanvases = trendCanvas && pieCanvas;
+                    const hasChartJS  = typeof Chart !== "undefined";
+
+                    if (hasCanvases && hasChartJS) {
+                        // reads Jinja JSON blobs
+                        const read = (id, fb) => {
+                            try {
+                                const el = document.getElementById(id);
+                                return el && el.textContent ? JSON.parse(el.textContent) : fb;
+                            } catch { return fb; }
+                        };
+                        const TREND = read("trend-data", { labels: [], present: [], absent: [] });
+                        const KPIS  = read("kpi-data",   { present: 0, absent: 0, unmarked: 0 });
+
+                        // color vars
+                        const scope  = document.getElementById("teacher-reports") || document.documentElement;
+                        const cs     = getComputedStyle(scope);
+                        const accent = (cs.getPropertyValue("--td-accent")  || "#3b82f6").trim();
+                        const success= (cs.getPropertyValue("--ta-success") || "#10b981").trim();
+                        const danger = (cs.getPropertyValue("--ta-danger")  || "#ef4444").trim();
+                        const muted  = (cs.getPropertyValue("--td-muted")   || "#98a1b3").trim();
+
+                        const rgba = (hex, a) => {
+                            hex = (hex || "").replace("#","").trim();
+                            if (hex.length===3) hex = hex.split("").map(h=>h+h).join("");
+                            const r=parseInt(hex.slice(0,2),16)||0,
+                                  g=parseInt(hex.slice(2,4),16)||0,
+                                  b=parseInt(hex.slice(4,6),16)||0;
+                            return `rgba(${r},${g},${b},${a})`;
+                        };
+
+                        // destroy old charts if exist
+                        const destroyIf = (canvas) => {
+                            const existing = Chart.getChart(canvas);
+                            if (existing) existing.destroy();
+                        };
+
+                        // PIE CHART
+                        destroyIf(pieCanvas);
+                        new Chart(pieCanvas.getContext("2d"), {
+                            type: "doughnut",
+                            data: {
+                                labels: ["Present", "Absent", "Unmarked"],
+                                datasets: [{
+                                    data: [KPIS.present || 0, KPIS.absent || 0, KPIS.unmarked || 0],
+                                    backgroundColor: [success, danger, accent]
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: "65%",
+                                plugins: { legend: { labels: { color: muted } } }
+                            }
+                        });
+
+                        // LINE CHART
+                        destroyIf(trendCanvas);
+                        new Chart(trendCanvas.getContext("2d"), {
+                            type: "line",
+                            data: {
+                                labels: Array.isArray(TREND.labels) ? TREND.labels : [],
+                                datasets: [
+                                    {
+                                        label: "Present",
+                                        data: Array.isArray(TREND.present) ? TREND.present : [],
+                                        borderColor: success,
+                                        backgroundColor: rgba(success, 0.15),
+                                        fill: true,
+                                        tension: 0.35,
+                                        borderWidth: 2,
+                                        pointRadius: 0
+                                    },
+                                    {
+                                        label: "Absent",
+                                        data: Array.isArray(TREND.absent) ? TREND.absent : [],
+                                        borderColor: danger,
+                                        backgroundColor: rgba(danger, 0.1),
+                                        fill: true,
+                                        tension: 0.35,
+                                        borderWidth: 2,
+                                        pointRadius: 0
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { labels: { color: muted } } },
+                                scales: {
+                                    x: { ticks: { color: muted }, grid: { color: "rgba(148,163,184,.15)" } },
+                                    y: { ticks: { color: muted }, grid: { color: "rgba(148,163,184,.15)" }, beginAtZero: true }
+                                }
+                            }
+                        });
+
+                        console.log("Reports charts built from loader");
+                        return;
+                    }
+
+                    // retry if Chart.js or canvases not ready yet
+                    if (tries < 40) setTimeout(() => waitForCharts(tries + 1), 75);
+                    else console.warn("Could not build reports charts (missing elements or Chart.js).");
+                };
+
+                waitForCharts();
+            }
+            
+            // Student Performance
+            if (mainContent.querySelector("#student-performance")) {
+              const tryBuildPerf = (tries = 0) => {
+              const ok = (typeof window.__buildStudentPerf === "function") && window.__buildStudentPerf();
+              if (!ok && tries < 40) setTimeout(() => tryBuildPerf(tries + 1), 75);
+            };
+            tryBuildPerf();
+      }
+        })
+        .catch(err => {
+            console.error("Error loading content:", err);
+            mainContent.innerHTML = "<div class='alert alert-danger'>Failed to load content.</div>";
+        });
+}
+
+    // Theme toggle
+    function setIcon(mode) {
+        toggleBtn.classList.remove("sun-glow", "moon-glow");
+        toggleBtn.style.transition = "transform 0.4s ease";
+
+        if (mode === "light") {
+            toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            toggleBtn.classList.add("sun-glow");
+        } else {
+            toggleBtn.innerHTML = '<i class="bi bi-moon-fill"></i>';
+            toggleBtn.classList.add("moon-glow");
+        }
+
+        toggleBtn.style.transform = "rotate(180deg)";
+        setTimeout(() => toggleBtn.style.transform = "rotate(0)", 400);
+    }
+
+    const savedTheme = localStorage.getItem("theme") || "dark";
+    if (savedTheme === "light") {
+        body.classList.add("light-mode");
+    }
+    setIcon(savedTheme);
+
+    toggleBtn.addEventListener("click", function () {
+        const icon = toggleBtn.querySelector("i");
+        icon.classList.add("icon-morph");
+
+        setTimeout(() => {
+            body.classList.toggle("light-mode");
+            const newTheme = body.classList.contains("light-mode") ? "light" : "dark";
+            setIcon(newTheme);
+            localStorage.setItem("theme", newTheme);
+
+            const newIcon = toggleBtn.querySelector("i");
+            newIcon.classList.add("icon-morph");
+            setTimeout(() => newIcon.classList.remove("icon-morph"), 10);
+        }, 300);
+    });
+
+    // Sidebar navigation
+    document.querySelectorAll("#sidebar a[data-url]").forEach(link => {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // highlight active link
+            document.querySelectorAll("#sidebar a").forEach(l => l.classList.remove("active"));
+            this.classList.add("active");
+
+            const url = this.getAttribute("data-url");
+            const href = this.getAttribute("href");
+
+            // save to localStorage
+            localStorage.setItem("lastSectionURL", url);
+            localStorage.setItem("lastSectionID", href);     
+
+            loadContent(url);
+        });
+    });
+
+    // Topbar dropdown items also use the same loader
+document.querySelectorAll("a.nav-link-load[data-url]").forEach(link => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    const url  = link.getAttribute("data-url");
+    const href = link.getAttribute("href");
+
+    // persist last section
+    localStorage.setItem("lastSectionURL", url);
+    localStorage.setItem("lastSectionID", href);
+
+    loadContent(url);
+  });
+});
+
+    // Restore last section OR default to home
+    const lastURL = localStorage.getItem("lastSectionURL");
+    const lastHref = localStorage.getItem("lastSectionID");
+
+    if (lastURL && lastHref) {
+        // highlight the correct link
+        const lastLink = document.querySelector(`#sidebar a[href='${lastHref}'][data-url='${lastURL}']`);
+        if (lastLink) {
+            lastLink.classList.add("active");
+            loadContent(lastURL);
+        } else {
+            // fallback to home if link not found
+            const homeLink = document.querySelector("#sidebar a[data-url][href*='#home']");
+            if (homeLink) {
+                homeLink.classList.add("active");
+                loadContent(homeLink.getAttribute("data-url"));
+            }
+        }
+    } else {
+        // no last section saved load home
+        const homeLink = document.querySelector("#sidebar a[data-url][href*='#home']");
+        if (homeLink) {
+            homeLink.classList.add("active");
+            loadContent(homeLink.getAttribute("data-url"));
+        }
+    }
+});
+</script>
+  <div class="dropdown">
+    <button class="profile-btn dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      <img src="{{ url_for('static', filename='img/profile.png') }}" alt="Profile">
+      {{ display_name }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+        <li>
+    <a class="dropdown-item nav-link-load"
+       href="{{ url_for('routes.dashboard') }}#profile"
+       data-url="{{ url_for('routes.profile_partial') }}">
+      View Profile
+    </a>
+  </li>
+
+  <li>
+    <a class="dropdown-item nav-link-load"
+       href="{{ url_for('routes.dashboard') }}#me-settings"
+       data-url="{{ url_for('routes.me_settings_partial') }}">
+      Settings
+    </a>
+  </li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{{ url_for('routes.logout') }}">Logout</a></li>
+    </ul>
+  </div>
+</div>
+
+</div>
+</nav>
+    {% block dashboard_content %}
+  <div id="main-content">
+    <!-- Initial content gets loaded via partial -->
+  </div>
+{% endblock %}
+  </div>
+
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const sidebar   = document.getElementById('sidebar');
+  const container = document.querySelector('.dashboard-container');
+  const btnMain   = document.getElementById('toggleSidebar');      // in sidebar header
+  const btnGhost  = document.getElementById('sidebarGhostToggle'); // floating handle
+
+  function setCollapsed(isCollapsed){
+    sidebar.classList.toggle('collapsed', isCollapsed);
+    container.classList.toggle('sidebar-collapsed', isCollapsed);
+    localStorage.setItem('sidebar-collapsed', isCollapsed ? '1' : '0');
+    if (btnMain)  btnMain.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+    if (btnGhost) btnGhost.style.display = isCollapsed ? 'block' : 'none';
+  }
+
+  // rehydrate
+  const saved = localStorage.getItem('sidebar-collapsed') === '1';
+  setCollapsed(saved);
+
+  // wire buttons
+  if (btnMain)  btnMain.addEventListener('click',  () => setCollapsed(!sidebar.classList.contains('collapsed')));
+  if (btnGhost) btnGhost.addEventListener('click', () => setCollapsed(false));
+})();
+</script>
+<style>
+  /* Makes collapse be a true collapse, not 70px */
+  #sidebar.collapsed {
+    width: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Optional helper class on the container for cleaner transitions */
+  .dashboard-container.sidebar-collapsed .sidebar { transform: translateX(-100%); }
+  .dashboard-container .sidebar {
+    transition: width .28s ease, transform .28s ease;
+  }
+</style>
+<style>
+  /* floating re-open handle */
+  #sidebarGhostToggle{
+    position: fixed;
+    left: 12px;
+    top: 14px;
+    z-index: 1100;
+    border-radius: 10px;
+    padding: 6px 8px;
+    backdrop-filter: blur(6px);
+    background: rgba(17,24,39,.6);   /* dark */
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  body.light-mode #sidebarGhostToggle{
+    background: rgba(255,255,255,.9);
+    color: #0f172a;
+    border-color: rgba(0,0,0,.08);
+  }
+</style>
+{% endblock %}

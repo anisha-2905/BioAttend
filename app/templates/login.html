@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="d-flex justify-content-center align-items-center min-vh-100" style="padding: 1rem;">
+  <div class="card p-4 shadow w-100 fade-in-up" style="max-width: 400px; border-radius: 20px;">
+
+    <div class="text-center mb-4">
+      <h5 class="text-muted">STUDENT ATTENDANCE SYSTEM</h5>
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="signup-logo">
+    </div>
+    <h4 class="text-center mb-4">Login Panel</h4>
+    <form method="POST" action="{{ url_for('routes.login') }}">
+      <div class="mb-3">
+        <select class="form-select" name="role" required>
+          <option selected disabled>Select Role</option>
+          <option value="teacher">Teacher</option>
+          <option value="student">Student</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <input type="email" class="form-control" name="email" placeholder="Enter Email Address" required>
+      </div>
+  <div class="mb-3 position-relative">
+  <input type="password" class="form-control pe-5" name="password" id="password" placeholder="Enter Password" required>
+
+  <!-- Eye icon toggle, vertically centered -->
+  <span class="position-absolute" style="top: 32%; right: 16px; transform: translateY(-50%); cursor: pointer;" onclick="togglePassword('password', 'toggleIcon')">
+    <i id="toggleIcon" class="bi bi-eye-slash text-muted"></i>
+  </span>
+
+  <!-- Forgot Password -->
+  <div class="text-end mt-1">
+    <a href="{{ url_for('routes.forgot_password') }}" class="text-success" style="font-size: 0.875rem;" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
+  </div>
+</div>
+
+      <button id="loginBtn" type="submit" class="btn btn-success w-100 ripple-btn">Login</button>
+    </form>
+    <p class="text-center mt-3">Don't have an account? <a href="{{ url_for('routes.signup') }}">Sign up</a></p>
+  </div>
+</div>
+{% endblock %}

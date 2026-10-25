@@ -1,0 +1,216 @@
+<div id="teacher-dashboard">
+<div class="dashboard-header text-center mb-4">
+  <h1>Welcome back, {{ teacher.full_name }}</h1>
+  <p class="text-muted">Your teaching snapshot for today</p>
+</div>
+
+<div class="container-fluid">
+  <!-- Top stats -->
+  <div class="row gx-4 gy-4 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card blue-card shadow-sm">
+        <div class="stat-title">Total Students</div>
+        <div class="stat-number count" data-target="{{ total_students or 0 }}">
+          {{ total_students or 0 }}
+        </div>
+        <div class="stat-meta">Across all your classes</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card green-card shadow-sm">
+        <div class="stat-title">Classes Taken</div>
+        <div class="stat-number count" data-target="{{ classes_taken or 0 }}">
+          {{ classes_taken or 0 }}
+        </div>
+        <div class="stat-meta">This semester</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card red-card shadow-sm">
+        <div class="stat-title">Pending Attendance</div>
+        <div class="stat-number count" data-target="{{ pending_attendance or 0 }}">
+          {{ pending_attendance or 0 }}
+        </div>
+        <div class="stat-meta">Sessions to be marked</div>
+      </div>
+    </div>
+  </div>
+
+<!-- SECOND ROW: Trends + Key Metrics -->
+<div class="row g-4 mb-4 align-items-stretch" id="td-row-2">
+  <!-- Attendance Trends -->
+  <div class="col-lg-8">
+    <div class="td-card h-100">
+      <div class="td-card-header">
+        <h5 class="mb-0">Attendance Trends</h5>
+        <span class="td-chip">Last 30 days</span>
+      </div>
+      <div class="td-chart-wrap" style="position:relative; height:140px; width:100%; overflow:hidden;">
+  <svg id="td-spark" viewBox="0 0 600 140" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
+    <defs>
+      <!-- line gradient (blue : green) -->
+      <linearGradient id="td-line-grad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#3b82f6"/>
+        <stop offset="100%" stop-color="#10b981"/>
+      </linearGradient>
+      <!-- area fill gradient (subtle) -->
+      <linearGradient id="td-fill-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(59,130,246,0.25)"/>
+        <stop offset="100%" stop-color="rgba(16,185,129,0.05)"/>
+      </linearGradient>
+      <!-- faint grid line -->
+      <pattern id="td-grid" width="60" height="28" patternUnits="userSpaceOnUse">
+        <path d="M 0 28 L 60 28" stroke="rgba(148,163,184,.15)" stroke-width="1"/>
+      </pattern>
+    </defs>
+
+    <!-- background grid (optional, subtle) -->
+    <rect x="0" y="0" width="600" height="140" fill="url(#td-grid)"></rect>
+
+    <!-- area + line (paths are set by the script below) -->
+    <path id="td-area" fill="url(#td-fill-grad)" d=""></path>
+    <path id="td-line" fill="none" stroke="url(#td-line-grad)" stroke-width="3" d=""></path>
+  </svg>
+</div>
+<script>
+(() => {
+  // 30-day dummy values (0..100) (can replace later with live data)
+  const values = [78,82,80,85,86,84,81,88,90,87,85,83,86,88,89,91,92,90,88,87,89,90,92,91,93,92,90,91,94,95];
+
+  const svg = document.getElementById('td-spark');
+  if (!svg) return; // safety for partial reloads
+
+  // Prevents double-initialization when navigating sidebar
+  if (svg.dataset.ready === '1') return;
+  svg.dataset.ready = '1';
+
+  const vb = svg.viewBox.baseVal;
+  const W = vb.width, H = vb.height;
+  const pad = 10;
+  const min = 0, max = 100;
+  const usableW = W - pad * 2;
+  const usableH = H - pad * 2;
+
+  const x = i => pad + (usableW * i) / (values.length - 1);
+  const y = v => pad + usableH * (1 - (v - min) / (max - min));
+
+  const pts = values.map((v, i) => [x(i), y(v)]);
+
+  // Build the line path
+  const dLine = pts.map(([px, py], i) => (i ? 'L' : 'M') + px.toFixed(1) + ' ' + py.toFixed(1)).join(' ');
+  document.getElementById('td-line').setAttribute('d', dLine);
+
+  // Build the area path
+  const lastX = x(values.length - 1);
+  const dArea = `${dLine} L ${lastX.toFixed(1)} ${(H - pad).toFixed(1)} L ${pad.toFixed(1)} ${(H - pad).toFixed(1)} Z`;
+  document.getElementById('td-area').setAttribute('d', dArea);
+})();
+</script>
+    </div>
+  </div>
+
+  <!-- Key Metrics -->
+  <div class="col-lg-4">
+    <div class="td-card h-100">
+      <div class="td-card-header">
+        <h5 class="mb-0">Key Metrics</h5>
+      </div>
+
+      <ul class="td-metrics mb-0">
+        <li>
+          <span>Avg Attendance</span>
+          <span class="td-metric-value {% if avg_attendance >= 75 %}td-up{% else %}td-down{% endif %}">{{ avg_attendance }}%</span>
+        </li>
+        <li>
+          <span>Classes Completed</span>
+          <span class="td-metric-value">{{ classes_completed }}</span>
+        </li>
+        <li class="no-border">
+          <span>Pending Sessions</span>
+          <span class="td-metric-value td-down">{{ pending_sessions }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- THIRD ROW: Recent Activity + Notifications -->
+<div class="row g-4 align-items-stretch" id="td-row-3">
+  <!-- Recent Activity -->
+  <div class="col-lg-8">
+    <div class="td-card h-100">
+      <div class="td-card-header">
+        <h5 class="mb-0">Recent Attendance Activity</h5>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table td-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Class</th>
+              <th class="text-end" style="padding-right:35px;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2025-09-06</td>
+              <td>Biology 101</td>
+              <td class="text-end"><span class="td-badge td-badge-success">Completed</span></td>
+            </tr>
+            <tr>
+              <td>2025-09-05</td>
+              <td>Chemistry Lab</td>
+              <td class="text-end"><span class="td-badge td-badge-danger">Pending</span></td>
+            </tr>
+            <tr>
+              <td>2025-09-04</td>
+              <td>Physics</td>
+              <td class="text-end"><span class="td-badge td-badge-warn">In&nbsp;Progress</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="col-lg-4">
+    <div class="td-card h-100">
+      <div class="td-card-header">
+        <h5 class="mb-0">Notifications</h5>
+      </div>
+
+      <ul class="td-feed mb-0">
+        <li>
+          <span class="td-feed-text">New student joined</span>
+          <span class="td-tag td-tag-blue">Today</span>
+        </li>
+        <li>
+          <span class="td-feed-text">Attendance reminder sent</span>
+          <span class="td-tag">Yesterday</span>
+        </li>
+        <li>
+          <span class="td-feed-text">Report generated</span>
+          <span class="td-tag td-tag-green">2 days ago</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<style>
+/* "Your teaching snapshot for today" visible in dark theme */
+body:not(.light-mode) #teacher-dashboard .dashboard-header .text-muted {
+  color: #e5e7eb !important;
+  opacity: 0.95;
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+</style>
+
+
+
+  
+
+
+
+

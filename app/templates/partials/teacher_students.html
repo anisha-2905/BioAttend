@@ -1,0 +1,465 @@
+<div id="manage-students">
+  <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Manage Students</h1>
+    <button type="button" id="addStudentBtn" class="btn btn-primary">+ Add Student</button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row gx-4 gy-4 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card blue-card shadow-sm">
+        <div class="stat-title">Total Students</div>
+        <div class="stat-number">{{ total_students or 0 }}</div>
+        <div class="stat-meta">Currently enrolled</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card green-card shadow-sm">
+        <div class="stat-title">Departments</div>
+        <div class="stat-number">{{ total_departments or 0 }}</div>
+        <div class="stat-meta">Across your classes</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card purple-card shadow-sm">
+        <div class="stat-title">Recently Added</div>
+        <div class="stat-number">{{ recent_students or 0 }}</div>
+        <div class="stat-meta">Past 30 days</div>
+      </div>
+    </div>
+  </div>
+
+<!-- Students Table -->
+<div class="td-card">
+  <div class="td-card-header d-flex justify-content-between align-items-center">
+    <!-- Left side: title + filters -->
+    <div class="d-flex align-items-center gap-2">
+      <h5 class="mb-0 me-3">Student List</h5>
+      
+      <!-- Quick Filters -->
+      <button class="td-chip active">All</button>
+      <button class="td-chip">This Semester</button>
+      <button class="td-chip">Recently Added</button>
+
+      <!-- Dropdown -->
+      <select class="form-select form-select-sm td-dropdown">
+        <option value="">All Departments</option>
+      </select>
+    </div>
+
+    <!-- Right side: Search -->
+    <input 
+      type="text" 
+      class="form-control form-control-sm td-search" 
+      placeholder="Search students..."
+    >
+  </div>
+
+  <div class="table-responsive">
+    <table class="table td-table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Email</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr data-id="{{ student.id }}">
+          <td>{{ student.roll_number }}</td>
+          <td>{{ student.full_name }}</td>
+          <td>{{ student.department }}</td>
+          <td>{{ student.email }}</td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary">View</button>
+            <button class="btn btn-sm btn-outline-secondary">Edit</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+<!-- Modal -->
+<div id="viewStudentModal" class="modal-overlay d-none">
+  <div class="modal-content custom-modal" style="max-width:680px">
+    <h2 class="modal-title">Student Details</h2>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="mb-2"><small class="text-muted">Full Name</small><div id="v_name" class="fw-semibold">-</div></div>
+        <div class="mb-2"><small class="text-muted">Roll No</small><div id="v_roll" class="fw-semibold">-</div></div>
+        <div class="mb-2"><small class="text-muted">Department</small><div id="v_dept" class="fw-semibold">-</div></div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-2"><small class="text-muted">Email</small><div id="v_email" class="fw-semibold">-</div></div>
+        <div class="mb-2"><small class="text-muted">Year</small><div id="v_year" class="fw-semibold">-</div></div>
+        <div class="mb-2"><small class="text-muted">Created</small><div id="v_created" class="fw-semibold">-</div></div>
+      </div>
+    </div>
+
+    <hr class="my-3">
+
+    <h6 class="mb-2">Recent Attendance</h6>
+    <div class="table-responsive">
+      <table class="table td-table table-sm align-middle mb-0">
+        <thead><tr><th>Date</th><th>Status</th><th>Source</th><th>Marked At</th></tr></thead>
+        <tbody id="v_att_rows"><tr><td colspan="4" class="text-muted">No records</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-end mt-3">
+      <button type="button" class="btn btn-secondary" data-close="#viewStudentModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="studentModal" class="modal-overlay d-none">
+  <div class="modal-content custom-modal">
+    <h2 class="modal-title">Add New Student</h2>
+    <form id="studentForm" class="space-y-3" method="POST" and action="{{ url_for('routes.add_student') }}">
+      
+      <div class="mb-3">
+        <input type="text" name="full_name" class="form-control" placeholder="Full Name" required>
+      </div>
+
+      <div class="mb-3">
+        <input type="text" name="roll_number" class="form-control" placeholder="Roll Number" required>
+      </div>
+
+      <div class="mb-3">
+        <input type="text" name="department" class="form-control" placeholder="Department" required>
+      </div>
+
+      <div class="mb-3">
+        <input type="text" name="year" class="form-control" placeholder="Year (e.g. 3rd Year)" required>
+      </div>
+
+      <div class="mb-3">
+        <input type="email" name="email" class="form-control" placeholder="Email" required>
+      </div>
+
+      <div class="mb-3">
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="button" class="btn btn-secondary btn-cancel close-student-modal">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT STUDENT -->
+<div id="editStudentModal" class="modal-overlay d-none">
+  <div class="modal-content custom-modal" style="max-width:560px">
+    <h2 class="modal-title">Edit Student</h2>
+    <form id="editStudentForm" class="space-y-3">
+      <input type="hidden" name="student_id" id="e_id">
+
+      <div class="mb-3">
+        <label class="form-label small">Full Name</label>
+        <input type="text" class="form-control" name="full_name" id="e_name" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small">Roll Number</label>
+        <input type="text" class="form-control" name="roll_number" id="e_roll" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small">Department</label>
+        <input type="text" class="form-control" name="department" id="e_dept" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small">Year (optional)</label>
+        <input type="text" class="form-control" name="year" id="e_year" placeholder="FY / SY / TY or 1 / 2 / 3">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small">Email</label>
+        <input type="email" class="form-control" name="email" id="e_email" required>
+      </div>
+
+      <div class="form-check form-switch mb-2">
+        <input class="form-check-input" type="checkbox" id="e_toggle_pwd">
+        <label class="form-check-label" for="e_toggle_pwd">Change password</label>
+      </div>
+      <div id="e_pwd_block" class="d-none">
+        <div class="mb-2">
+          <label class="form-label small">New Password</label>
+          <input type="password" class="form-control" name="new_password" id="e_pwd" minlength="8">
+        </div>
+        <div class="mb-3">
+          <label class="form-label small">Confirm Password</label>
+          <input type="password" class="form-control" id="e_pwd2" minlength="8">
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="button" class="btn btn-secondary" data-close="#editStudentModal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+(function () {
+  const scope = document.getElementById('manage-students');
+  if (!scope) return;
+
+  // UI refs
+  const tbody      = scope.querySelector('tbody');
+  const chips      = [...scope.querySelectorAll('.td-chip')];
+  const dd         = scope.querySelector('.td-dropdown');
+  const searchBox  = scope.querySelector('.td-search');
+
+  // local state
+  const state = { q: '', department: '', filter: 'all' };
+
+  // helpers
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const escapeHTML = (s) => (s == null ? '' : String(s))
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  function renderRows(list) {
+    if (!Array.isArray(list) || list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-muted py-4 text-center">No students found.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(s => `
+      <tr data-id="${escapeHTML(s.id)}">
+        <td>${escapeHTML(s.roll_number)}</td>
+        <td>${escapeHTML(s.full_name)}</td>
+        <td>${escapeHTML(s.department || '-')}</td>
+        <td>${escapeHTML(s.email || '-')}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-primary btn-view">View</button>
+          <button class="btn btn-sm btn-outline-secondary btn-edit">Edit</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function fetchStudents(params = {}) {
+    const url = new URL('/api/teacher/students', window.location.origin);
+    if (state.q) url.searchParams.set('q', state.q);
+    if (state.department) url.searchParams.set('department', state.department);
+    if (state.filter && state.filter !== 'all') url.searchParams.set('filter', state.filter);
+    Object.entries(params).forEach(([k,v]) => { if (v) url.searchParams.set(k, v); });
+
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    return res.json();
+  }
+
+  async function loadDepartmentsAndTable() {
+    const json = await fetchStudents({});
+    const depts = json.departments || [];
+    if (dd) {
+      dd.innerHTML = `<option value="">All Departments</option>` +
+        depts.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('');
+    }
+    renderRows(json.students || []);
+  }
+
+  async function reload() {
+    const json = await fetchStudents({});
+    renderRows(json.students || []);
+  }
+
+  // chips
+  chips.forEach(ch => {
+    ch.addEventListener('click', () => {
+      chips.forEach(x => x.classList.remove('active'));
+      ch.classList.add('active');
+      const label = ch.textContent.trim().toLowerCase();
+      state.filter = (label === 'recently added') ? 'recent'
+                    : (label === 'this semester') ? 'semester'
+                    : 'all';
+      reload();
+    });
+  });
+
+  // department dropdown 
+  dd && dd.addEventListener('change', () => {
+    state.department = dd.value || '';
+    reload();
+  });
+
+  // search
+  let t = null;
+  searchBox && searchBox.addEventListener('input', () => {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      state.q = searchBox.value.trim();
+      reload();
+    }, 250);
+  });
+
+  //  MODAL helpers 
+  function openModal(id){ const el=$(id); if(el) el.classList.remove('d-none'); }
+  function closeModal(id){ const el=$(id); if(el) el.classList.add('d-none'); }
+
+  document.addEventListener('click', e => {
+    const closer = e.target.closest('[data-close]');
+    if (closer) { closeModal(closer.getAttribute('data-close')); }
+    if (e.target.classList && e.target.classList.contains('modal-overlay') && !e.target.classList.contains('d-none')) {
+      e.target.classList.add('d-none');
+    }
+  });
+
+  // VIEW / EDIT wiring
+  scope.addEventListener('click', async (e) => {
+    const tr = e.target.closest('tr[data-id]');
+    if (!tr) return;
+    const id = tr.getAttribute('data-id');
+
+    // VIEW
+    if (e.target.closest('.btn-view')) {
+      try {
+        const res = await fetch(`/api/teacher/students/${id}/detail`, { cache: 'no-store' });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.msg || 'Failed to load');
+
+        $('#v_name').textContent    = json.student.full_name || '-';
+        $('#v_roll').textContent    = json.student.roll_number || '-';
+        $('#v_dept').textContent    = json.student.department || '-';
+        $('#v_email').textContent   = json.student.email || '-';
+        $('#v_year').textContent    = json.student.year || '-';
+        $('#v_created').textContent = json.student.created_at || '-';
+
+        const tbodyV = $('#v_att_rows');
+        const rows = json.attendance || [];
+        tbodyV.innerHTML = rows.length ? rows.map(r => `
+          <tr>
+            <td>${escapeHTML(r.date || '-')}</td>
+            <td>${escapeHTML(r.status || '-')}</td>
+            <td>${escapeHTML(r.source || '-')}</td>
+            <td>${escapeHTML(r.marked_at || '-')}</td>
+          </tr>
+        `).join('') : `<tr><td colspan="4" class="text-muted">No records</td></tr>`;
+
+        openModal('#viewStudentModal');
+      } catch (err) {
+        alert(err.message || 'Failed to load details');
+      }
+      return;
+    }
+
+    // EDIT
+    if (e.target.closest('.btn-edit')) {
+      try {
+        const res = await fetch(`/api/teacher/students/${id}/detail`, { cache: 'no-store' });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.msg || 'Failed to load');
+
+        $('#e_id').value    = json.student.id;
+        $('#e_name').value  = json.student.full_name || '';
+        $('#e_roll').value  = json.student.roll_number || '';
+        $('#e_dept').value  = json.student.department || '';
+        $('#e_year').value  = json.student.year || '';
+        $('#e_email').value = json.student.email || '';
+
+        const tgl = $('#e_toggle_pwd'), block = $('#e_pwd_block');
+        if (tgl && block) { tgl.checked = false; block.classList.add('d-none'); $('#e_pwd').value=''; $('#e_pwd2').value=''; }
+
+        openModal('#editStudentModal');
+      } catch (err) {
+        alert(err.message || 'Failed to load student');
+      }
+      return;
+    }
+  });
+
+  // toggle password section
+  const tglPwd = $('#e_toggle_pwd'), pwdBlock = $('#e_pwd_block');
+  if (tglPwd && pwdBlock) {
+    tglPwd.addEventListener('change', () => {
+      pwdBlock.classList.toggle('d-none', !tglPwd.checked);
+      if (!tglPwd.checked) { $('#e_pwd').value=''; $('#e_pwd2').value=''; }
+    });
+  }
+
+  // submit edit
+  const editForm = $('#editStudentForm');
+  if (editForm) {
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id  = $('#e_id').value;
+      const body = {
+        full_name:  $('#e_name').value.trim(),
+        roll_number:$('#e_roll').value.trim(),
+        department: $('#e_dept').value.trim(),
+        year:       $('#e_year').value.trim(),
+        email:      $('#e_email').value.trim()
+      };
+      if (tglPwd && tglPwd.checked) {
+        const p1 = $('#e_pwd').value, p2 = $('#e_pwd2').value;
+        if (!p1 || p1.length < 8) return alert('Password must be at least 8 characters.');
+        if (p1 !== p2) return alert('Passwords do not match.');
+        body.new_password = p1;
+      }
+
+      try {
+        const res = await fetch(`/api/teacher/students/${id}/update`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.msg || 'Update failed');
+
+        const row = scope.querySelector(`tr[data-id="${id}"]`);
+        if (row) {
+          if (body.roll_number) row.children[0].textContent = body.roll_number;
+          if (body.full_name)   row.children[1].textContent = body.full_name;
+          if (body.department)  row.children[2].textContent = body.department;
+          if (body.email)       row.children[3].textContent = body.email;
+        }
+        closeModal('#editStudentModal');
+      } catch (err) {
+        alert(err.message || 'Update failed');
+      }
+    });
+  }
+
+  // boot
+  loadDepartmentsAndTable().catch(() => reload());
+})();
+</script>
+<style>
+  /* Modal Styling */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+  .modal-content {
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    backdrop-filter: blur(12px);
+  }
+  .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .d-none { display: none !important; }
+</style>
+
+
+

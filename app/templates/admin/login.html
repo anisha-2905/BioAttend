@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100" style="padding: 1rem;">
+  <div class="card p-4 shadow w-100 fade-in-up" style="max-width: 400px; border-radius: 20px;">
+
+    <div class="text-center mb-4">
+      <h5 class="text-muted">ADMIN ACCESS • BIOATTEND</h5>
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="signup-logo">
+    </div>
+
+    <h4 class="text-center mb-4">Admin Login</h4>
+
+    <!-- action points to admin_login -->
+    <form method="POST" action="{{ url_for('routes.admin_login') }}">
+      <div class="mb-3">
+        <input
+          type="email"
+          class="form-control"
+          name="email"
+          placeholder="Enter Admin Email"
+          required
+        >
+      </div>
+
+      <div class="mb-3 position-relative">
+        <input
+          type="password"
+          class="form-control pe-5"
+          name="password"
+          id="adminPassword"
+          placeholder="Enter Password"
+          required
+        >
+        <!-- Eye icon toggle -->
+        <span
+          class="position-absolute"
+          style="top: 32%; right: 16px; transform: translateY(-50%); cursor: pointer;"
+          onclick="togglePassword('adminPassword', 'adminToggleIcon')"
+        >
+          <i id="adminToggleIcon" class="bi bi-eye-slash text-muted"></i>
+        </span>
+
+        <!-- Forgot password link for admins-->
+        <div class="text-end mt-1">
+          <a href="#" class="text-success" style="font-size: 0.875rem;" onclick="alert('Contact system administrator to reset admin password.')">
+            Forgot Password?
+          </a>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-success w-100 ripple-btn">Login</button>
+    </form>
+
+    <!-- Links back to regular login teachers/students-->
+    <p class="text-center mt-3">
+      Not an admin? <a href="{{ url_for('routes.login') }}">Go to user login</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,419 @@
+<div id="admin-settings">
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="fw-bold mb-0">System Settings (Coming Soon)</h3>
+      <p class="text-muted mb-0" style="margin-left: -208px;">Configure devices, attendance rules, notifications, appearance, and maintenance.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="td-chip td-chip-success">All systems operational</span>
+    </div>
+  </div>
+
+  {# Safe JSON blob from server. If 'settings' is not provided, fall back to {} #}
+  {% set SETTINGS = settings if settings is defined else {} %}
+  <script id="admin-settings-data" type="application/json">
+    {{ SETTINGS|tojson }}
+  </script>
+
+  <!-- Device Configuration -->
+  <div class="td-card mb-3 settings-panel" data-panel="device">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-cpu text-primary"></i>
+        <h5 class="mb-0">Biometric Device (R307S)</h5>
+        <span class="td-chip">Live</span>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary settings-collapse" type="button" aria-expanded="true">
+        <i class="bi bi-chevron-up"></i>
+      </button>
+    </div>
+    <div class="td-card-body">
+      <form id="frmDevice" class="row g-3" data-endpoint="/admin/settings/save">
+        <div class="col-12 col-md-4">
+          <label class="form-label small">Device ID</label>
+          <input type="text" class="form-control rounded-pill" name="device_id"
+                 placeholder="e.g., R307S-01"
+                 value="{{ SETTINGS.get('device_id','') }}">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label small">COM Port</label>
+          <input type="text" class="form-control rounded-pill" name="device_port"
+                 placeholder="e.g., COM3"
+                 value="{{ SETTINGS.get('device_port','') }}">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label small">Baud Rate</label>
+          <select class="form-select rounded-pill" name="baud_rate">
+            {% set br = SETTINGS.get('baud_rate','57600') %}
+            {% for rate in ['9600','57600','115200'] %}
+              <option value="{{ rate }}" {{ 'selected' if br==rate else '' }}>{{ rate }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex align-items-end">
+          <button id="btnTestDevice" class="btn btn-outline-primary w-100" type="button"
+                  data-endpoint="/admin/settings/test-device">
+            <i class="bi bi-plug me-1"></i> Test
+          </button>
+        </div>
+      </form>
+    </div>
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">Tip: ensure the port and baud rate match your OS serial settings.</small>
+      <button class="btn btn-primary" form="frmDevice" id="saveDevice">Save</button>
+    </div>
+  </div>
+
+  <!-- Attendance Rules -->
+  <div class="td-card mb-3 settings-panel" data-panel="attendance">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-calendar2-check text-success"></i>
+        <h5 class="mb-0">Attendance Rules</h5>
+        <span class="td-chip">Policy</span>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary settings-collapse" type="button" aria-expanded="true">
+        <i class="bi bi-chevron-up"></i>
+      </button>
+    </div>
+    <div class="td-card-body">
+      <form id="frmAttendance" class="row g-3" data-endpoint="/admin/settings/save">
+        <div class="col-6 col-md-3">
+          <label class="form-label small">Marking Window • Start</label>
+          <input type="time" class="form-control rounded-pill" name="attendance_start"
+                 value="{{ SETTINGS.get('attendance_start','09:00') }}">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label small">Marking Window • End</label>
+          <input type="time" class="form-control rounded-pill" name="attendance_end"
+                 value="{{ SETTINGS.get('attendance_end','09:15') }}">
+        </div>
+        <div class="col-12 col-md-3 d-flex align-items-end">
+          <div class="form-check form-switch">
+            {% set auto_absent = SETTINGS.get('auto_absent', True) %}
+            <input class="form-check-input" type="checkbox" role="switch" id="autoAbsent" style="margin-right:7px"
+                   name="auto_absent" {{ 'checked' if auto_absent else '' }}>
+            <label class="form-check-label" for="autoAbsent">Auto-mark absent after window</label>
+          </div>
+        </div>
+        <div class="col-12 col-md-3 d-flex align-items-end">
+          <div class="form-check form-switch">
+            {% set allow_backfill = SETTINGS.get('allow_backfill', True) %}
+            <input class="form-check-input" type="checkbox" role="switch" id="allowBackfill" style="margin-right:7px"
+                   name="allow_backfill" {{ 'checked' if allow_backfill else '' }}>
+            <label class="form-check-label" for="allowBackfill">Allow teacher backfill</label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">Backfill edits are tracked in the audit log.</small>
+      <button class="btn btn-primary" form="frmAttendance">Save</button>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="td-card mb-3 settings-panel" data-panel="notifications">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-bell text-warning"></i>
+        <h5 class="mb-0">Notifications</h5>
+        <span class="td-chip">Email</span>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary settings-collapse" type="button" aria-expanded="true">
+        <i class="bi bi-chevron-up"></i>
+      </button>
+    </div>
+    <div class="td-card-body">
+      <form id="frmNotify" class="row g-3" data-endpoint="/admin/settings/save">
+        <div class="col-12 col-md-4">
+          <div class="form-check form-switch">
+            {% set email_error = SETTINGS.get('email_on_error', True) %}
+            <input class="form-check-input" type="checkbox" role="switch" id="emailOnError"
+                   name="email_on_error" {{ 'checked' if email_error else '' }}>
+            <label class="form-check-label" for="emailOnError">Device failure alerts</label>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="form-check form-switch">
+            {% set email_daily = SETTINGS.get('email_daily_summary', False) %}
+            <input class="form-check-input" type="checkbox" role="switch" id="emailDaily"
+                   name="email_daily_summary" {{ 'checked' if email_daily else '' }}>
+            <label class="form-check-label" for="emailDaily">Daily sync summary</label>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="form-check form-switch">
+            {% set email_reports = SETTINGS.get('email_reports', False) %}
+            <input class="form-check-input" type="checkbox" role="switch" id="emailReports"
+                   name="email_reports" {{ 'checked' if email_reports else '' }}>
+            <label class="form-check-label" for="emailReports">Auto-send attendance report</label>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label small">Notify Email</label>
+          <input type="email" class="form-control rounded-pill" name="notify_email"
+                 placeholder="alerts@bioattend.local"
+                 value="{{ SETTINGS.get('notify_email','') }}">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label small">Report Schedule (CRON-ish)</label>
+          <input type="text" class="form-control rounded-pill" name="report_schedule"
+                 placeholder="0 18 * * 1-5"
+                 value="{{ SETTINGS.get('report_schedule','') }}">
+        </div>
+      </form>
+    </div>
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">Use CRON format for scheduled reports (server local time).</small>
+      <button class="btn btn-primary" form="frmNotify">Save</button>
+    </div>
+  </div>
+
+  <!-- Appearance -->
+  <div class="td-card mb-3 settings-panel" data-panel="appearance">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-palette text-info"></i>
+        <h5 class="mb-0">Appearance</h5>
+        <span class="td-chip">Theme</span>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary settings-collapse" type="button" aria-expanded="true">
+        <i class="bi bi-chevron-up"></i>
+      </button>
+    </div>
+    <div class="td-card-body">
+      <form id="frmAppearance" class="row g-3" data-endpoint="/admin/settings/save">
+        <div class="col-12 col-md-4">
+          <label class="form-label small">Default Theme</label>
+          {% set tdef = SETTINGS.get('theme_default','dark') %}
+          <select class="form-select rounded-pill" name="theme_default">
+            <option value="dark" {{ 'selected' if tdef=='dark' else '' }}>Dark</option>
+            <option value="light" {{ 'selected' if tdef=='light' else '' }}>Light</option>
+            <option value="system" {{ 'selected' if tdef=='system' else '' }}>Follow System</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-8">
+          <label class="form-label small">Accent</label>
+          {% set acc = SETTINGS.get('accent_color','#3b82f6') %}
+          <div class="d-flex gap-2 flex-wrap">
+            {% for color in ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'] %}
+              <button type="button" class="accent-chip {{ 'active' if acc==color else '' }}"
+                      data-value="{{ color }}" aria-label="Accent {{ color }}"></button>
+            {% endfor %}
+            <input type="hidden" name="accent_color" id="accentColor" value="{{ acc }}">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">Accent affects highlights, chips and interactive glows.</small>
+      <button class="btn btn-primary" form="frmAppearance">Save</button>
+    </div>
+  </div>
+
+  <!-- Maintenance -->
+  <div class="td-card mb-3 settings-panel" data-panel="maintenance">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-shield-check text-success"></i>
+        <h5 class="mb-0">Maintenance</h5>
+        <span class="td-chip">Backup & Sync</span>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary settings-collapse" type="button" aria-expanded="true">
+        <i class="bi bi-chevron-up"></i>
+      </button>
+    </div>
+    <div class="td-card-body">
+      <form id="frmMaintenance" class="row g-3" data-endpoint="/admin/settings/maintenance">
+        <div class="col-12 col-md-4 d-grid">
+          <button id="btnBackupNow" class="btn btn-outline-primary" type="button"
+                  data-endpoint="/admin/settings/backup-now">
+            <i class="bi bi-cloud-arrow-down me-1"></i> Backup Now
+          </button>
+        </div>
+        <div class="col-12 col-md-4 d-grid">
+          <button id="btnSyncNow" class="btn btn-outline-success" type="button"
+                  data-endpoint="/admin/settings/sync-now">
+            <i class="bi bi-arrow-repeat me-1"></i> Sync Fingerprints
+          </button>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label small">Last Backup</label>
+          <input type="text" class="form-control rounded-pill" disabled
+                 value="{{ SETTINGS.get('last_backup','—') }}">
+        </div>
+      </form>
+    </div>
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <small class="text-muted">Backups are stored on the server. Configure retention in env.</small>
+      <div class="d-flex gap-2">
+        <div class="form-check form-switch">
+          {% set autoback = SETTINGS.get('auto_backup', True) %}
+          <input class="form-check-input" type="checkbox" role="switch" id="autoBackup" style="margin-right:7px"
+                 name="auto_backup" {{ 'checked' if autoback else '' }}>
+          <label class="form-check-label" for="autoBackup">Enable auto-backup</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mini System Log -->
+  <div class="td-card">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">System Events</h5>
+      <small class="text-muted">Recent 10</small>
+    </div>
+    <div class="td-card-body">
+      <div id="systemLog" class="system-log">
+        {% if logs is defined and logs %}
+          {% for line in logs %}
+            <div class="log-line">{{ line }}</div>
+          {% endfor %}
+        {% else %}
+          <div class="log-line text-muted">No events yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const scope = document.getElementById("admin-settings");
+  if (!scope) return;
+
+  // read settings JSON 
+  function getSettings() {
+    try {
+      const raw = document.getElementById("admin-settings-data")?.textContent || "{}";
+      return JSON.parse(raw);
+    } catch { return {}; }
+  }
+
+  // Collapsible panels
+  scope.querySelectorAll(".settings-collapse").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const panel = btn.closest(".settings-panel");
+      const body = panel?.querySelector(".td-card-body");
+      const footer = panel?.querySelector(".td-card-footer");
+      const open = btn.getAttribute("aria-expanded") === "true";
+      if (body) body.style.display = open ? "none" : "";
+      if (footer) footer.style.display = open ? "none" : "";
+      btn.setAttribute("aria-expanded", open ? "false" : "true");
+      btn.innerHTML = open ? '<i class="bi bi-chevron-down"></i>' : '<i class="bi bi-chevron-up"></i>';
+    });
+  });
+
+  // Accent chips
+  const accentHidden = document.getElementById("accentColor");
+  scope.querySelectorAll(".accent-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      scope.querySelectorAll(".accent-chip.active").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      if (accentHidden) accentHidden.value = chip.dataset.value;
+    });
+  });
+
+  // Generic save AJAX for forms with data-endpoint
+  function postForm(form) {
+    const url = form.getAttribute("data-endpoint") || "#";
+    const fd = new FormData(form);
+    return fetch(url, { method: "POST", body: fd })
+      .then(r => r.ok ? r.json().catch(()=>({ok:true})) : Promise.reject())
+      .then(() => { /* show toast optionally */ })
+      .catch(() => { alert("Save failed (endpoint not wired yet)."); });
+  }
+  scope.querySelectorAll("form[data-endpoint]").forEach(form => {
+    form.addEventListener("submit", (e) => { e.preventDefault(); postForm(form); });
+  });
+  // Explicit save buttons that use form attribute
+  scope.querySelectorAll("button[form]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const form = document.getElementById(btn.getAttribute("form"));
+      if (form) { e.preventDefault(); postForm(form); }
+    });
+  });
+
+  // Actions: Test / Backup / Sync
+  function hitAction(btn) {
+    const url = btn.getAttribute("data-endpoint") || "#";
+    btn.disabled = true;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Working';
+    fetch(url, { method: "POST" })
+      .then(r => r.ok ? r.json().catch(()=>({ok:true})) : Promise.reject())
+      .then(() => { /* mini log can be updated opyionally */ })
+      .catch(() => { alert("Action failed (endpoint not wired yet)."); })
+      .finally(() => { btn.disabled = false; btn.innerHTML = orig; });
+  }
+  const btnTest = document.getElementById("btnTestDevice");
+  const btnBackup = document.getElementById("btnBackupNow");
+  const btnSync = document.getElementById("btnSyncNow");
+  if (btnTest) btnTest.addEventListener("click", () => hitAction(btnTest));
+  if (btnBackup) btnBackup.addEventListener("click", () => hitAction(btnBackup));
+  if (btnSync) btnSync.addEventListener("click", () => hitAction(btnSync));
+
+  getSettings();
+})();
+</script>
+
+<style>
+#admin-settings .section-chip{
+  display:inline-block; margin-left:-2px; margin-bottom:.3rem;
+  padding:.2rem .5rem; border-radius:999px; font-size:.75rem; font-weight:700;
+  border:1px solid var(--td-border, rgba(140,146,160,.18));
+  color: var(--td-muted, #98a1b3);
+}
+#admin-settings .td-chip{
+  border-radius:999px; padding:.25rem .6rem; font-size:.78rem;
+  border:1px solid var(--td-border, rgba(140,146,160,.18));
+  color: var(--td-muted, #98a1b3);
+}
+#admin-settings .td-chip-success{ color:#059669; background:rgba(16,185,129,.12); border-color:rgba(16,185,129,.25); }
+
+/* accent chips */
+#admin-settings .accent-chip{
+  width:28px; height:28px; border-radius:999px; border:2px solid rgba(255,255,255,.35);
+  background: var(--td-accent, #3b82f6); cursor:pointer; outline:none;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.08) inset; transition: transform .12s ease, box-shadow .12s ease;
+}
+#admin-settings .accent-chip[data-value="#3b82f6"]{ background:#3b82f6; }
+#admin-settings .accent-chip[data-value="#10b981"]{ background:#10b981; }
+#admin-settings .accent-chip[data-value="#f59e0b"]{ background:#f59e0b; }
+#admin-settings .accent-chip[data-value="#ef4444"]{ background:#ef4444; }
+#admin-settings .accent-chip[data-value="#8b5cf6"]{ background:#8b5cf6; }
+#admin-settings .accent-chip[data-value="#06b6d4"]{ background:#06b6d4; }
+#admin-settings .accent-chip.active{ box-shadow: 0 0 0 3px rgba(59,130,246,.35); transform: scale(1.05); }
+
+/* switches */
+#admin-settings .form-check-input{
+  cursor:pointer;
+}
+
+/* collapsible button */
+#admin-settings .settings-collapse{
+  border-radius:10px;
+}
+
+/* mini system log */
+#admin-settings .system-log{
+  max-height: 180px; overflow:auto; border:1px solid var(--td-border, rgba(140,146,160,.18));
+  border-radius:12px; padding:.6rem .75rem; background: var(--td-surface, #151b22);
+}
+#admin-settings .system-log .log-line{
+  font-size:.88rem; color: var(--td-text, #f3f4f6);
+  padding:.25rem 0; border-bottom:1px dashed var(--td-border, rgba(140,146,160,.18));
+}
+#admin-settings .system-log .log-line:last-child{ border-bottom:0; }
+
+/* inputs styling consistency */
+#admin-settings .form-control.rounded-pill,
+#admin-settings .form-select.rounded-pill{
+  background: var(--td-surface, #151b22) !important;
+  color: var(--td-text, #f3f4f6) !important;
+  border:1px solid var(--td-border, rgba(140,146,160,.18)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+}
+#admin-settings .form-control::placeholder{ color: var(--td-muted, #98a1b3); }
+</style>

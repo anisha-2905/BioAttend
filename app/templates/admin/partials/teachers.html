@@ -1,0 +1,340 @@
+<div id="admin-teachers">
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="fw-bold mb-1" style="margin-left: -79px;">Manage Teachers</h3>
+      <p class="text-muted mb-0">Add, search, filter and export teacher records.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-primary" id="btnExportTeachers"
+         href="{{ url_for('routes.admin_teachers_export', q=q, department=department) }}">
+        <i class="bi bi-download me-1"></i> Export CSV
+      </a>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+        <i class="bi bi-plus-circle me-1"></i> Add Teacher
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="td-card mb-3 filters">
+    <form id="teacherFilter" class="row g-3 align-items-center">
+      <div class="col-12 col-md-5">
+        <label class="form-label small mb-1">Search</label>
+        <input class="form-control rounded-pill" name="q" placeholder="Search name/email/department"
+               value="{{ q or '' }}">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label small mb-1">Department</label>
+        <select class="form-select rounded-pill" name="department">
+          <option value="">All</option>
+          {% for d in departments %}
+            <option value="{{ d }}" {{ 'selected' if department==d else '' }}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-4 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Apply</button>
+        <a class="btn btn-outline-secondary" href="#" id="teacherReset">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Table -->
+  <div class="td-card">
+    <div class="td-card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0">Teachers</h5>
+      <small class="text-muted">Page {{ pagination.page }} of {{ pagination.pages or 1 }}</small>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table td-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Created</th>
+            <th class="text-end" style="width:120px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in teachers %}
+          <tr data-id="{{ t.id }}">
+            <td class="fw-semibold">{{ t.full_name }}</td>
+            <td class="text-muted">{{ t.email }}</td>
+            <td>{{ t.department }}</td>
+            <td>{{ (t.created_at.strftime("%Y-%m-%d %H:%M") if t.created_at else "-") }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-danger btnDeleteTeacher">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not teachers %}
+          <tr><td colspan="5" class="text-muted py-4 text-center">No teachers found.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  <!-- Pagination -->
+  <div class="td-card-footer d-flex justify-content-between align-items-center">
+  <div class="text-muted small">
+    Showing {{ teachers|length }} of {{ pagination.total }}
+  </div>
+
+  {% if pagination.pages > 1 %}
+  <nav aria-label="Teachers pagination">
+    <ul class="pagination pagination-sm mb-0">
+
+      <!-- Prev -->
+      <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+        <a class="page-link" href="#" data-page="{{ pagination.prev_num if pagination.has_prev else 1 }}">Prev</a>
+      </li>
+
+      {# Compute window manually (no Python max/min) #}
+      {% set start = 1 if pagination.page <= 3 else pagination.page - 2 %}
+      {% set end = pagination.pages if pagination.page >= pagination.pages - 2 else pagination.page + 2 %}
+      {% if start < 1 %}{% set start = 1 %}{% endif %}
+      {% if end > pagination.pages %}{% set end = pagination.pages %}{% endif %}
+
+      <!-- Page numbers -->
+      {% for p in range(start, end + 1) %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+          <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+        </li>
+      {% endfor %}
+
+      <!-- Next -->
+      <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+        <a class="page-link" href="#" data-page="{{ pagination.next_num if pagination.has_next else pagination.pages }}">Next</a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+ </div>
+    <!-- Add Teacher Modal -->
+  <div class="modal fade" id="addTeacherModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" id="addTeacherForm" method="POST"
+      action="{{ url_for('routes.admin_teacher_create') }}">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Teacher</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small">Full Name</label>
+            <input type="text" class="form-control" name="full_name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Email</label>
+            <input type="email" class="form-control" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Department</label>
+            <input type="text" class="form-control" name="department" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Password</label>
+            <input type="password" class="form-control" name="password" minlength="8" required>
+            <div class="form-text">Min 8 chars.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-check2-circle me-1"></i> Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function initAdminTeachers() {
+  const scope = document.getElementById('admin-teachers');
+  if (!scope) return;
+
+  // ensure single modal instance across reloads
+  const modalEl = document.getElementById('addTeacherModal');
+  if (modalEl && modalEl.parentElement !== document.body) {
+  document.body.appendChild(modalEl);
+  }
+
+  const mainContent = document.getElementById('main-content');
+
+// Helper to (re)load list with current params via AJAX into #main-content
+function reloadList(params = {}, clear = false) {
+  // HARD RESET -> made to behave exactly like clicking the sidebar item
+  if (params && params.__hardReset === true) {
+    const form = scope.querySelector('#teacherFilter');
+    if (form) {
+      form.querySelectorAll('input, select').forEach(el => {
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+      });
+    }
+    const clean = new URL(window.location.href);
+    clean.search = '';
+    window.history.replaceState({}, '', clean.toString());
+    const link = document.querySelector("#sidebar a[data-url][href$='#teachers']");
+    if (link) { link.click(); return; }
+    clear = true;
+    params = { page: 1 };
+  }
+
+  const base = new URL("{{ url_for('routes.admin_teachers_partial') }}", window.location.origin);
+
+  if (!clear) {
+    const form = scope.querySelector('#teacherFilter');
+    if (form) {
+      const fd = new FormData(form);
+      for (const [k, v] of fd.entries()) {
+        const val = (v || "").toString().trim();
+        if (val) base.searchParams.set(k, val);
+      }
+    }
+  }
+
+  for (const [k, v] of Object.entries(params || {})) {
+    const val = (v === null || v === undefined) ? "" : String(v).trim();
+    if (val) base.searchParams.set(k, val);
+    else base.searchParams.delete(k);
+  }
+
+  base.searchParams.set("_", Date.now());
+
+  fetch(base.toString(), {
+    cache: "no-store",
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+      "Pragma": "no-cache"
+    }
+  })
+  .then(r => r.text())
+  .then(html => {
+    // inject new HTML
+    mainContent.innerHTML = html;
+
+    // re-execute any script tags inside the newly inserted partial
+    // Note: (scripts added via innerHTML don’t run automatically)
+    const scripts = mainContent.querySelectorAll('script');
+    scripts.forEach(old => {
+      const s = document.createElement('script');
+      // preserve src or inline code
+      if (old.src) {
+        s.src = old.src;
+      } else {
+        s.textContent = old.textContent;
+      }
+      // carry over type if specified (rare, but safe)
+      if (old.type) s.type = old.type;
+      document.body.appendChild(s);
+      // cleanup after execution
+      s.parentNode.removeChild(s);
+    });
+  })
+  .catch(err => {
+    console.error("Failed to reload teachers:", err);
+    alert("Failed to refresh list.");
+  });
+}
+  // Filter form (search & dept)
+  const filterForm = scope.querySelector('#teacherFilter');
+  if (filterForm) {
+    filterForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(filterForm);
+      const params = Object.fromEntries(fd.entries());
+      params.page = 1;
+      reloadList(params);
+    });
+  }
+
+// Reset filters (scoped delegation, survives reload)
+scope.addEventListener('click', (e) => {
+  const reset = e.target.closest('#teacherReset');
+  if (!reset) return;
+  e.preventDefault();
+
+  // clear input and select fields visually
+  const form = scope.querySelector('#teacherFilter');
+  if (form) {
+    form.querySelectorAll('input, select').forEach(el => {
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
+    });
+  }
+  // trigger reload with reset flag
+  reloadList({ reset: "1" }, true);
+});
+
+  // Pagination
+  scope.querySelectorAll('.pagination a.page-link').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = a.getAttribute('data-page');
+      const fd = new FormData(filterForm);
+      const params = Object.fromEntries(fd.entries());
+      params.page = page || 1;
+      reloadList(params);
+    });
+  });
+
+// Add Teacher (AJAX)
+const addForm = document.getElementById('addTeacherForm') || scope.querySelector('#addTeacherForm');
+if (addForm) {
+  addForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(addForm);
+
+    fetch("{{ url_for('routes.admin_teacher_create') }}", {
+      method: "POST",
+      body: fd,
+      credentials: "same-origin" // ensure session cookie is sent
+    })
+    .then(r => r.json())
+    .then(json => {
+      if (!json.ok) throw new Error(json.msg || "Failed to add teacher");
+
+      // close modal then reload
+      const modalEl = document.getElementById('addTeacherModal');
+      const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+      modal.hide();
+      addForm.reset();
+      reloadList();
+      history.replaceState({}, "", location.pathname + location.hash);
+    })
+    .catch(err => {
+      console.error("[AddTeacher AJAX Error]", err);
+      alert(err.message || "Failed to add teacher");
+    });
+  });
+}
+
+  // Delete Teacher (AJAX)
+  scope.querySelectorAll('.btnDeleteTeacher').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tr = btn.closest('tr');
+      const id = tr?.dataset.id;
+      if (!id) return;
+      if (!confirm("Delete this teacher? This cannot be undone.")) return;
+
+      fetch(`{{ url_for('routes.admin_teacher_delete', teacher_id=0) }}`.replace("0", id), {
+        method: "POST"
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (!json.ok) throw new Error(json.msg || "Delete failed");
+        reloadList();
+      })
+      .catch(err => alert(err.message));
+    });
+  });
+})();
+</script>

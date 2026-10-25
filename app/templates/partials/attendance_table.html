@@ -1,0 +1,689 @@
+{# =====================================================
+   Student – Attendance 
+   Expects: records: list[Attendance]  (date, status, remarks, source, device_id ...)
+   ===================================================== #}
+
+{% set total_classes = records|length %}
+{% set present_count = records|selectattr('status','equalto','present')|list|length %}
+{% set absent_count  = records|selectattr('status','equalto','absent')|list|length %}
+{% set attend_rate   = (present_count / (total_classes or 1) * 100) | round(0) %}
+
+{# Build last 30 unique days (newest → oldest already), then reverse to oldest → newest for heat strip #}
+{% set unique_by_date = [] %}
+{% for r in records %}
+  {% if r.date not in unique_by_date %}
+    {% set _ = unique_by_date.append(r.date) %}
+  {% endif %}
+{% endfor %}
+{% set last30 = (unique_by_date[:30])|reverse %}
+
+{# Weekday counts (Mon..Sun; strftime('%w') 0=Sun → remap to 1..7) #}
+{% set wd = dict(Mon=0,Tue=0,Wed=0,Thu=0,Fri=0,Sat=0,Sun=0) %}
+{% for r in records %}
+  {% set d = r.date.strftime('%a') %}
+  {% if d in wd %}{% set _ = wd.__setitem__(d, wd[d]+1) %}{% endif %}
+{% endfor %}
+{% set weekday_labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+{% set weekday_values = [] %}
+{% for l in weekday_labels %}
+  {% set _ = weekday_values.append(wd[l]) %}
+{% endfor %}
+{% set weekday_max = weekday_values | max %}
+
+{# Source breakdown #}
+{% set by_src = {} %}
+{% for r in records %}
+  {% set key = (r.source or 'manual') %}
+  {% if key in by_src %}{% set _ = by_src.__setitem__(key, by_src[key]+1) %}{% else %}{% set _ = by_src.__setitem__(key, 1) %}{% endif %}
+{% endfor %}
+
+<div id="student-attendance-page" class="container-fluid py-4">
+
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+    <h2 class="sap-title mb-0">Attendance</h2>
+
+    <!-- Tiny filters (client-side only) -->
+    <div class="d-flex gap-2">
+      <input id="sapSearch" class="form-control form-control-sm rounded-pill sap-search"
+             placeholder="Search remarks / yyyy-mm-dd …"
+             oninput="
+               const q=this.value.toLowerCase();
+               document.querySelectorAll('#sapTable tbody tr').forEach(tr=>{
+                 tr.style.display = tr.textContent.toLowerCase().includes(q)?'':'none';
+               });
+             ">
+      <select id="sapStatus" class="form-select form-select-sm rounded-pill sap-filter"
+              onchange="
+                const v=this.value;
+                document.querySelectorAll('#sapTable tbody tr').forEach(tr=>{
+                  const s=tr.getAttribute('data-status')||'';
+                  tr.style.display = (!v || v===s)?'':(tr.style.display==='none'?'none':'none');
+                });
+              ">
+        <option value="">All</option>
+        <option value="present">Present</option>
+        <option value="absent">Absent</option>
+      </select>
+    </div>
+  </div>
+
+<!-- Top, thin info row: chips + source breakdown -->
+<div class="sap-banner mb-3">
+
+{# Dynamic Attendance % Chip with Tooltip — linter-safe #}
+{% set rate_color = (
+    '#22c55e' if attend_rate >= 80
+    else '#eab308' if attend_rate >= 60
+    else '#ef4444'
+) %}
+{% set rate_msg = (
+    'Excellent attendance' if attend_rate >= 80
+    else 'On track — aim for 80%+' if attend_rate >= 75
+    else 'Below 75% — improve consistency' if attend_rate >= 60
+    else 'Low attendance — take action'
+) %}
+
+<span class="sap-chip sap-chip-tip"
+      role="note"
+      aria-label="{{ rate_msg }}"
+      data-tip="{{ rate_msg }}"
+      style="--chip-color: {{ rate_color }};">
+  <span class="sap-chip-label">Attendance</span>
+  <strong class="sap-chip-value">{{ attend_rate }}%</strong>
+</span>
+
+  <span class="sap-dot"></span>
+  <span>Present: <strong>{{ present_count }}</strong></span>
+  <span class="sap-dot"></span>
+  <span>Absent: <strong>{{ absent_count }}</strong></span>
+
+  {% if by_src %}
+    <span class="sap-divider"></span>
+    {% for k,v in by_src.items() %}
+      <span class="sap-src">
+        <span class="sap-src-dot {{ 'sap-fp' if k|lower=='fingerprint' }}"></span>
+        {{ k|title }}: <strong>{{ v }}</strong>
+      </span>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<!-- Visuals row: heat strip + weekday bars -->
+<div id="sap-visuals-row" class="row g-3 mb-3">
+  <!-- 30-day heat strip -->
+  <div class="col-12 col-lg-6 d-flex">
+    <div class="card frosted p-3 w-100 h-100 sap-heat-card">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h6 class="mb-0 sap-card-title">Last 30 sessions</h6>
+        <small class="sap-help text-muted">newest at right</small>
+      </div>
+
+      {% set last30 = records[:30] if records else [] %}
+      {% set last30 = last30 | reverse | list %}
+      <div class="sap-heat">
+        {% for r in last30 %}
+          <span
+            class="sap-heat-cell {{ 'ok' if r.status == 'present' else 'bad' }}"
+            title="{{ r.date.strftime('%Y-%m-%d') }} — {{ r.status|capitalize }}">
+          </span>
+        {% else %}
+          <span class="text-muted small">No recent sessions.</span>
+        {% endfor %}
+      </div>
+
+      <!-- Summary bar -->
+      {% set att_pct = ((present_count or 0) / (total_classes or 1) * 100) | round(1) %}
+      <div class="sap-summary-bar mt-3">
+        <div class="sap-summary-fill" style="--p: {{ att_pct }};"></div>
+      </div>
+
+      <!-- Mini insights -->
+      {% set ns = namespace(p30 = 0) %}
+      {% for r in last30 %}
+        {% if r.status == 'present' %}
+          {% set ns.p30 = ns.p30 + 1 %}
+        {% endif %}
+      {% endfor %}
+      {% set last30_avg = ((ns.p30 or 0) / ((last30 | length) or 1) * 100) | round(1) %}
+
+      {% set streak = namespace(run = 1, n = 0) %}
+      {% for r in records %}
+        {% if streak.run and r.status == 'present' %}
+          {% set streak.n = streak.n + 1 %}
+        {% else %}
+          {% set streak.run = 0 %}
+        {% endif %}
+      {% endfor %}
+
+      <div class="sap-mini-insights mt-3">
+        <div>
+          <span class="label">Current streak:</span>
+          <span class="value {{ 'text-success' if streak.n > 0 else '' }}">
+            {{ streak.n }} day{{ '' if streak.n == 1 else 's' }}
+          </span>
+        </div>
+        <div>
+          <span class="label">Last marked:</span>
+          <span class="value">
+            {% if records and records[0].date %}
+              {{ records[0].date.strftime('%Y-%m-%d') }}
+            {% else %}
+              -
+            {% endif %}
+          </span>
+        </div>
+        <div>
+          <span class="label">Last 30 avg:</span>
+          <span class="value">{{ last30_avg }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Weekday pattern -->
+    <div class="col-12 col-lg-6 d-flex">
+      <div class="card frosted p-3 w-100 h-100">
+        <h6 class="mb-2 sap-card-title">Weekday pattern</h6>
+        <div class="sap-bars">
+          {% for lab in weekday_labels %}
+            {% set c = wd[lab] %}
+            {% set pct = (c/(weekday_max or 1)*100)|round(0) %}
+            <div class="sap-bar-row">
+              <span class="sap-bar-label">{{ lab }}</span>
+              <div class="sap-bar-rail">
+                <div class="sap-bar-fill" style="--w: {{ pct }};" aria-label="{{ lab }}: {{ c }}"></div>
+              </div>
+              <span class="sap-bar-val">{{ c }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+</div>
+
+<!-- Records table -->
+<div class="row g-3">
+  <div class="col-12">
+  <div class="card frosted p-0 sap-table-card">
+    <div class="sap-table-head d-flex align-items-center justify-content-between px-3 py-3">
+      <h5 class="mb-0">Attendance Records</h5>
+      <div class="small text-muted">
+        Updated: <strong>{{ (records[0].date.strftime('%Y-%m-%d') if records) or '—' }}</strong>
+      </div>
+    </div>
+
+    <div class="table-responsive sap-table-wrap">
+      <table id="sapTable" class="table table-dark table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th style="min-width: 140px;">Date</th>
+            <th style="min-width: 110px;">Status</th>
+            <th style="min-width: 120px;">Source</th>
+            <th style="min-width: 120px;">Device</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if records %}
+            {% for a in records %}
+              <tr data-status="{{ a.status }}">
+                <td>{{ a.date.strftime('%Y-%m-%d') }}</td>
+                <td>
+                  {% if a.status == 'present' %}
+                    <span class="badge bg-success">Present</span>
+                  {% elif a.status == 'absent' %}
+                    <span class="badge bg-danger">Absent</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ a.status }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ (a.source or 'manual')|title }}</td>
+                <td>{{ a.device_id or '-' }}</td>
+                <td>{{ a.remarks or '-' }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted py-4">No records found.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Compact stats footer -->
+    {% set total_records = records|length %}
+    {% set shown_records = records[:10]|length if records else 0 %}
+    <div class="sap-table-footer d-flex justify-content-between align-items-center px-3 py-2">
+      <small class="sap-table-info">
+        Showing {{ shown_records }} of {{ total_records }} total sessions.
+      </small>
+      <small class="sap-table-date">
+        Last updated:
+        <strong>
+          {{ (records[0].date.strftime('%Y-%m-%d') if records) or '—' }}
+        </strong>
+      </small>
+    </div>
+  </div>
+</div>
+</div>
+
+<style>
+#student-attendance-page .sap-title{
+  color: var(--td-text,#f3f4f6); font-weight:800; letter-spacing:.2px;
+}
+body.light-mode #student-attendance-page .sap-title{ color:#0f172a; }
+
+#student-attendance-page .sap-search,
+#student-attendance-page .sap-filter{
+  min-width: 190px;
+}
+
+/* Banner */
+#student-attendance-page .sap-banner{
+  display:flex; flex-wrap:wrap; gap:.6rem .9rem; align-items:center;
+  padding:.6rem .8rem; border-radius:12px;
+  background: rgba(15,23,42,.35); border:1px solid rgba(148,163,184,.16);
+  backdrop-filter: blur(6px);
+}
+body.light-mode #student-attendance-page .sap-banner{
+  background: rgba(255,255,255,.88); border-color: rgba(15,23,42,.08);
+}
+#student-attendance-page .sap-chip{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .65rem;
+  border-radius:999px; border:1px solid rgba(148,163,184,.22);
+  background: linear-gradient(135deg, rgba(59,130,246,.16), rgba(59,130,246,.06));
+}
+body.light-mode #student-attendance-page .sap-chip{
+  background: linear-gradient(135deg, rgba(37,99,235,.12), rgba(37,99,235,.04));
+  border-color: rgba(15,23,42,.1);
+}
+#student-attendance-page .sap-chip-label{ color:var(--td-muted,#98a1b3); font-weight:600; }
+#student-attendance-page .sap-dot{ width:6px; height:6px; border-radius:50%; background:rgba(148,163,184,.45); }
+#student-attendance-page .sap-divider{ flex:1 1 auto; min-width:12px; opacity:.3; border-top:1px dashed currentColor; height:0; }
+
+/* Source chips */
+#student-attendance-page .sap-src{ display:inline-flex; align-items:center; gap:.4rem; }
+#student-attendance-page .sap-src-dot{
+  width:10px; height:10px; border-radius:50%; background:#64748b;
+}
+#student-attendance-page .sap-src-dot.sap-fp{ background:#10b981; }
+
+/* Card titles */
+#student-attendance-page .sap-card-title{
+  color: var(--td-text,#f3f4f6); letter-spacing:.2px; font-weight:700;
+}
+body.light-mode #student-attendance-page .sap-card-title{ color:#0f172a; }
+
+/* Heat strip */
+#student-attendance-page .sap-heat{
+  display:grid; grid-template-columns: repeat(30, 1fr);
+  gap:6px; padding:6px; border-radius:10px;
+  background: rgba(148,163,184,.06); border:1px dashed rgba(148,163,184,.18);
+}
+body.light-mode #student-attendance-page .sap-heat{
+  background: rgba(15,23,42,.04); border-color: rgba(15,23,42,.12);
+}
+#student-attendance-page .sap-heat-cell{
+  width:100%; aspect-ratio:1/1; border-radius:6px; display:block;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.08);
+  transition: transform .12s ease;
+}
+#student-attendance-page .sap-heat-cell.ok  { background:#10b981; }
+#student-attendance-page .sap-heat-cell.bad { background:#ef4444; }
+#student-attendance-page .sap-heat-cell:hover{ transform: scale(1.06); }
+
+/* Weekday mini-bars */
+#student-attendance-page .sap-bars{ display:flex; flex-direction:column; gap:.5rem; }
+#student-attendance-page .sap-bar-row{ display:grid; grid-template-columns: 36px 1fr 34px; gap:.6rem; align-items:center; }
+#student-attendance-page .sap-bar-label{ color: var(--td-muted,#98a1b3); font-weight:600; }
+#student-attendance-page .sap-bar-rail{ height:10px; border-radius:999px; background: rgba(148,163,184,.14); overflow:hidden; }
+#student-attendance-page .sap-bar-fill{ height:100%; background: linear-gradient(90deg,#22c55e,#10b981); width: calc(var(--w, 0) * 1%); }
+
+/* Table */
+#student-attendance-page .sap-table-head h5{ color: var(--td-text,#f3f4f6); font-weight:800; }
+body.light-mode #student-attendance-page .sap-table-head h5{ color:#0f172a; }
+#student-attendance-page .sap-table-wrap{ max-height: 62vh; overflow:auto; }
+#student-attendance-page table thead th{
+  position: sticky; top: 0; z-index: 1;
+  background: rgba(15,23,42,.85);
+}
+body.light-mode #student-attendance-page table thead th{ background: rgba(255,255,255,.98); }
+#student-attendance-page tbody tr:hover{ background: rgba(148,163,184,.06); }
+body.light-mode #student-attendance-page tbody tr:hover{ background: rgba(15,23,42,.04); }
+
+/* Last 30 sessions summary bar & mini insights  */
+#student-attendance-page .sap-summary-bar{
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(148,163,184,0.18);
+  overflow: hidden;
+}
+#student-attendance-page .sap-summary-fill{
+  height: 100%;
+  width: calc(var(--p, 0) * 1%);
+  background: linear-gradient(90deg, #22c55e, #3b82f6);
+  transition: width .45s ease;
+}
+
+#student-attendance-page .sap-mini-insights{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 10px 14px;
+  align-items: center;
+  border-top: 1px dashed rgba(148,163,184,.22);
+  padding-top: 10px;
+  font-size: .95rem;
+  color: rgba(243,244,246,.92);
+}
+#student-attendance-page .sap-mini-insights .label{
+  color: var(--td-muted, #98a1b3);
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+#student-attendance-page .sap-mini-insights .value{
+  margin-left: 6px;
+  font-weight: 700;
+}
+
+/* light theme adjustments */
+body.light-mode #student-attendance-page .sap-summary-bar{
+  background: rgba(15,23,42,.08);
+}
+body.light-mode #student-attendance-page .sap-mini-insights{
+  color: #0f172a;
+  border-top-color: rgba(15,23,42,.12);
+}
+body.light-mode #student-attendance-page .sap-mini-insights .label{
+  color: #64748b;
+}
+/* Attendance visuals layout safety */
+#sap-visuals-row .sap-heat-card { display: flex; flex-direction: column; }
+/* Heat strip uses grid with fixed-size dots */
+#student-attendance-page .sap-heat{
+  display: grid !important;
+  grid-template-columns: repeat(30, 18px);
+  gap: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(148,163,184,.06);
+  border: 1px dashed rgba(148,163,184,.18);
+  justify-content: start;
+  align-content: start;
+  height: auto;            
+}
+body.light-mode #student-attendance-page .sap-heat{
+  background: rgba(15,23,42,.04);
+  border-color: rgba(15,23,42,.12);
+}
+
+#student-attendance-page .sap-heat-cell{
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.08);
+  transition: transform .12s ease;
+}
+
+/* bigger on lg screens */
+@media (min-width: 992px){
+  #student-attendance-page .sap-heat{
+    grid-template-columns: repeat(30, 20px);
+    gap: 10px;
+  }
+  #student-attendance-page .sap-heat-cell{
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+/* kills any global .card margins inside this page */
+#student-attendance-page .card {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+#student-attendance-page .row.g-3 {
+  /* matching the visuals row gutter so edges line up */
+  --bs-gutter-x: 1rem;
+}
+
+/* table card – no stray margins, full width of its col */
+#student-attendance-page .sap-table-card {
+  width: 100%;
+  margin: 0 !important;
+  border-radius: 16px; 
+}
+#student-attendance-page .row {
+  margin-left: calc(var(--bs-gutter-x, 1rem) * -0.5);
+  margin-right: calc(var(--bs-gutter-x, 1rem) * -0.5);
+}
+#student-attendance-page .row > [class^="col-"],
+#student-attendance-page .row > [class*=" col-"] {
+  padding-left: calc(var(--bs-gutter-x, 1rem) * .5);
+  padding-right: calc(var(--bs-gutter-x, 1rem) * .5);
+}
+
+/* Unified tokenized card background */
+#student-attendance-page .card {
+  background: var(--td-surface, rgba(24, 28, 35, 0.9)); 
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Frosted cards inherit  */
+#student-attendance-page .card.frosted {
+  background: var(--td-surface, rgba(24, 28, 35, 0.9)) !important;
+  backdrop-filter: none !important;
+}
+
+/* Hover: soft elevation + subtle brighten */
+#student-attendance-page .card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  background: var(--td-surface-hover, rgba(28, 32, 40, 0.95));
+}
+
+/* Light mode variant (tokenized too) */
+/* Light mode must override the frosted background that had !important */
+body.light-mode #student-attendance-page .card,
+body.light-mode #student-attendance-page .td-card {
+  background: var(--td-surface-light, #ffffff) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+}
+
+body.light-mode #student-attendance-page .card.frosted,
+body.light-mode #student-attendance-page .td-card.frosted {
+  background: var(--td-surface-light, #ffffff) !important;
+  backdrop-filter: none !important;
+}
+
+/* subtle hover */
+body.light-mode #student-attendance-page .card:hover,
+body.light-mode #student-attendance-page .td-card:hover {
+  background: var(--td-surface-light-hover, #ffffff) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10) !important;
+}
+
+/* If table headers look dark in light mode we need to normalize them too */
+body.light-mode #student-attendance-page table thead th {
+  background: var(--td-surface-light, #ffffff) !important;
+  color: #0f172a !important;
+  border-bottom-color: rgba(15,23,42,0.08) !important;
+}
+/* Forces Bootstrap .table-dark to behave like a light table in light mode */
+body.light-mode #student-attendance-page table.table-dark {
+  --bs-table-bg: #ffffff;
+  --bs-table-color: #0f172a;
+  --bs-table-border-color: rgba(15,23,42,0.08);
+  --bs-table-striped-bg: #f8fafc;
+  --bs-table-striped-color: #0f172a;
+  --bs-table-hover-bg: rgba(15,23,42,0.04);
+  --bs-table-hover-color: #0f172a;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15,23,42,0.08) !important;
+}
+
+body.light-mode #student-attendance-page table.table-dark thead th {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid rgba(15,23,42,0.08) !important;
+}
+
+body.light-mode #student-attendance-page table.table-dark tbody tr {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid rgba(15,23,42,0.06) !important;
+}
+
+body.light-mode #student-attendance-page table.table-dark tbody tr:nth-child(even) {
+  background-color: #f8fafc !important;
+}
+
+body.light-mode #student-attendance-page table.table-dark tbody tr:hover {
+  background-color: rgba(15,23,42,0.04) !important;
+}
+
+body.light-mode #student-attendance-page table.table-dark td,
+body.light-mode #student-attendance-page table.table-dark th {
+  color: #0f172a !important;
+}
+
+/* Badges in light mode */
+body.light-mode #student-attendance-page .badge.bg-success { background-color:#16a34a !important; color:#fff !important; }
+body.light-mode #student-attendance-page .badge.bg-danger  { background-color:#dc2626 !important; color:#fff !important; }
+body.light-mode #student-attendance-page .badge.bg-secondary{ background-color:#94a3b8 !important; color:#fff !important; }
+
+/* Fixing low-contrast texts in dark theme */
+#student-attendance-page .sap-banner span { 
+  color: rgba(229,231,235,.92);   
+}
+#student-attendance-page .sap-banner strong {
+  color: #f8fafc;     
+}
+#student-attendance-page .sap-src { 
+  color: rgba(229,231,235,.92); 
+}
+#student-attendance-page .sap-table-head .text-muted {
+  color: rgba(203,213,225,.96) !important;  
+}
+#student-attendance-page .sap-mini-insights .value {
+  color: #e5e7eb;                    
+}
+/* Light mode counterparts */
+body.light-mode #student-attendance-page .sap-banner span { 
+  color: #334155; 
+}
+body.light-mode #student-attendance-page .sap-banner strong {
+  color: #0f172a;
+}
+body.light-mode #student-attendance-page .sap-src { 
+  color: #334155; 
+}
+body.light-mode #student-attendance-page .sap-table-head .text-muted {
+  color: #64748b !important;
+}
+body.light-mode #student-attendance-page .sap-mini-insights .value {
+  color: #0f172a;
+}
+#student-attendance-page .card.frosted {
+  position: relative;
+  border-top: 3px solid rgba(59,130,246,0.4);
+}
+body.light-mode #student-attendance-page .card.frosted {
+  border-top-color: rgba(37,99,235,0.3);
+}
+#student-attendance-page table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+#student-attendance-page table tbody tr + tr {
+  border-top: 1px dashed rgba(148,163,184,.18);
+}
+/* Dynamic chip provides graceful fallbacks */
+#student-attendance-page .sap-chip {
+  /* fallback border if var missing */
+  border-color: var(--chip-color, rgba(148,163,184,.22));
+  /* subtle glow; color-mix safely uses the var */
+  box-shadow: 0 0 8px color-mix(in srgb, var(--chip-color, #22c55e) 28%, transparent);
+  /* fallback background first, then enhanced gradient */
+  background: rgba(34,197,94,0.08);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--chip-color, #22c55e) 20%, transparent),
+    transparent
+  );
+}
+
+#student-attendance-page .sap-chip .sap-chip-value {
+  color: var(--chip-color, #22c55e);
+}
+
+/* Light theme keeps contrast */
+body.light-mode #student-attendance-page .sap-chip {
+  border-color: color-mix(in srgb, var(--chip-color, #22c55e) 55%, #000 0%);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--chip-color, #22c55e) 22%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--chip-color, #22c55e) 16%, transparent),
+    transparent
+  );
+}
+/* Subtle balance for the banner */
+#student-attendance-page .sap-banner {
+  position: relative; /* enable the pseudo-element */
+}
+/* inner outline for structure (neutral) */
+#student-attendance-page .sap-banner {
+  box-shadow: inset 0 0 0 1px rgba(148,163,184,.10);
+}
+body.light-mode #student-attendance-page .sap-banner {
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,.06);
+}
+body.light-mode #student-attendance-page .sap-banner::before {
+  opacity: .14;
+}
+
+#student-attendance-page .sap-help {
+  color: rgba(226,232,240,0.86) !important;
+  font-weight: 500;
+}
+body.light-mode #student-attendance-page .sap-help {
+  color: rgba(71,85,105,0.86) !important;
+}
+/* Compact stats footer under the attendance table */
+#student-attendance-page .sap-table-footer {
+  border-top: 1px dashed rgba(148,163,184,0.22);
+  background: rgba(15,23,42,0.25);
+  border-radius: 0 0 12px 12px;
+  font-size: 0.9rem;
+  color: rgba(226,232,240,0.85);
+}
+body.light-mode #student-attendance-page .sap-table-footer {
+  background: rgba(255,255,255,0.9);
+  border-top-color: rgba(15,23,42,0.08);
+  color: #334155;
+}
+#student-attendance-page .sap-table-footer strong {
+  font-weight: 700;
+  color: var(--td-text, #f3f4f6);
+}
+body.light-mode #student-attendance-page .sap-table-footer strong {
+  color: #0f172a;
+}
+#student-attendance-page .card.frosted {
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+#student-attendance-page .card.frosted:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+}
+body.light-mode #student-attendance-page .card.frosted:hover {
+  box-shadow: 0 3px 16px rgba(0,0,0,.12);
+}
+@media (max-width: 991px) {
+  #student-attendance-page .sap-bars {
+    margin-top: 1rem;
+  }
+}
+</style>

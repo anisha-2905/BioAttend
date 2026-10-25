@@ -1,0 +1,13 @@
+{# templates/admin/dashboard.html #}
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+  <div id="main-content">
+    <!-- Admin-specific content loads here via partials -->
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {# Place admin-only JS later if needed #}
+{% endblock %}

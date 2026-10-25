@@ -1,0 +1,361 @@
+<div id="admin-bio-logs">
+  <!-- Section chip + header -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="fw-bold mb-0 page-title" style="margin-left: -90px;">Biometric Device Logs</h3>
+      <p class="text-muted mb-0">Inspect raw fingerprint events (R307S) and sync status.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-primary" id="btnBioLogsExport">
+        <i class="bi bi-download me-1"></i> Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="row g-3 kpi-row mb-3">
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Total Scans</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ (kpis.total if kpis and 'total' in kpis else 0) }}</span>
+          <div class="text-muted small mt-1">Selected Range</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Matched</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ (kpis.matched if kpis and 'matched' in kpis else 0) }}</span>
+          <div class="text-muted small mt-1">Successful Identifications</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Failed</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ (kpis.failed if kpis and 'failed' in kpis else 0) }}</span>
+          <div class="text-muted small mt-1">Unmatched Attempts</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Active Devices</h5></div>
+        <div class="td-card-body">
+          <span class="display-6">{{ (kpis.devices if kpis and 'devices' in kpis else 0) }}</span>
+          <div class="text-muted small mt-1">Reporting Today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="td-card filters mb-3">
+    <div class="td-card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0">Filters</h5>
+      <span class="td-chip">R307S • Live feed</span>
+    </div>
+    <div class="td-card-body">
+      <form id="bioLogsFilter" class="row g-3 align-items-end">
+        <div class="col-12 col-md-3">
+          <label class="form-label small mb-1">Date From</label>
+          <input type="date" class="form-control rounded-pill" name="from"
+                 value="{{ request.args.get('from', '') if request and request.args else '' }}">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label small mb-1">Date To</label>
+          <input type="date" class="form-control rounded-pill" name="to"
+                 value="{{ request.args.get('to', '') if request and request.args else '' }}">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Role</label>
+          <select class="form-select rounded-pill" name="role">
+            {% set role = request.args.get('role') if request and request.args else '' %}
+            <option value="">All</option>
+            <option value="student" {{ 'selected' if role=='student' else '' }}>Student</option>
+            <option value="teacher" disabled {{ 'selected' if role=='teacher' else '' }}>Teacher (coming soon)</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1" title="Filter events by status">Status</label>
+          <select class="form-select rounded-pill" name="status">
+          {% set status = request.args.get('status') if request and request.args else 'present' %}
+            <option value="all" {{ 'selected' if status == 'all' else '' }}>All</option>
+            <option value="present" {{ 'selected' if status == 'present' else '' }}>Present</option>
+            <option value="MATCH_FAIL" {{ 'selected' if status == 'MATCH_FAIL' else '' }}>Failed</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-2">
+          <label class="form-label small mb-1">Device</label>
+          <select class="form-select rounded-pill" name="device">
+            {% set device = request.args.get('device') if request and request.args else '' %}
+            <option value="">All</option>
+            {% for d in (devices or []) %}
+              <option value="{{ d }}" {{ 'selected' if device==d else '' }}>{{ d }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label small mb-1">Search (name / roll / finger id)</label>
+          <input class="form-control rounded-pill" name="q" placeholder="Type to search"
+                 value="{{ request.args.get('q','') if request and request.args else '' }}">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Min Confidence</label>
+          <input type="number" min="0" max="100" class="form-control rounded-pill" name="conf_min"
+                 value="{{ request.args.get('conf_min','') if request and request.args else '' }}"
+                 placeholder="e.g. 60">
+        </div>
+
+        <!-- Actions -->
+        <div class="col-6 col-md-7 d-flex justify-content-end align-items-center gap-2">
+          <button class="btn btn-primary" type="submit">Apply</button>
+          <a class="btn btn-outline-secondary" href="#" id="bioLogsReset">Reset</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Logs Table -->
+  <div class="td-card table-card">
+    <div class="td-card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0">Device Event Stream</h5>
+      <small class="text-muted">
+        {% if pagination %} Page {{ pagination.page }} of {{ pagination.pages or 1 }} {% endif %}
+      </small>
+    </div>
+    <div class="table-responsive">
+      <table class="table td-table table-hover align-middle mb-0" id="bioLogsTable">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Finger ID</th>
+            <th>User</th>
+            <th>Role</th>
+            <th>Department</th>
+            <th>Device</th>
+            <th>Status</th>
+            <th>Confidence</th>
+            <th>Synced</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in (logs or []) %}
+          <tr data-id="{{ r.id if r.id is defined }}">
+            <td>
+              {{ r.timestamp.strftime("%Y-%m-%d %H:%M:%S") if r.timestamp else "-" }}
+            </td>
+            <td>{{ r.finger_id if r.finger_id is defined else "-" }}</td>
+            <td>{{ r.user_name if r.user_name is defined else (r.full_name if r.full_name is defined else "-") }}</td>
+            <td>{{ r.role|title if r.role is defined and r.role else "-" }}</td>
+            <td>{{ r.department if r.department is defined else "-" }}</td>
+            <td>{{ r.device_id if r.device_id is defined else "R307S" }}</td>
+            <td>
+              {% set st = r.status if r.status is defined else "" %}
+              {% if st == "MATCH_SUCCESS" %}
+                <span class="td-badge td-badge-success">Matched</span>
+              {% elif st == "MATCH_FAIL" %}
+                <span class="td-badge td-badge-danger">Failed</span>
+              {% else %}
+                <span class="td-badge td-badge-warn">{{ st or "Unknown" }}</span>
+              {% endif %}
+            </td>
+            <td>{{ r.confidence if r.confidence is defined else "-" }}</td>
+            <td>
+              {% if r.synced is defined %}
+                {% if r.synced %}
+                  <span class="td-badge td-badge-success">Yes</span>
+                {% else %}
+                  <span class="td-badge td-badge-warn">Pending</span>
+                {% endif %}
+              {% else %}
+                <span class="td-badge">-</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+
+          {% if not logs or (logs|length == 0) %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-4">No biometric logs found for the selected filters.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination %}
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <div class="text-muted small">
+        Showing {{ (logs|length) if logs else 0 }} of {{ pagination.total }}
+      </div>
+      {% if pagination.pages > 1 %}
+      <nav aria-label="Biologs pagination">
+        <ul class="pagination pagination-sm mb-0">
+          <!-- Prev -->
+          <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="#" data-page="{{ pagination.prev_num if pagination.has_prev else 1 }}">Prev</a>
+          </li>
+
+          {% set start = 1 if pagination.page <= 3 else pagination.page - 2 %}
+          {% set end = pagination.pages if pagination.page >= pagination.pages - 2 else pagination.page + 2 %}
+          {% if start < 1 %}{% set start = 1 %}{% endif %}
+          {% if end > pagination.pages %}{% set end = pagination.pages %}{% endif %}
+
+          {% for p in range(start, end + 1) %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+            </li>
+          {% endfor %}
+
+          <!-- Next -->
+          <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="#" data-page="{{ pagination.next_num if pagination.has_next else pagination.pages }}">Next</a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+(function initAdminBioLogs(){
+  // prevent double binding
+  if (window.__adminBioLogsBound) return;
+  window.__adminBioLogsBound = true;
+
+  const scope = document.getElementById('admin-bio-logs');
+  if (!scope) return;
+
+  const mainContent = document.getElementById('main-content');
+
+  // Build URL for partial with params
+  function reloadList(params){
+    const base = new URL("{{ url_for('routes.admin_bio_logs_partial') }}", window.location.origin);
+
+    if (params){
+      Object.entries(params).forEach(([k,v])=>{
+        if (v !== undefined && v !== null && v !== "") base.searchParams.set(k, v);
+      });
+    } else {
+      // keep current form values
+      const form = document.getElementById('bioLogsFilter');
+      if (form){
+        const fd = new FormData(form);
+        for (const [k,v] of fd.entries()){
+          if (v) base.searchParams.set(k, v);
+        }
+      }
+    }
+
+    // cache-bust to avoid stale HTML
+    base.searchParams.set("_", Date.now());
+
+    return fetch(base.toString(), { cache: "no-store" })
+      .then(r=>r.text())
+      .then(html=>{
+        if (mainContent) mainContent.innerHTML = html;
+        // notify any listeners that the partial reloaded
+        window.dispatchEvent(new CustomEvent("partial:admin-bio-logs:ready"));
+      })
+      .catch(err=>{
+        console.error("Failed to reload bio logs:", err);
+        alert("Failed to refresh list.");
+      });
+  }
+
+  // expose globally so listeners survive partial swaps
+  window.__adminBioLogsReload = reloadList;
+
+  // Delegated Filter Apply submit
+  document.addEventListener('submit', (e)=>{
+    const form = e.target.closest('#bioLogsFilter');
+    if (!form) return;
+    e.preventDefault();
+    const fd = new FormData(form);
+    const params = Object.fromEntries(fd.entries());
+    params.page = 1;
+    window.__adminBioLogsReload(params);
+  });
+
+  // Delegated Reset for click
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('#bioLogsReset');
+    if (!btn) return;
+    e.preventDefault();
+
+    // visually clear the form
+    const form = document.getElementById('bioLogsFilter');
+    if (form) form.reset();
+
+    // let backend reset filters 
+    window.__adminBioLogsReload({ reset: "1" })
+      .then(()=>{
+        // scrub querystring in the address bar
+        const clean = new URL(window.location.href);
+        clean.search = "";
+        history.replaceState({}, "", clean.toString());
+      });
+  });
+
+  // Delegated pagination / survives partial reloads
+  document.addEventListener('click', (e)=>{
+    const link = e.target.closest('.pagination a.page-link');
+    if (!link) return;
+    if (link.closest('.disabled') || link.parentElement?.classList.contains('active')) return;
+    e.preventDefault();
+    const page = link.getAttribute('data-page') || '1';
+    const form = document.getElementById('bioLogsFilter');
+    const params = form ? Object.fromEntries(new FormData(form).entries()) : {};
+    params.page = page;
+    window.__adminBioLogsReload(params);
+  });
+
+// Delegated Export , so it survives partial reloads
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#btnBioLogsExport');
+  if (!btn) return;
+  e.preventDefault();
+
+  const scope = document.getElementById('admin-bio-logs') || document;
+  const table = scope.querySelector('#bioLogsTable');
+  const rows  = table ? [...table.querySelectorAll('tbody tr')] : [];
+
+  if (!rows.length) {
+    alert('No rows to export.');
+    return;
+  }
+
+  // Build CSV from visible table
+  let csv = 'Timestamp,Finger ID,User,Role,Department,Device,Status,Confidence,Synced\n';
+  rows.forEach(tr => {
+    const cols = [...tr.children].map(td => {
+      const text = (td.innerText || '').trim().replace(/\s+/g, ' ');
+      // escape commas/quotes
+      return /[",]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    });
+    csv += cols.join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  const ts = new Date().toISOString().slice(0,10);
+  a.download = `biometric_logs_${ts}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+});
+})();
+</script>
+

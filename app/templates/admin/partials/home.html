@@ -1,0 +1,460 @@
+<div id="admin-home">
+  
+  <!-- header (keep your existing typography + export button) -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Admin Control Center</h2>
+      <p class="text-muted mb-0">Monitor and manage the BioAttend ecosystem.</p>
+    </div>
+    <div>
+      <a class="btn btn-gradient btn-sm shadow-sm"
+      href="{{ url_for('routes.admin_home_export') }}">
+      <i class="bi bi-download me-1"></i> Export Summary
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="row g-4 mb-3">
+    <div class="col-md-4">
+      <div class="td-stat-card gradient-blue">
+        <div class="stat-stack">
+          <div class="td-stat-label">TOTAL TEACHERS</div>
+          <div class="td-stat-value">{{ teacher_count }}</div>
+          <div class="td-stat-meta">Active Faculty</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="td-stat-card gradient-green">
+        <div class="stat-stack">
+          <div class="td-stat-label">TOTAL STUDENTS</div>
+          <div class="td-stat-value">{{ student_count }}</div>
+          <div class="td-stat-meta">Active Enrollments</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="td-stat-card gradient-red">
+        <div class="stat-stack">
+          <div class="td-stat-label">ATTENDANCE LOGS</div>
+          <div class="td-stat-value">{{ attendance_count }}</div>
+          <div class="td-stat-meta">Total Records</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- charts & status -->
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="td-card">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Attendance Trends</h5>
+          <span class="text-muted small">Monthly</span>
+        </div>
+        <div class="td-card-body">
+          <canvas id="adminTrendChart" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="td-card text-center py-4" id="sysCard">
+  <div class="pulse-dot mb-2" id="sysPulse" style="background:#9ca3af"></div>
+  <h6 class="fw-bold mb-1 mt-1" id="sysTitle">Checking system…</h6>
+  <p class="text-muted small mb-2" id="sysSub">Please wait</p>
+  <i class="bi bi-cpu fs-1 opacity-75" id="sysIcon"></i>
+</div>
+      <div class="td-card mt-3" id="adminRecentEvents">
+  <div class="td-card-header d-flex align-items-center justify-content-between">
+    <h5 class="mb-0">Recent Device Events</h5>
+    <a id="linkViewAllBio" class="small text-muted nav-link-load" href="{{ url_for('routes.admin_dashboard') }}#biologs"
+       data-url="{{ url_for('routes.admin_bio_logs_partial') }}">View all</a>
+  </div>
+  <div class="td-card-body py-2">
+    <ul class="mini-feed list-unstyled mb-0" id="recentEventsList">
+      <li class="mini-feed__empty text-muted small">Loading…</li>
+    </ul>
+  </div>
+</div>
+    </div>
+  </div>
+
+<!-- Attendance Today strip -->
+<div id="admin-mini-snapshot" class="td-card td-mini-snapshot d-flex align-items-center justify-content-between px-3 py-2 mb-3">
+  <div class="d-flex align-items-center gap-2">
+    <span class="chip-dot"></span>
+    <strong class="title">Attendance Today</strong>
+    <small id="snapshotLastUpdate" class="text-muted ms-2">—</small>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span class="pill pill-present"><i class="bi bi-check2-circle me-1"></i><span id="snapPresent">0</span> Present</span>
+    <span class="pill pill-absent"><i class="bi bi-x-circle me-1"></i><span id="snapAbsent">0</span> Absent</span>
+    <span class="pill pill-unmarked"><i class="bi bi-dash-circle me-1"></i><span id="snapUnmarked">0</span> Unmarked</span>
+  </div>
+</div>
+  
+  <!-- quick access -->
+  <div class="td-card">
+    <div class="td-card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Quick Access</h5>
+      <span class="text-muted small">Admin Tools</span>
+    </div>
+<div class="row g-3 td-card-body text-center">
+  <div class="col-md-3">
+    <div class="td-quick-box qa-link" data-target="#teachers" role="button" tabindex="0" aria-label="Manage Teachers">
+      <i class="bi bi-person-badge text-primary"></i>
+      <h6 class="fw-semibold mt-2 mb-0">Manage Teachers</h6>
+      <small class="text-muted">Add / update records</small>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="td-quick-box qa-link" data-target="#students" role="button" tabindex="0" aria-label="Manage Students">
+      <i class="bi bi-people text-success"></i>
+      <h6 class="fw-semibold mt-2 mb-0">Manage Students</h6>
+      <small class="text-muted">View enrollment data</small>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="td-quick-box qa-link" data-target="#biologs" role="button" tabindex="0" aria-label="Hardware Logs">
+      <i class="bi bi-fingerprint text-danger"></i>
+      <h6 class="fw-semibold mt-2 mb-0">Hardware Logs</h6>
+      <small class="text-muted">View scan history</small>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="td-quick-box qa-link" data-target="#settings" role="button" tabindex="0" aria-label="System Settings">
+      <i class="bi bi-gear text-warning"></i>
+      <h6 class="fw-semibold mt-2 mb-0">System Settings</h6>
+      <small class="text-muted">Configuration tools</small>
+    </div>
+  </div>
+</div>
+<!-- draws chart only if Chart.js already exists globally -->
+<script>
+(function () {
+  const canvas = document.getElementById("adminTrendChart");
+  if (!canvas || typeof Chart === "undefined") return;
+
+  const endpoint = "{{ url_for('routes.admin_trend_api') }}?days=28";
+
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+
+  function buildChart(labels, present, absent) {
+    const ex = Chart.getChart(canvas);
+    if (ex) ex.destroy();
+
+    new Chart(canvas, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Present",
+            data: present,
+            borderColor: "#10b981",
+            backgroundColor: "rgba(16,185,129,0.18)",
+            fill: true,
+            tension: 0.35
+          },
+          {
+            label: "Absent",
+            data: absent,
+            borderColor: "#ef4444",
+            backgroundColor: "rgba(239,68,68,0.15)",
+            fill: true,
+            tension: 0.35
+          }
+        ]
+      },
+      options: {
+        plugins: { 
+          legend: { display: true, labels: { color: "#9ca3af" } } 
+        },
+        scales: {
+          x: { ticks: { color: "#9ca3af" }, grid: { color: "rgba(148,163,184,.12)" } },
+          y: { beginAtZero: true, ticks: { color: "#9ca3af" }, grid: { color: "rgba(148,163,184,.12)" } }
+        }
+      }
+    });
+  }
+
+  async function loadTrend() {
+    try {
+      const res = await fetch(endpoint, { cache: "no-store" });
+      const json = await res.json();
+      buildChart(json.labels, json.present, json.absent);
+    } catch (e) {
+      console.error("Trend load failed:", e);
+      // fallback -> dummy
+      buildChart(["Week 1", "Week 2", "Week 3", "Week 4"], [25, 36, 44, 58], [2, 5, 6, 8]);
+    }
+  }
+
+  loadTrend();
+})();
+</script>
+<script>
+(function () {
+  const card  = document.getElementById("sysCard");
+  if (!card) return;
+
+  const title = document.getElementById("sysTitle");
+  const sub   = document.getElementById("sysSub");
+  const icon  = document.getElementById("sysIcon");
+  const dot   = document.getElementById("sysPulse");
+
+  function setNeutral() {
+    title.textContent = "Checking system…";
+    sub.textContent   = "Please wait";
+    icon.classList.remove("glow-online","glow-offline","text-success","text-danger");
+    icon.classList.add("text-muted");
+    if (dot) dot.style.background = "#9ca3af";
+  }
+
+  async function updatePulse() {
+    setNeutral(); 
+    try {
+      const r = await fetch("{{ url_for('routes.admin_bio_logs_stats_api') }}", { cache: "no-store" });
+      const data = await r.json();
+
+      icon.classList.remove("text-muted","glow-online","glow-offline","text-success","text-danger");
+
+      if ((data?.devices_active || 0) > 0) {
+        title.textContent = "All Systems Operational";
+        sub.textContent   = `${data.devices_active} device(s) active`;
+        icon.classList.add("glow-online");   // color + subtle glow
+        if (dot) dot.style.background = "#10b981";
+      } else {
+        title.textContent = "Attention: Device offline";
+        sub.textContent   = "No biometric devices reporting";
+        icon.classList.add("glow-offline");  // color + subtle glow
+        if (dot) dot.style.background = "#ef4444";
+      }
+    } catch (e) {
+      // kept neutral 
+      title.textContent = "Status unavailable";
+      sub.textContent   = "Could not reach service";
+      icon.classList.remove("text-muted");
+      icon.classList.add("glow-offline");
+      if (dot) dot.style.background = "#ef4444";
+      console.warn("Pulse update failed", e);
+    }
+  }
+
+  // prevent duplicate intervals across partial reloads
+  if (window.__pulseTimer) clearInterval(window.__pulseTimer);
+  updatePulse();
+  window.__pulseTimer = setInterval(updatePulse, 60000);
+
+  // re-run when the home partial is reinserted
+  window.addEventListener("partial:admin-home:ready", updatePulse);
+})();
+</script>
+
+<script>
+(function () {
+  const container = document.getElementById('admin-home');
+  if (!container) return;
+
+  function goTo(hash) {
+    // find matching sidebar link by hash like #teachers
+    const link = document.querySelector(`.sidebar a.nav-link-load[href$="${hash}"]`);
+    if (link) {
+      link.click(); // reuse existing loader & its events
+    } else {
+      // fallback -> update hash 
+      location.hash = hash;
+    }
+  }
+
+  container.addEventListener('click', (e) => {
+    const box = e.target.closest('.qa-link[data-target]');
+    if (!box) return;
+    goTo(box.dataset.target);
+  });
+
+  // keyboard accessibility
+  container.addEventListener('keydown', (e) => {
+    const box = e.target.closest('.qa-link[data-target]');
+    if (!box) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      goTo(box.dataset.target);
+    }
+  });
+})();
+</script>
+<script>
+(function () {
+  const root = document.getElementById("admin-mini-snapshot");
+  if (!root) return;
+
+  const elP  = document.getElementById("snapPresent");
+  const elA  = document.getElementById("snapAbsent");
+  const elU  = document.getElementById("snapUnmarked");
+  const elTs = document.getElementById("snapshotLastUpdate");
+
+  const endpoint = "{{ url_for('routes.admin_today_snapshot_api') }}";
+
+  // Fallback to format ISO explicitly in IST 
+  function formatIST(iso) {
+    if (!iso) return null;
+    try {
+      const d = new Date(iso);
+      return new Intl.DateTimeFormat('en-IN', {
+        hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata'
+      }).format(d);
+    } catch { return null; }
+  }
+
+  async function refreshSnapshot() {
+    try {
+      const res  = await fetch(`${endpoint}?_=${Date.now()}`, { cache: "no-store" });
+      const data = await res.json();
+
+      elP.textContent = data.present ?? 0;
+      elA.textContent = data.absent ?? 0;
+      elU.textContent = data.unmarked ?? 0;
+
+      // Prefers server-provided HH:MM (IST). Fallback to client-side IST formatting.
+      const hm = data.last_update_hm || formatIST(data.last_update);
+      elTs.textContent = hm ? `• updated ${hm}` : "• No updates yet";
+    } catch {
+      elTs.textContent = "• offline";
+    }
+  }
+
+  refreshSnapshot();
+  setInterval(refreshSnapshot, 60000);
+})();
+</script>
+<script>
+(function () {
+  const box = document.getElementById("adminRecentEvents");
+  if (!box) return;
+
+  const list = document.getElementById("recentEventsList");
+  const baseEndpoint = "{{ url_for('routes.admin_bio_logs_recent_api') }}?limit=6";
+
+  const iconFor = (status) => {
+    if (status === "present") return '<i class="bi bi-check2-circle me-2 text-success"></i>';
+    if (status === "absent")  return '<i class="bi bi-x-circle me-2 text-danger"></i>';
+    return '<i class="bi bi-dot me-2 text-muted"></i>';
+  };
+
+  function relTime(tsIso) {
+    if (!tsIso) return "—";
+    const d = new Date(tsIso);
+    const now = new Date();
+    const sec = Math.max(1, Math.floor((now - d) / 1000));
+    if (sec < 60) return `${sec}s ago`;
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `${min}m ago`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h ago`;
+    return d.toLocaleString();
+  }
+
+  function refreshAges() {
+    if (!list) return;
+    list.querySelectorAll("li[data-ts]").forEach(li => {
+      const ts = li.getAttribute("data-ts");
+      const ageEl = li.querySelector(".js-age");
+      if (ageEl && ts) ageEl.textContent = relTime(ts);
+    });
+  }
+
+  async function loadRecent() {
+    try {
+      // cache-bust explicitly
+      const url = new URL(baseEndpoint, window.location.origin);
+      url.searchParams.set("_", Date.now());
+
+      const res = await fetch(url.toString(), { cache: "no-store" });
+      const { events } = await res.json();
+
+      if (!events || !events.length) {
+        list.innerHTML = '<li class="mini-feed__empty text-muted small">No recent events</li>';
+        return;
+      }
+
+      list.innerHTML = events.map(e => {
+        const ts = e.timestamp || ""; // ISO string from API (UTC "Z" is fine)
+        return `
+          <li class="mini-feed__item" data-ts="${ts}">
+            <div class="left">
+              ${iconFor(e.status)}
+              <div class="meta">
+                <div class="line-1">
+                  <span class="who">${e.student || "-"}</span>
+                  <span class="dim">•</span>
+                  <span class="dept">${e.department || "-"}</span>
+                </div>
+                <div class="line-2 small text-muted">
+                  ${e.device_id || "R307S"} · finger ${e.finger_id ?? "-"} · conf ${e.confidence ?? "-"}
+                </div>
+              </div>
+            </div>
+            <div class="right small text-muted js-age">${relTime(ts)}</div>
+          </li>
+        `;
+      }).join("");
+
+      // ensure the first render uses the current “now”
+      refreshAges();
+    } catch (e) {
+      list.innerHTML = '<li class="mini-feed__empty text-danger small">Failed to load</li>';
+      console.error("recent events fetch failed:", e);
+    }
+  }
+
+  // initial load
+  loadRecent();
+
+  // re-fetch list every 45s
+  const tFetch = setInterval(loadRecent, 45000);
+
+  // re-compute “x ago” text every 30s regardless of data refresh
+  const tAges = setInterval(refreshAges, 30000);
+
+  // cleanup if the card is removed
+  const obs = new MutationObserver(() => {
+    if (!document.body.contains(box)) {
+      clearInterval(tFetch);
+      clearInterval(tAges);
+      obs.disconnect();
+    }
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+<script>
+(function () {
+  const a = document.getElementById("linkViewAllBio");
+  if (!a) return;
+
+  if (window.__navLinkLoadBound) return;
+
+  a.addEventListener("click", function (e) {
+    e.preventDefault();
+    const url = a.getAttribute("data-url");
+    const target = document.getElementById("main-content");
+    if (!url || !target) return;
+
+    fetch(url)
+      .then(r => r.text())
+      .then(html => {
+        target.innerHTML = html;
+        history.pushState({}, "", a.href);
+        window.dispatchEvent(new Event("partial:admin-bio-logs:ready"));
+      })
+      .catch(err => console.error("Failed to load Bio Logs:", err));
+  });
+})();
+</script>
+

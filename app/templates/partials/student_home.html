@@ -1,0 +1,191 @@
+<div class="dashboard-header text-center mb-4">
+  <h1>Welcome, {{ student_name or "Student" }}</h1>
+</div>
+
+<div id="student-home" class="container-fluid">
+  <div class="row gx-4 gy-4 align-items-stretch">
+
+    <!-- Stat cards -->
+    <div class="col-md-4">
+      <div class="stat-card green-card">
+        <div class="stat-title">Present</div>
+        <div class="stat-number">
+          <span class="count" data-target="{{ present_count or 0 }}">{{ present_count or 0 }}</span>
+        </div>
+        <div class="stat-meta">Good job — keep it up!</div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="stat-card red-card">
+        <div class="stat-title">Absent</div>
+        <div class="stat-number">
+          <span class="count" data-target="{{ absent_count or 0 }}">{{ absent_count or 0 }}</span>
+        </div>
+        <div class="stat-meta">Try to improve attendance</div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="stat-card blue-card">
+        <div class="stat-title">Total Classes</div>
+        <div class="stat-number">
+          <span class="count" data-target="{{ total_classes or 0 }}">{{ total_classes or 0 }}</span>
+        </div>
+        <div class="stat-meta">This term</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Progress & recent items -->
+  <div class="row mt-4 gx-4 gy-4 align-items-stretch" id="student-row-2">
+
+    <div class="col-xl-4 col-lg-4 d-flex progress-card">
+      <div class="card frosted p-4 h-100 w-100">
+        <h5 class="card-title mb-3">Attendance Progress</h5>
+        <div class="d-flex align-items-center gap-4">
+          <!-- circular progress with SVG -->
+          <div class="progress-ring" data-percent="{{ (present_count / (total_classes or 1) * 100) | round(0) }}">
+            <svg viewBox="0 0 120 120" class="progress-svg">
+              <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+              <circle class="ring" cx="60" cy="60" r="52"></circle>
+            </svg>
+            <div class="progress-label">
+              <span class="progress-value">{{ ((present_count / (total_classes or 1)) * 100) | round(0) }}%</span>
+              <small class="d-block text-muted">Present rate</small>
+            </div>
+          </div>
+          <div>
+            <p class="mb-1"><strong>Present:</strong> {{ present_count or 0 }}</p>
+            <p class="mb-1"><strong>Absent:</strong> {{ absent_count or 0 }}</p>
+            <p class="mb-0"><strong>Total:</strong> {{ total_classes or 0 }}</p>
+          </div>
+        </div>
+        <hr class="my-3 soft-divider">
+
+<!-- Target vs current & inline bar -->
+<div class="row g-3 align-items-center">
+  <div class="col-6">
+    <div class="mini-kpi">
+      <div class="label">Target</div>
+      <div class="value badge rounded-pill px-2 py-1"
+           style="background:rgba(16,185,129,.14); color:#10b981; border:1px solid rgba(16,185,129,.28)">
+        75%
+      </div>
+    </div>
+  </div>
+  <div class="col-6">
+    <div class="mini-kpi">
+      <div class="label">Rate</div>
+      <div class="value fw-bold">
+        {{ ((present_count / (total_classes or 1)) * 100) | round(0) }}%
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="line-progress mt-2"
+     style="--val: {{ ((present_count / (total_classes or 1)) * 100) | round(0) }}"></div>
+
+<!-- Last 5 sessions -->
+<div class="mt-3">
+  <div class="label mb-1">Last 5 sessions</div>
+  <div class="last5 d-flex gap-2">
+    {% for a in recent_attendance[:5] %}
+      <span class="dot {{ 'present' if a.status=='present' else 'absent' }}"
+            title="{{ a.date.strftime('%Y-%m-%d') }} · {{ a.status }}"></span>
+    {% endfor %}
+  </div>
+</div>
+      </div>
+    </div>
+
+ <div class="col-xl-4 col-lg-4 d-flex">
+      <div class="card frosted p-0 w-100 h-100 attendance-table">
+        <div class="table-wrap p-0">
+          <table class="table table-dark mb-0">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if recent_attendance %}
+                {% for a in recent_attendance[:8] %}
+                <tr>
+                  <td>{{ a.date.strftime('%Y-%m-%d') }}</td>
+                  <td>
+                    {% if a.status == 'present' %}
+                      <span class="badge bg-success">Present</span>
+                    {% elif a.status == 'absent' %}
+                      <span class="badge bg-danger">Absent</span>
+                    {% else %}
+                      <span class="badge bg-secondary">{{ a.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ a.remarks or '-' }}</td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="3" class="text-center text-muted py-4">No records found.</td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Notices / Notifications -->
+    <div class="col-xl-4 col-lg-4 d-flex">
+      <div class="card frosted p-0 w-100 h-100 d-flex flex-column">
+        <div class="td-card-header d-flex align-items-center justify-content-between px-4 py-3">
+          <h5 class="mb-0">Notices</h5>
+          <small class="text-muted">
+            {% if notices and notices|length %}{{ notices|length }} new{% else %}No new{% endif %}
+          </small>
+        </div>
+
+        <div class="p-3 flex-grow-1">
+          {% if notices and notices|length %}
+            <ul class="notice-list list-unstyled mb-0">
+              {% for n in notices[:6] %}
+                <li class="notice-item">
+                  <div class="d-flex align-items-start gap-3">
+                    <span class="notice-dot notice-{{ n.kind or 'info' }}"></span>
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <strong class="notice-title">{{ n.title }}</strong>
+                        <small class="notice-time text-muted">
+                          {{ (n.ts.strftime('%b %d, %H:%M') if n.ts else '-') }}
+                        </small>
+                      </div>
+                      {% if n.body %}
+                        <div class="notice-body text-muted">{{ n.body }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="p-4 text-center text-muted">
+              No notices right now. Enjoy your day!
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="px-3 pb-3 pt-0">
+          <a href="#" class="btn btn-sm btn-outline-secondary w-100 disabled" tabindex="-1" aria-disabled="true">
+            View all (coming soon)
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

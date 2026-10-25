@@ -1,0 +1,5077 @@
+/* Smooth fade animation for theme switching */
+body, 
+.sidebar, 
+.dashboard-topbar, 
+.card, 
+.info-card, 
+.progress-card, 
+table, 
+.profile-btn, 
+.dropdown-menu {
+  transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/*LIGHT MODE OVERRIDES */
+
+/* Global background & text */
+body.light-mode {
+  background-color: #f5f6fa; /* soft grey-white */
+  color: #222;
+}
+
+/* Sidebar */
+body.light-mode .sidebar {
+  background: #ffffff;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .sidebar .nav-link {
+  color: #444;
+}
+
+body.light-mode .sidebar .nav-link:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Sidebar headings/icons */
+body.light-mode .sidebar h4 span,
+body.light-mode .sidebar i {
+  color: #222;
+}
+
+/* Top navbar */
+body.light-mode .dashboard-topbar {
+  background: #ffffff;
+  color: #222;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .dashboard-topbar .title {
+  color: #222;
+}
+
+/* Profile dropdown */
+body.light-mode .dashboard-topbar .dropdown-menu {
+  background: #fff;
+}
+
+body.light-mode .dashboard-topbar .dropdown-item {
+  color: #222;
+}
+
+body.light-mode .dashboard-topbar .dropdown-item:hover {
+  background: rgba(0,0,0,0.05);
+  color: #000;
+}
+
+/* Cards (stats/info) */
+body.light-mode .card,
+body.light-mode .info-card {
+  background: #fff;
+  color: #222;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .info-card h5,
+body.light-mode .info-card p {
+  color: #222;
+}
+
+/* Attendance Progress card */
+body.light-mode .progress-card {
+  background: #fff;
+  color: #222;
+}
+
+/* Tables */
+body.light-mode table {
+  background: #fff;
+  color: #222;
+}
+
+body.light-mode table thead {
+  background: #eaeaea;
+  color: #000;
+}
+
+body.light-mode table tbody tr {
+  background: #fff;
+}
+
+body.light-mode table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* Chart backgrounds */
+body.light-mode canvas {
+  background: #fff;
+}
+
+/* Welcome text / headings */
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode h5,
+body.light-mode h6 {
+  color: #222;
+}
+
+/* Sidebar nav links (no invisible text) */
+body.light-mode .sidebar .nav-link {
+  color: #222 !important;
+}
+
+body.light-mode .sidebar .nav-link i {
+  color: #222 !important;
+}
+
+/* Top navbar student name */
+body.light-mode .profile-btn {
+  color: #222 !important;
+}
+
+/* Table header text */
+body.light-mode table thead th {
+  color: #000 !important;
+}
+
+/* Percentage in progress circle */
+body.light-mode .progress-card .percentage {
+  color: #222 !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (max-width: 576px) {
+  .card {
+    padding: 1.5rem 1rem !important;
+  }
+}
+
+.container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background: #f3f4f6;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  max-width: 100%;
+  width: 400px;
+  margin: 0 auto;
+  color: #212529;
+}
+
+.card h4,
+.card h5 {
+  color: #212529;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-control,
+.form-select {
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #212529;
+  padding: 12px;
+  border-radius: 50px;
+  border: 1px solid #ccc;
+  box-shadow: none;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+::placeholder {
+  color: #6c757d;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-control:hover,
+.form-select:hover {
+  border-color: #28a745 !important;
+}
+
+.btn-success:focus,
+.btn-success:active {
+   transform: scale(0.96);
+  box-shadow: 0 0 6px rgba(56, 239, 125, 0.4) inset;
+}
+
+.btn-success {
+  background-color: #1f4037; /* dark emerald base */
+  background-image: linear-gradient(to right, #11998e, #38ef7d);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 50px;
+  box-shadow: 0 0 10px rgba(56, 239, 125, 0.2);
+  transition: all 0.3s ease-in-out;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.btn-success:hover {
+  background-image: linear-gradient(to right, #38ef7d, #11998e);
+  box-shadow: 0 0 18px rgba(56, 239, 125, 0.5);
+  transform: translateY(-2px);
+}
+
+.signup-logo {
+  width: 100%;
+  max-width: 100px;
+  height: auto;
+  display: block;
+  margin: 0 auto 10px auto;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body::-webkit-scrollbar {
+  height: 0px;
+}
+
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Overlay only for login/signup pages & not dashboard */
+body:not(.dashboard-body)::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.35);
+  z-index: 0; /* keep behind */
+}
+
+/* Ensures both login & signup card stays clickable */
+body:not(.dashboard-body) .card.fade-in-up {
+  position: relative;
+  z-index: 1;
+}
+
+body {
+  background: url('../img/backgroung.avif') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  z-index: 1;
+}
+
+.text-success {
+  color: #50c878 !important; /* frosted emerald */
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: color 0.3s ease;
+}
+
+.text-success:hover {
+  color: #34a86e !important; /* slightly deeper green on hover */
+  text-decoration: underline;
+}
+
+
+a {
+  color: #339af0; /* soft bootstrap blue */
+  font-weight: 500;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+a:hover {
+  color: #1c7ed6;
+  text-decoration: underline;
+}
+
+.card p.text-center a {
+  color: rgba(80, 220, 160, 0.85); /* soft green */
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: color 0.3s ease;
+}
+.card p.text-center a:hover {
+  color: #28a745;
+  text-decoration: underline;
+}
+
+
+.card p.text-center {
+  color: rgba(255, 255, 255, 0.9);  /* brighter white */
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-animation 0.6s linear;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.custom-flash {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  text-align: center;
+  animation: fadeIn 0.6s ease-in-out;
+  transition: all 0.3s ease;
+}
+
+.custom-flash.alert-success {
+  background-color: rgba(40, 167, 69, 0.3);
+}
+
+.custom-flash.alert-danger {
+  background-color: rgba(220, 53, 69, 0.3);
+}
+
+.custom-flash.alert-info {
+  background-color: rgba(23, 162, 184, 0.3);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+  border-color: #dc3545;
+}
+
+.dashboard-container {
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.4);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar .nav-link {
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar.collapsed .nav-link span {
+  display: none;
+}
+
+.sidebar.collapsed h4 span {
+  display: none;
+}
+
+.dashboard-body {
+  background-color: #2c2f33; /* solid background */
+  background-image: none;
+  min-height: 100vh;
+}
+
+/* Stat colors */
+.stat-present {
+  background: linear-gradient(135deg, #28a745, #218838);
+}
+
+.stat-absent {
+  background: linear-gradient(135deg, #dc3545, #b02a37);
+}
+
+.stat-total {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+/* Attendance table */
+.table-dark {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-dark th {
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+.table-dark td {
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Student Dashboard Styles */
+.dashboard-header h1 {
+  font-family: 'Inter', sans-serif;
+  font-size: 2.4rem;
+  color: #e9ecef;
+  margin-bottom: 0.25rem;
+  font-weight: 700;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.45);
+}
+.dashboard-header p.lead { color: #bfc4c7; }
+
+/* Stat cards */
+.stat-card {
+  border-radius: 14px;
+  padding: 28px 22px;
+  color: #ffffff;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.4);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.stat-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.45); }
+
+.stat-title { font-size: 1.2rem; opacity: 0.95; text-align: center; font-weight: 600; margin-bottom: 8px; }
+.stat-number { text-align: center; font-size: 2.2rem; font-weight: 700; }
+.stat-meta { text-align: center; margin-top: 8px; opacity: 0.85; font-size: 0.9rem; }
+
+.green-card { background: linear-gradient(135deg,#11998e,#38ef7d); color: #fff; }
+.red-card   { background: linear-gradient(135deg,#e53935,#d32f2f); color: #fff; }
+.blue-card  { background: linear-gradient(135deg,#1976d2,#1e88e5); color: #fff; }
+
+/* frosted glass cards */
+.card.frosted {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  color: #e9ecef;
+}
+
+/* attendance table (frosted) */
+.attendance-table {
+  background: transparent;
+  border-radius: 10px;
+  margin-left: -105px; /* move left */
+}
+.attendance-table thead th {
+  background: rgba(255,255,255,0.03);
+  border: none;
+  color: #e9ecef;
+  font-weight: 700;
+}
+.attendance-table tbody td {
+  border-top: 1px solid rgba(255,255,255,0.03);
+  color: #cfd4d6;
+  margin-left: -200px;
+}
+
+/* Make the progress card titles legible on dark theme */
+.progress-card .card.frosted .card-title {
+  color: rgba(255,255,255,0.95) !important;
+}
+
+/* Make the small sublabel ("Present rate") readable */
+.progress-card .progress-label small {
+  color: rgba(255,255,255,0.78) !important;
+}
+
+/* Make progress texts visible in light theme */
+body.light-mode .progress-card .card.frosted .card-title {
+  color: #0f172a !important; /* dark title for light bg */
+}
+
+body.light-mode .progress-card .progress-value {
+  color: #0f172a !important; /* main percentage text */
+}
+
+body.light-mode .progress-card .progress-label small {
+  color: #334155 !important; /* softer sublabel */
+}
+
+/* progress ring */
+.progress-ring {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.progress-svg {
+  width: 120px;
+  height: 120px;
+  transform: rotate(-90deg); /* keeps only one rotation that is on SVG, not on .ring) */
+}
+
+.ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.06);
+  stroke-width: 12;
+}
+
+.ring {
+  fill: none;
+  stroke: #36d37b;
+  stroke-width: 12;
+  stroke-linecap: round;
+
+  /* remove redundant transform (handled by SVG) */
+  transform: none;
+  transform-origin: 50% 50%;
+
+  /* lets JS fully control this */
+  stroke-dasharray: 0;
+  stroke-dashoffset: 0;
+
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.progress-label {
+  color: #e9ecef;
+}
+
+.progress-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: block;
+}
+
+.progress-card {
+  margin-left: -93px;
+}
+
+/* Student Home — Notices (premium, left-aligned, dark-safe) */
+/* Header */
+#student-home .td-card-header h5 {
+  font-weight: 800;
+  letter-spacing: .3px;
+  color: var(--td-text, #f3f4f6);
+}
+#student-home .td-card-header small {
+  color: var(--td-muted, #98a1b3) !important;
+}
+
+/* List container */
+#student-home .notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+/* Base item */
+#student-home .notice-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.25rem 0.75rem 1.2rem; /* space for accent rail */
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0;
+  transition: transform 0.15s ease;
+}
+#student-home .notice-item:hover {
+  transform: translateX(4px);
+}
+
+/* Accent mapping */
+#student-home .notice-info    { --accent-color: #3b82f6; } /* blue  */
+#student-home .notice-success { --accent-color: #10b981; } /* green */
+#student-home .notice-warn    { --accent-color: #f59e0b; } /* amber */
+#student-home .notice-danger  { --accent-color: #ef4444; } /* red   */
+
+/* Slim left rail */
+#student-home .notice-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent-color) 45%, transparent);
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+#student-home .notice-item:hover::before {
+  opacity: 0.95;
+  transform: scaleY(1.04);
+}
+
+/* Dot indicator */
+#student-home .notice-dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-color) 40%, transparent);
+  margin-top: 0.4rem;
+  transition: box-shadow 0.2s ease;
+}
+#student-home .notice-item:hover .notice-dot {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-color) 55%, transparent);
+}
+
+/* Text hierarchy */
+#student-home .notice-title {
+  color: #f8fafc;
+  font-weight: 800;
+  letter-spacing: .2px;
+  line-height: 1.2;
+}
+#student-home .notice-time {
+  color: #cbd5e1 !important;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+#student-home .notice-body {
+  color: #f1f5f9 !important; /* brightened for dark surfaces */
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+}
+
+/* Hover tint */
+#student-home .notice-item:hover .notice-title {
+  color: var(--accent-color);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--accent-color) 35%, transparent);
+}
+
+/* Layout structure -> ensures stacked left alignment */
+#student-home .notice-item .flex-grow-1 {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 0.15rem;
+}
+
+/* Divider */
+#student-home .notice-item:not(:last-child)::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin-top: 0.65rem;
+}
+
+/* Footer button */
+#student-home .btn-outline-secondary {
+  border-radius: 10px;
+  border-color: rgba(148, 163, 184, 0.22);
+  color: var(--td-text, #f3f4f6);
+  font-weight: 600;
+}
+#student-home .btn-outline-secondary:hover {
+  background: color-mix(in srgb, var(--td-accent, #3b82f6) 14%, transparent);
+  border-color: color-mix(in srgb, var(--td-accent, #3b82f6) 40%, transparent);
+}
+
+/* Light mode tweaks */
+body.light-mode #student-home .notice-title { color: #0f172a; }
+body.light-mode #student-home .notice-body  { color: #334155; }
+body.light-mode #student-home .notice-time  { color: #64748b !important; }
+body.light-mode #student-home .notice-item:not(:last-child)::after {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+/* Student Home – second row alignment */
+#student-row-2 .card.frosted { height: 100%; }
+
+#student-home .attendance-table { margin-left: 0 !important; }
+#student-home .progress-card    { margin-left: 0 !important; }
+
+/* gives the table card a consistent inner look */
+#student-home .attendance-table .table-wrap { height: 100%; }
+
+/* Student Home: Progress footer bits */
+#student-home .mini-kpi .label{
+  color: var(--td-muted, #98a1b3);
+  font-size: .82rem;
+  letter-spacing: .2px;
+}
+#student-home .mini-kpi .value{
+  color: var(--td-text, #f3f4f6);
+  font-size: 1rem;
+}
+
+/* inline progress bar that uses --val (0–100) */
+#student-home .line-progress{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(148,163,184,.18);
+  position: relative;
+  overflow: hidden;
+}
+#student-home .line-progress::after{
+  content:"";
+  position:absolute; inset:0;
+  width: calc(var(--val, 0) * 1%);
+  background: linear-gradient(90deg,#34d399,#10b981);
+  box-shadow: 0 0 10px rgba(16,185,129,.35) inset;
+}
+
+/* last-5 status dots */
+#student-home .last5 .dot{
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.12);
+  background: #374151; /* fallback */
+  box-shadow: 0 0 0 3px rgba(0,0,0,.12) inset;
+}
+#student-home .last5 .dot.present{
+  background: #10b981;
+  border-color: rgba(16,185,129,.45);
+}
+#student-home .last5 .dot.absent{
+  background: #ef4444;
+  border-color: rgba(239,68,68,.45);
+}
+
+/* Student Home — Soft Divider (reliable shimmer) */
+#student-home .soft-divider {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  height: 2px;                  /* +1px so it’s targetable/visible */
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(148,163,184,0.18) 0%,
+    rgba(148,163,184,0.36) 50%,
+    rgba(148,163,184,0.18) 100%
+  );
+  box-shadow: 0 0 4px rgba(148,163,184,0.14);
+  opacity: 0.98;
+}
+
+/* shimmering light sweep layer */
+#student-home .soft-divider::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -35%;
+  width: 35%;
+  height: 100%;
+  pointer-events: none;       
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.28) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* run the sweep when the card is hovered/focused */
+#student-home .card.frosted:hover .soft-divider::after,
+#student-home .card.frosted:focus-within .soft-divider::after {
+  animation: dividerSweep 1.2s ease forwards;
+}
+
+/* allow manual trigger via .shimmer class */
+#student-home .soft-divider.shimmer::after {
+  animation: dividerSweep 1.2s ease forwards;
+}
+
+/* keyframes for the sweep */
+@keyframes dividerSweep {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  35%  { opacity: 0.9; }
+  100% { transform: translateX(220%); opacity: 0; }
+}
+
+/* Light mode tuning */
+body.light-mode #student-home .soft-divider {
+  background: linear-gradient(
+    90deg,
+    rgba(71,85,105,0.20) 0%,
+    rgba(71,85,105,0.34) 50%,
+    rgba(71,85,105,0.20) 100%
+  );
+  box-shadow: 0 0 3px rgba(71,85,105,0.16);
+}
+body.light-mode #student-home .soft-divider::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.35) 50%,
+    transparent 100%
+  );
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #student-home .card.frosted:hover .soft-divider::after,
+  #student-home .card.frosted:focus-within .soft-divider::after,
+  #student-home .soft-divider.shimmer::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Student Home — Notice text visibility fix */
+/* DARK THEME tunning */
+#student-home .notice-body {
+  color: #f2f4f8 !important;
+  font-weight: 500;
+  opacity: 0.96;
+}
+
+/* LIGHT THEME OVERRIDES */
+body.light-mode #student-home .notice-body {
+  color: #1e293b !important; 
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+/* Title + time in light mode  */
+body.light-mode #student-home .notice-title {
+  color: #0f172a !important;  /* rich slate tone */
+}
+
+body.light-mode #student-home .notice-time {
+  color: #475569 !important;  /* muted gray-blue tone */
+}
+
+/* strengthen accent rail visibility in light mode */
+body.light-mode #student-home .notice-item::before {
+  background: color-mix(in srgb, var(--accent-color) 50%, transparent);
+  opacity: 0.9;
+}
+#student-home h1 {
+  text-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+
+/* STUDENT • PERFORMANCE (scoped, token-friendly) */
+#student-performance {
+  --sp-radius: var(--td-radius, 16px);
+  --sp-shadow: var(--td-shadow, 0 8px 24px rgba(0,0,0,.18));
+  --sp-border: var(--td-border, rgba(140,146,160,.18));
+
+  --sp-bg: var(--td-bg, #0f141a);
+  --sp-surface: var(--td-surface, #151b22);
+  --sp-text: var(--td-text, #f3f4f6);
+  --sp-muted: var(--td-muted, #98a1b3);
+
+  --sp-blue: var(--td-accent, #3b82f6);
+  --sp-green: var(--td-accent-2, #10b981);
+  --sp-amber: var(--td-warn, #f59e0b);
+  --sp-red: var(--td-danger, #ef4444);
+
+  --sp-card-pad: 1.15rem;
+}
+
+/* Titles / headers */
+#student-performance .page-title,
+#student-performance h1.h4,
+#student-performance .h4 {
+  color: var(--sp-text);
+  font-weight: 800;
+  letter-spacing: .2px;
+  text-shadow: 0 2px 6px rgba(0,0,0,.28);
+  margin-bottom: .5rem;
+}
+#student-performance .text-muted { color: var(--sp-muted) !important; }
+
+/* Card shell */
+#student-performance .td-card,
+#student-performance .card.frosted {
+  background: var(--sp-surface);
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius);
+  box-shadow: var(--sp-shadow);
+  color: var(--sp-text);
+  padding: var(--sp-card-pad);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+#student-performance .td-card:hover,
+#student-performance .card.frosted:hover {
+  transform: translateY(-2px);
+}
+
+/* Card header/body/footer utility */
+#student-performance .td-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .6rem;
+}
+#student-performance .td-card-header h5 {
+  margin: 0; font-weight: 700; color: var(--sp-text);
+}
+#student-performance .td-card-body { padding-top: .25rem; }
+
+/* KPI row */
+#student-performance .kpi-row .td-card {
+  text-align: center;
+  padding: 1.05rem 1.1rem;
+}
+#student-performance .kpi-row .td-card h6,
+#student-performance .kpi-row .td-card .label {
+  color: var(--sp-text); opacity: .95; margin: 0 0 .25rem;
+  font-weight: 700; letter-spacing: .2px; font-size: .95rem;
+}
+#student-performance .kpi-row .td-card .display-6 {
+  margin: 0; font-weight: 700; font-size: 2rem; line-height: 1.1;
+}
+
+/* Student Performance – Colorful KPI cards */
+#student-performance {
+  /* palette tokens */
+  --sp-blue:   #3b82f6;
+  --sp-green:  #10b981;
+  --sp-amber:  #f59e0b;
+  --sp-fuchsia:#d946ef;
+
+  --sp-blue-light:   #60a5fa;
+  --sp-green-light:  #34d399;
+  --sp-amber-light:  #fbbf24;
+  --sp-fuchsia-light:#f0abfc;
+
+  --sp-surface: var(--td-surface, #151b22);
+  --sp-text:    var(--td-text, #f3f4f6);
+  --sp-muted:   var(--td-muted, #98a1b3);
+}
+
+/* Base KPI card shell */
+#student-performance .kpi-row .td-card {
+  position: relative;
+  border: 0;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  overflow: hidden;
+}
+
+/* Subtle gloss in dark mode */
+#student-performance .kpi-row .td-card::after {
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,0));
+  opacity:.7;
+}
+
+/* Hover lift */
+#student-performance .kpi-row .td-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(0,0,0,.28);
+  filter: brightness(1.03);
+}
+
+/* Typography on KPI cards */
+#student-performance .kpi-row .td-card .td-card-header h5,
+#student-performance .kpi-row .td-card .display-6,
+#student-performance .kpi-row .td-card .text-muted {
+  color: #fff !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,.28);
+}
+
+/* Chip inside header stays subtle on gradients */
+#student-performance .kpi-row .td-card .td-chip {
+  border-color: rgba(255,255,255,.35);
+  color: rgba(255,255,255,.9);
+  background: rgba(255,255,255,.06);
+}
+
+/* Badge contrast */
+#student-performance .kpi-row .td-card .td-badge {
+  filter: saturate(1.05) brightness(1.05);
+}
+
+/* Dark theme gradients */
+#student-performance .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, var(--sp-green), #059669);
+}
+#student-performance .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, var(--sp-amber), #ea580c);
+}
+#student-performance .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+#student-performance .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, var(--sp-blue), #2563eb);
+}
+
+/* Light mode variants (softer, readable with dark text) */
+body.light-mode #student-performance .kpi-row .td-card {
+  color: #0f172a;
+  box-shadow: 0 8px 18px rgba(0,0,0,.10);
+}
+body.light-mode #student-performance .kpi-row .td-card::after {
+  /* reduces the gloss in light mode */
+  opacity: .35;
+}
+
+/* Light -> headings & numbers go dark; removes strong text-shadow */
+body.light-mode #student-performance .kpi-row .td-card .td-card-header h5,
+body.light-mode #student-performance .kpi-row .td-card .display-6,
+body.light-mode #student-performance .kpi-row .td-card .text-muted {
+  color: #0f172a !important;
+  text-shadow: none;
+}
+
+/* Light: gentle gradients */
+body.light-mode #student-performance .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, var(--sp-green-light), #86efac);
+}
+body.light-mode #student-performance .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, var(--sp-amber-light), #facc15);
+}
+body.light-mode #student-performance .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #a5b4fc, var(--sp-fuchsia-light));
+}
+body.light-mode #student-performance .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, var(--sp-blue-light), #93c5fd);
+}
+
+/* Keep charts & table cards unchanged -> no accidental bleed */
+#student-performance .row .td-card:not(.kpi-row .td-card) { background: var(--sp-surface); }
+
+/* Student Performance —> table card matches charts width */
+#student-performance .table-card {
+  width: 100%;
+  max-width: none;
+  border-radius: var(--td-radius, 16px);
+  overflow: hidden;
+}
+
+/* Keeps header breathing room similar to charts */
+#student-performance .table-card .td-card-header {
+  padding: 1rem 1.25rem;
+}
+
+/* Makes sure the table can use full width */
+#student-performance .table-card .table-responsive {
+  width: 100%;
+}
+
+/* Light/dark text balance for headers/cells */
+#student-performance .table-card thead th {
+  color: var(--td-text, #f3f4f6);
+}
+#student-performance .table-card tbody td {
+  color: var(--td-text, #f3f4f6);
+}
+body.light-mode #student-performance .table-card thead th,
+body.light-mode #student-performance .table-card tbody td {
+  color: var(--td-text, #0f172a);
+}
+
+/* Student Performance – light-mode heading visibility */
+body.light-mode #student-performance h2 {
+  color: #0f172a !important; /* readable on light */
+  text-shadow: none !important;
+}
+
+/* Top accent stripe */
+#student-performance .kpi-row .td-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent);
+}
+
+/* Subtle gloss overlay for depth */
+#student-performance .kpi-row .td-card::after {
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,0));
+  opacity:.6;
+  z-index: 0;
+}
+
+/* Tiny chips/pills */
+#student-performance .sp-chip {
+  display: inline-block;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  border: 1px solid var(--sp-border);
+  color: var(--sp-muted);
+  background: transparent;
+  white-space: nowrap;
+}
+
+/* Charts */
+#student-performance canvas {
+  display: block;
+  width: 100% !important;
+  height: 220px;
+  background: transparent;
+}
+@media (min-width: 992px) {
+  #student-performance #spTrend { height: 240px; }
+  #student-performance #spSubjects { height: 240px; }
+}
+#student-performance .chart-legend {
+  display: flex; gap: 1rem; justify-content: center; margin-top: .5rem;
+  font-size: .85rem; color: var(--sp-muted);
+}
+#student-performance .chart-legend .dot {
+  width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: .4rem;
+}
+#student-performance .chart-legend .dot.blue  { background: var(--sp-blue); }
+#student-performance .chart-legend .dot.green { background: var(--sp-green); }
+#student-performance .chart-legend .dot.red   { background: var(--sp-red); }
+
+/* Subject cards / mini-bars (if present) */
+#student-performance .subject-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem; padding: .55rem .65rem; border-radius: 10px;
+  border: 1px solid var(--sp-border);
+  background: color-mix(in srgb, var(--sp-bg) 6%, transparent);
+}
+#student-performance .subject-name { color: var(--sp-text); font-weight: 600; }
+#student-performance .subject-score { color: var(--sp-text); font-weight: 700; }
+
+/* Assessments table */
+#student-performance .table-wrap { border-radius: var(--sp-radius); overflow: hidden; }
+#student-performance .td-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--sp-text);
+  --bs-table-border-color: var(--sp-border);
+  --bs-table-striped-bg: color-mix(in srgb, var(--sp-muted) 10%, transparent);
+  --bs-table-striped-color: var(--sp-text);
+  --bs-table-hover-bg: color-mix(in srgb, var(--sp-blue) 10%, transparent);
+  --bs-table-hover-color: var(--sp-text);
+  border-color: var(--sp-border) !important;
+  margin: 0;
+}
+#student-performance .td-table>:not(caption)>*>*{
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#student-performance .td-table thead th{
+  color: var(--sp-text) !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--sp-border) !important;
+  letter-spacing: .2px;
+}
+#student-performance .td-table tbody td{
+  color: var(--sp-text) !important;
+  border-top: 1px solid var(--sp-border) !important;
+  padding: .9rem .75rem;
+}
+#student-performance .td-badge {
+  border-radius: 999px;
+  padding: .32rem .65rem;
+  font-size: .78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+#student-performance .td-badge-pass {
+  color: #059669; background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.25);
+}
+#student-performance .td-badge-fail {
+  color: #dc2626; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.25);
+}
+
+/* Soft divider */
+#student-performance .soft-divider{
+  border: 0; height: 1px; margin: .9rem 0;
+  background: linear-gradient(90deg,
+    rgba(148,163,184,.10),
+    rgba(148,163,184,.28),
+    rgba(148,163,184,.10)
+  );
+}
+
+/* Buttons */
+#student-performance .btn-outline-secondary {
+  color: var(--sp-muted);
+  border-color: var(--sp-border);
+  border-radius: 12px;
+  background: transparent;
+}
+#student-performance .btn-outline-secondary:hover {
+  background: color-mix(in srgb, var(--sp-muted) 16%, transparent);
+  color: var(--sp-text);
+}
+#student-performance .btn-primary {
+  background: var(--sp-blue);
+  border: 0;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+/* Light mode overrides */
+body.light-mode #student-performance {
+  --sp-bg: #f6f7fb;
+  --sp-surface: #ffffff;
+  --sp-text: #0f172a;
+  --sp-muted: #64748b;
+  --sp-border: rgba(15,23,42,.10);
+  --sp-shadow: 0 8px 24px rgba(2,6,23,.08);
+}
+body.light-mode #student-performance .page-title,
+body.light-mode #student-performance .h4 { text-shadow: none; }
+body.light-mode #student-performance .subject-item {
+  background: color-mix(in srgb, var(--sp-bg) 85%, transparent);
+}
+
+/* Responsive niceties */
+@media (max-width: 767px){
+  #student-performance .td-card,
+  #student-performance .card.frosted { padding: .95rem; }
+  #student-performance .kpi-row .td-card .display-6 { font-size: 1.8rem; }
+  #student-performance .chart-legend { flex-wrap: wrap; }
+}
+
+/* Print tweaks */
+@media print {
+  #student-performance .td-card,
+  #student-performance .card.frosted { box-shadow: none !important; border-color: #ccc !important; }
+  #student-performance .btn, 
+  #student-performance .sp-chip { display: none !important; }
+  body { background: #fff !important; }
+}
+
+/* Student home cards = Admin td-card look */
+#student-home .card.frosted{
+  background: var(--td-surface, #151b22);
+  border: 1px solid var(--td-border, rgba(140,146,160,.18));
+  border-radius: var(--td-radius, 16px);
+  box-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.18));
+  color: var(--td-text, #f3f4f6);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+#student-home .card.frosted:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--td-shadow-hover, 0 14px 30px rgba(2,6,23,.24));
+  border-color: var(--td-border, rgba(140,146,160,.22));
+}
+
+/* Headers inside cards (match admin) */
+#student-home .card.frosted .card-title,
+#student-home .card.frosted h5{
+  margin: 0;
+  color: var(--td-text, #f3f4f6);
+  font-weight: 700;
+}
+
+/* Light mode inherits global tokens */
+body.light-mode #student-home .card.frosted{
+  background: var(--td-surface, #ffffff);
+  border-color: var(--td-border, rgba(15,23,42,.10));
+  box-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.08));
+  color: var(--td-text, #0f172a);
+}
+body.light-mode #student-home .card.frosted .card-title,
+body.light-mode #student-home .card.frosted h5{
+  color: var(--td-text, #0f172a);
+}
+
+.navbar {
+  border-radius: 12px;
+}
+
+.navbar .dropdown-menu {
+  border-radius: 10px;
+}
+
+.navbar .nav-link {
+  color: #fff;
+}
+
+.navbar .nav-link:hover {
+  color: #ddd;
+}
+
+/* Top navbar styling */
+.dashboard-topbar {
+  background: rgba(20, 20, 20, 0.8); /* semi-transparent for frosted look */
+  backdrop-filter: blur(10px); /* frosted glass effect */
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem; /* more breathing room */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  margin-top: -1.5rem;
+}
+
+/* Left section -> title */
+.dashboard-topbar .title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Profile dropdown toggle */
+.dashboard-topbar .profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.dashboard-topbar img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #444;
+}
+
+.dashboard-topbar .dropdown-menu {
+  background: #1e1e1e;
+  border-radius: 8px;
+}
+
+.dashboard-topbar .dropdown-item {
+  color: #ddd;
+}
+
+.dashboard-topbar .dropdown-item:hover {
+  background: #333;
+  color: #fff;
+}
+
+.app-root {
+  padding-top: 0;
+}
+
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.theme-toggle-btn:hover {
+  color: #ffd43b; /* highlight on hover */
+}
+
+/* Toggle button style */
+#themeToggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#themeToggle.sun-glow i {
+  color: #FFD700; /* golden yellow */
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.7),
+               0 0 20px rgba(255, 215, 0, 0.5),
+               0 0 30px rgba(255, 215, 0, 0.3);
+}
+
+#themeToggle.moon-glow i {
+  color: #66B2FF; /* soft blue */
+  text-shadow: 0 0 10px rgba(102, 178, 255, 0.7),
+               0 0 20px rgba(102, 178, 255, 0.5),
+               0 0 30px rgba(102, 178, 255, 0.3);
+}
+
+/* Smooth rotation + fade */
+#themeToggle i {
+  transition: transform 0.5s ease, opacity 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+
+.icon-morph {
+  transform: rotate(180deg) scale(1.2);
+  opacity: 0;
+}
+
+.rotate-icon {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 767px) {
+  .stat-card { padding: 18px; min-height: 110px; }
+  .dashboard-header h1 { font-size: 1.6rem; }
+  .progress-svg { width:90px; height:90px; }
+}
+
+/* Student Reports — Colorful Summary Cards */
+#student-reports .row.g-3.mb-4 > [class*="col-"]:nth-child(1) .card,
+#student-reports .row.g-3.mb-4 > [class*="col-"]:nth-child(2) .card,
+#student-reports .row.g-3.mb-4 > [class*="col-"]:nth-child(3) .card,
+#student-reports > .col-md-4 > .card { /* attendance % card (outside the row) */
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+#student-reports .row.g-3.mb-4 > [class*="col-"]:nth-child(1) .card {
+  background: linear-gradient(135deg, #2563eb, #1e40af) !important;
+}
+#student-reports .row.g-3.mb-4 > [class*="col-"]:nth-child(2) .card {
+  background: linear-gradient(135deg, #16a34a, #15803d) !important;
+}
+#student-reports .row.g-3.mb-4 > [class*="col-"]:nth-child(3) .card {
+  background: linear-gradient(135deg, #dc2626, #991b1b) !important;
+}
+
+#student-reports > .col-md-4 > .card {
+  background: linear-gradient(135deg, #fbbf24, #d97706) !important;
+}
+
+/* Student Reports — visibility fixes */
+
+/* Headline + subtext */
+#student-reports h2 {
+  color: var(--td-text, #f3f4f6) !important;
+}
+#student-reports p.text-muted {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* Light-mode adjustments */
+body.light-mode #student-reports h2 {
+  color: var(--td-text, #0f172a) !important;
+}
+body.light-mode #student-reports p.text-muted {
+  color: var(--td-muted, #64748b) !important;
+}
+
+/* Summary cards (first row) — ensuring text is readable on all backgrounds */
+#student-reports .row.g-3.mb-4 .card h6,
+#student-reports .row.g-3.mb-4 .card p {
+  color: #ffffff !important;             /* force white for contrast */
+  text-shadow: 0 1px 2px rgba(0,0,0,.25); /* keeps legible on gradients/frosted */
+}
+body.light-mode #student-reports .row.g-3.mb-4 .card h6,
+body.light-mode #student-reports .row.g-3.mb-4 .card p {
+  color: #0f172a !important;
+  text-shadow: none;
+}
+/* Export buttons — outline-light is invisible on light bg, fix it only here */
+#student-reports .btn-outline-light {
+  border-color: rgba(255,255,255,0.6);
+  color: #ffffff;
+}
+#student-reports .btn-outline-light:hover {
+  background: rgba(255,255,255,0.12);
+  color: #ffffff;
+}
+body.light-mode #student-reports .btn-outline-light {
+  border-color: rgba(15,23,42,0.25) !important;
+  color: #0f172a !important;
+  background: transparent !important;
+}
+body.light-mode #student-reports .btn-outline-light:hover {
+  background: rgba(15,23,42,0.06) !important;
+  color: #0f172a !important;
+}
+
+/* Chart card headings & labels */
+#student-reports .card h6 {
+  color: var(--td-text, #f3f4f6) !important;
+}
+body.light-mode #student-reports .card h6 {
+  color: var(--td-text, #0f172a) !important;
+}
+
+/* Table header/body contrast inside the reports partial */
+#student-reports table thead th {
+  color: var(--td-text, #f3f4f6) !important;
+}
+#student-reports table tbody td {
+  color: var(--td-text, #e5e7eb) !important;
+}
+
+/* Text treatments inside colored cards */
+#student-reports .row.g-3.mb-4 .card h6,
+#student-reports > .col-md-4 > .card h6 {
+  color: rgba(255,255,255,.92) !important;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: .35rem;
+  font-weight: 700;
+}
+#student-reports .row.g-3.mb-4 .card p,
+#student-reports > .col-md-4 > .card p {
+  color: #fff !important;
+  font-weight: 800;
+  font-size: 1.7rem;
+  margin: 0;
+}
+
+/* Hover lift */
+#student-reports .row.g-3.mb-4 .card:hover,
+#student-reports > .col-md-4 > .card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0,0,0,.28);
+  filter: brightness(1.04);
+}
+
+/* Light mode keeps the same gradients; ensure contrast */
+body.light-mode #student-reports .row.g-3.mb-4 .card h6,
+body.light-mode #student-reports .row.g-3.mb-4 .card p,
+body.light-mode #student-reports > .col-md-4 > .card h6,
+body.light-mode #student-reports > .col-md-4 > .card p {
+  color: #fff !important;
+}
+
+/* TEACHER DASHBOARD */
+#teacher-dashboard {
+  --td-radius: 18px;
+  --td-shadow: 0 8px 24px rgba(0,0,0,.12);
+  --td-border: rgba(140, 146, 160, 0.18);
+
+  /* Dark defaults */
+  --td-bg: #0f141a;
+  --td-surface: #151b22;
+  --td-text: #f3f4f6;
+  --td-muted: #98a1b3;
+
+  --td-accent: #3b82f6; 
+  --td-accent-2: #10b981; 
+  --td-warn: #f59e0b;
+  --td-danger: #ef4444;
+}
+body.light-mode #teacher-dashboard {
+  --td-bg: #f6f7fb;
+  --td-surface: #ffffff;
+  --td-text: #0f172a;
+  --td-muted: #64748b;
+  --td-border: rgba(15, 23, 42, 0.08);
+  --td-shadow: 0 8px 24px rgba(2,6,23,.08);
+}
+
+/* Generic card used for all new blocks */
+#teacher-dashboard .td-card {
+  background: var(--td-surface);
+  border: 1px solid var(--td-border);
+  border-radius: var(--td-radius);
+  padding: 1.25rem 1.25rem 1.1rem;
+  box-shadow: var(--td-shadow);
+}
+
+#teacher-dashboard .td-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .75rem;
+}
+#teacher-dashboard .td-card-header h5 {
+  color: var(--td-text);
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/* Chip on card header */
+#teacher-dashboard .td-chip {
+  display: inline-block;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-size: .775rem;
+  border: 1px solid var(--td-border);
+  color: var(--td-muted);
+  background: transparent;
+}
+
+/* Key metrics list */
+#teacher-dashboard .td-metrics {
+  list-style: none;
+  padding: 0;
+  margin: .5rem 0 0 0;
+}
+#teacher-dashboard .td-metrics li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .85rem 0;
+  border-bottom: 1px dashed var(--td-border);
+  color: var(--td-text);
+}
+#teacher-dashboard .td-metrics li.no-border { border-bottom: 0; }
+#teacher-dashboard .td-metric-value {
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+#teacher-dashboard .td-metric-value.td-up { color: var(--td-accent-2); }
+#teacher-dashboard .td-metric-value.td-down { color: var(--td-danger); }
+
+/* Badges */
+#teacher-dashboard .td-badge {
+  border-radius: 999px;
+  padding: .35rem .7rem;
+  font-size: .8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+#teacher-dashboard .td-badge-success {
+  color: #059669;
+  background: rgba(16,185,129,.12);
+  border-color: rgba(16,185,129,.25);
+}
+#teacher-dashboard .td-badge-danger {
+  color: #dc2626;
+  background: rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.25);
+}
+#teacher-dashboard .td-badge-warn {
+  color: #b45309;
+  background: rgba(245,158,11,.16);
+  border-color: rgba(245,158,11,.25);
+}
+
+/* Feed / notifications */
+#teacher-dashboard .td-feed {
+  list-style: none; padding: 0; margin: .25rem 0 0 0;
+}
+#teacher-dashboard .td-feed li {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .9rem 1rem;
+  border: 1px solid var(--td-border);
+  border-radius: 12px;
+  margin-bottom: .75rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+}
+body.light-mode #teacher-dashboard .td-feed li {
+  background: linear-gradient(180deg, rgba(2,6,23,0.02), rgba(2,6,23,0.01));
+}
+#teacher-dashboard .td-feed-text { color: var(--td-text); }
+
+/* Small status tags on feed items */
+#teacher-dashboard .td-tag {
+  font-size: .75rem;
+  border-radius: 999px;
+  padding: .25rem .6rem;
+  background: rgba(148,163,184,.18);
+  color: var(--td-text);
+  border: 1px solid var(--td-border);
+}
+#teacher-dashboard .td-tag-blue {
+  background: rgba(59,130,246,.15);
+  border-color: rgba(59,130,246,.35);
+}
+#teacher-dashboard .td-tag-green {
+  background: rgba(16,185,129,.15);
+  border-color: rgba(16,185,129,.35);
+}
+
+/* Fine spacing on these rows so cards align tightly */
+#teacher-dashboard #td-row-2 .td-card,
+#teacher-dashboard #td-row-3 .td-card { padding-top: 1rem; }
+#teacher-dashboard #td-row-3 .td-card .table-responsive {
+  border-radius: var(--td-radius);
+  border: 1px solid var(--td-border);
+  background: var(--td-surface);
+  overflow: hidden;
+}
+
+/* Recent Attendance Activity table fixes */
+#teacher-dashboard .td-card .table-responsive{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+#teacher-dashboard .td-table{
+  /* Colors */
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--td-text);
+  --bs-table-border-color: var(--td-border);
+  --bs-table-striped-bg: rgba(148,163,184,.06);
+  --bs-table-striped-color: var(--td-text);
+  --bs-table-hover-bg: rgba(59,130,246,.08);
+  --bs-table-hover-color: var(--td-text);
+
+  border-color: var(--td-border) !important;
+  margin-bottom: 0;
+}
+
+/* Nuke Bootstrap's per-cell background so the card surface shows through */
+#teacher-dashboard .td-table>:not(caption)>*>*{
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Header readablity on dark + light and match neighbors */
+#teacher-dashboard .td-table thead th{
+  color: var(--td-text) !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--td-border) !important;
+}
+
+/* Body cells */
+#teacher-dashboard .td-table tbody td{
+  color: var(--td-text) !important;
+  border-top: 1px solid var(--td-border) !important;
+  padding: .9rem .75rem;
+}
+
+/* Hover row (Bootstrap .table-hover) */
+#teacher-dashboard #td-row-3 .table-hover>tbody>tr:hover>*{
+  background-color: rgba(59,130,246,.06) !important;
+}
+
+/* soften the table’s visual weight so it doesn’t pop harder than neighbors */
+#teacher-dashboard #td-row-3 .td-card{
+  box-shadow: var(--td-shadow);
+  border: 1px solid var(--td-border);
+}
+
+/* Purple Card for Recently Added */
+.purple-card {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa); /* violet gradient */
+  color: #fff;
+}
+
+/* MANAGE STUDENTS (scoped) */
+#manage-students {
+  --ms-radius: 18px;
+  --ms-shadow: 0 8px 24px rgba(0,0,0,.12);
+  --ms-border: rgba(140, 146, 160, 0.18);
+
+  /* Dark defaults */
+  --ms-bg: #0f141a;
+  --ms-surface: #151b22;
+  --ms-text: #f3f4f6;
+  --ms-muted: #98a1b3;
+
+  --ms-accent: #8b5cf6; /* violet */
+}
+
+body.light-mode #manage-students {
+  --ms-bg: #f6f7fb;
+  --ms-surface: #ffffff;
+  --ms-text: #0f172a;
+  --ms-muted: #64748b;
+  --ms-border: rgba(15, 23, 42, 0.08);
+  --ms-shadow: 0 8px 24px rgba(2,6,23,.08);
+}
+
+/* Table card */
+#manage-students .td-card {
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius);
+  padding: 1.25rem 1.25rem 1.1rem;
+  box-shadow: var(--ms-shadow);
+}
+
+/* Card header */
+#manage-students .td-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .75rem;
+  flex-wrap: nowrap; /* prevent breaking into new line */
+  gap: 1rem;
+}
+#manage-students .td-card-header h5 {
+  color: var(--ms-text);
+  font-weight: 700;
+  letter-spacing: .2px;
+  white-space: nowrap;   /* don't wrap into two lines */
+  margin-right: 1rem;    /* spacing from filters */
+  flex-shrink: 0;  
+}
+#manage-students .td-card-header input {
+  background: var(--ms-bg);
+  border: 1px solid var(--ms-border);
+  color: var(--ms-text);
+}
+#manage-students .td-card-header input::placeholder {
+  color: var(--ms-muted);
+}
+
+/* Table */
+#manage-students .td-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ms-text);
+  --bs-table-border-color: var(--ms-border);
+  --bs-table-striped-bg: rgba(139,92,246,.07);
+  --bs-table-striped-color: var(--ms-text);
+  --bs-table-hover-bg: rgba(139,92,246,.15);
+  --bs-table-hover-color: var(--ms-text);
+
+  border-color: var(--ms-border) !important;
+  margin-bottom: 0;
+}
+
+/* Nuke Bootstrap per-cell backgrounds */
+#manage-students .td-table>:not(caption)>*>* {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Table header */
+#manage-students .td-table thead th {
+  color: var(--ms-text) !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--ms-border) !important;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+/* Table body */
+#manage-students .td-table tbody td {
+  color: var(--ms-text) !important;
+  border-top: 1px solid var(--ms-border) !important;
+  padding: .9rem .75rem;
+}
+
+/* Hover */
+#manage-students .td-table.table-hover>tbody>tr:hover>* {
+  background-color: rgba(139,92,246,.12) !important;
+}
+
+/* Buttons inside Actions */
+#manage-students .btn-outline-primary,
+#manage-students .btn-outline-secondary {
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+#manage-students .btn-outline-primary:hover {
+  background: #3b82f6;
+  color: #fff;
+}
+
+#manage-students .btn-outline-secondary:hover {
+  background: #6b7280;
+  color: #fff;
+}
+
+/* Search box style */
+#manage-students input[type="text"] {
+  border-radius: 20px;
+  background: #111827;
+  border: 1px solid #374151;
+  color: #f3f4f6;
+  padding-left: 12px;
+}
+
+#manage-students input[type="text"]:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139,92,246,0.4);
+}
+
+#manage-students .td-chip {
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid var(--td-border, rgba(140,146,160,0.18));
+  color: var(--td-text, #f3f4f6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+#manage-students .td-chip:hover {
+  background: rgba(59,130,246,.12);
+  color: #3b82f6;
+  border-color: rgba(59,130,246,.4);
+}
+#manage-students .td-chip.active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+
+#manage-students .td-dropdown {
+  border-radius: 999px;
+  font-size: .8rem;
+  padding: .25rem .75rem;
+  background: var(--td-surface, #151b22);
+  color: var(--td-text, #f3f4f6);
+  border: 1px solid var(--td-border, rgba(140,146,160,0.18));
+}
+body.light-mode #manage-students .td-dropdown {
+  background: #fff;
+  color: #0f172a;
+}
+
+#manage-students .td-search {
+  max-width: 200px;
+}
+
+/* Student Modal Styling */
+[data-theme="dark"] #studentModal .custom-modal {
+  background: linear-gradient(180deg, #2a2a2a 0%, #1f1f1f 100%);
+}
+
+#studentModal .custom-modal {
+  background: linear-gradient(180deg, var(--modal-bg) 0%, #fdfdfd 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+  transition: all 0.3s ease;
+}
+
+#studentModal h2.modal-title {
+  all: unset;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  display: block;
+  width: 100%;
+}
+
+/* Inputs */
+#studentModal .custom-modal .form-control {
+  border-radius: 50px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+#studentModal .custom-modal .form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 8px rgba(0, 180, 120, 0.4);
+}
+
+/* Buttons */
+:root {
+  --accent-color: #3b82f6;   /* Blue 500 - Save */
+  --accent-hover: #2563eb;   /* Blue 600 */
+  --neutral-color: #6b7280;  /* Gray 500 - Cancel */
+  --neutral-hover: #4b5563;  /* Gray 600 */
+}
+
+/* Save button */
+#studentModal .custom-modal .btn-save {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+#studentModal .custom-modal .btn-save:hover {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+/* Cancel button */
+#studentModal .custom-modal .btn-cancel {
+  border-radius: 50px;
+  padding: 0.5rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--neutral-color);
+  color: var(--neutral-color) !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+#studentModal .custom-modal .btn-cancel:hover {
+  background: var(--neutral-hover);
+  color: #fff !important;
+  border-color: var(--neutral-hover);
+}
+
+:root {
+  --modal-bg: #f9fafb; /* Softer than pure white */
+}
+[data-theme="dark"] {
+  --modal-bg: #2a2a2a; /* Softer than pure black */
+}
+
+#studentModal .custom-modal {
+  background-color: var(--modal-bg);
+  color: var(--text-color);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+/* TEACHER ATTENDANCE (scoped) */
+#teacher-attendance {
+  --ta-radius: 18px;
+  --ta-shadow: 0 8px 24px rgba(0,0,0,.12);
+  --ta-border: rgba(140, 146, 160, 0.18);
+
+  /* Dark defaults */
+  --ta-bg: #0f141a;
+  --ta-surface: #151b22;
+  --ta-text: #f3f4f6;
+  --ta-muted: #98a1b3;
+
+  --ta-accent: #3b82f6;  /* blue */
+  --ta-success: #10b981; /* green */
+  --ta-warn: #f59e0b;
+  --ta-danger: #ef4444;
+  --ta-shadow: none;
+}
+
+/* Attendance title override  */
+#teacher-attendance .page-title {
+  color: #ffffff !important;           
+  text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+}
+
+/* light-mode: use dark text */
+body.light-mode #teacher-attendance .page-title {
+  color: #0f172a !important;
+  text-shadow: none;
+}
+
+body.light-mode #teacher-attendance {
+  --ta-bg: #f6f7fb;
+  --ta-surface: #ffffff;
+  --ta-text: #0f172a;
+  --ta-muted: #64748b;
+  --ta-border: rgba(15, 23, 42, 0.08);
+  --ta-shadow: 0 8px 24px rgba(2,6,23,.08);
+}
+
+/* Default (dark mode / base theme) */
+#teacher-attendance .td-card-header small.text-muted {
+  color: rgba(255, 255, 255, 0.72) !important; /* visible soft white */
+}
+
+/* Light mode override — use dark text for visibility */
+body.light-mode #teacher-attendance .td-card-header small.text-muted {
+  color: #0f172a !important; /* dark gray-blue for contrast */
+  text-shadow: none; /* remove glow for cleaner look on light bg */
+}
+
+/* Cards */
+#teacher-attendance .td-card {
+  background: var(--ta-surface);
+  border: 1px solid var(--ta-border);
+  border-radius: var(--ta-radius);
+  padding: 1.5rem;
+  box-shadow: var(--ta-shadow);
+  transition: all 0.3s ease;
+}
+#teacher-attendance .td-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.25);
+}
+
+/* Card header / body / footer */
+#teacher-attendance .td-card-header {
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 1px solid var(--ta-border);
+  font-size: 1rem;
+  color: var(--ta-text);
+}
+#teacher-attendance .td-card-body {
+  padding: 1rem;
+  flex: 1;
+  color: var(--ta-text);
+}
+#teacher-attendance .td-card-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--ta-border);
+  background: var(--ta-surface);
+}
+
+/* Attendance chips */
+#teacher-attendance .td-chip {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+#teacher-attendance .td-chip.success {
+  background: rgba(16,185,129,.12);
+  color: var(--ta-success);
+  border-color: rgba(16,185,129,.25);
+}
+#teacher-attendance .td-chip.success:hover {
+  background: var(--ta-success);
+  color: #fff;
+}
+#teacher-attendance .td-chip.danger {
+  background: rgba(239,68,68,.12);
+  color: var(--ta-danger);
+  border-color: rgba(239,68,68,.25);
+}
+#teacher-attendance .td-chip.danger:hover {
+  background: var(--ta-danger);
+  color: #fff;
+}
+
+/* Chart card */
+#teacher-attendance .chart-card {
+  background: var(--ta-surface);
+  border-radius: var(--ta-radius);
+  padding: 1.5rem;
+  border: 1px solid var(--ta-border);
+  box-shadow: var(--ta-shadow);
+}
+
+/* Table styling */
+#teacher-attendance .td-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ta-text);
+  --bs-table-border-color: var(--ta-border);
+  --bs-table-striped-bg: rgba(148,163,184,.06);
+  --bs-table-striped-color: var(--ta-text);
+  --bs-table-hover-bg: rgba(59,130,246,.08);
+  --bs-table-hover-color: var(--ta-text);
+
+  border-color: var(--ta-border) !important;
+  margin-bottom: 0;
+}
+#teacher-attendance .td-table>:not(caption)>*>* {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+#teacher-attendance .td-table thead th {
+  color: var(--ta-text) !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--ta-border) !important;
+}
+#teacher-attendance .td-table tbody td {
+  color: var(--ta-text) !important;
+  border-top: 1px solid var(--ta-border) !important;
+  padding: .9rem .75rem;
+}
+#teacher-attendance .td-table.table-hover>tbody>tr:hover>* {
+  background-color: rgba(59,130,246,.06) !important;
+}
+
+/* Input + Select (dark mode friendly) */
+#teacher-attendance .form-control,
+#teacher-attendance .form-select {
+  background-color: var(--ta-surface) !important;
+  color: var(--ta-text) !important;
+  border: 1px solid var(--ta-border) !important;
+  border-radius: 50px;
+  padding: 0.6rem 1rem;
+}
+
+#teacher-attendance .form-control::placeholder,
+#teacher-attendance .form-select option {
+  color: var(--ta-muted);
+}
+
+
+#teacher-attendance .form-control:focus,
+#teacher-attendance .form-select:focus {
+  border-color: var(--td-accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.3); /* subtle blue glow */
+  outline: none;
+}
+
+/* ensures chart canvas is visually consistent */
+#teacher-attendance .td-card canvas {
+  display: block;
+  width: 100% !important;
+  height: 260px; /* sets a visible height so gradient is calculated properly */
+  background: transparent;
+  max-height: 260px;
+}
+
+/* Attendance progress bar */
+#teacher-attendance .attendance-progress {
+  margin-top: 0.5rem;
+  height: 14px;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--ta-border);
+  overflow: hidden;
+  display: flex;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.25);
+}
+
+#teacher-attendance .attendance-progress .present {
+  background: linear-gradient(90deg, #34d399, #10b981);
+  height: 100%;
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 14px;
+  transition: width 0.6s ease-in-out;
+}
+
+#teacher-attendance .attendance-progress .absent {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+  height: 100%;
+  transition: width 0.6s ease-in-out;
+}
+
+/* Label next to progress */
+#teacher-attendance .progress-label {
+  font-size: 0.8rem;
+  color: var(--ta-muted);
+  font-weight: 500;
+}
+
+#teacher-attendance .chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--ta-muted);
+}
+
+#teacher-attendance .chart-legend .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+#teacher-attendance .chart-legend .dot.present {
+  background: var(--ta-accent); /* your blue */
+}
+
+#teacher-attendance .chart-legend .dot.absent {
+  background: #ef4444; /* red */
+}
+
+/* Row highlight on selection */
+/* teacher-attendance: interactive selection styles (safe + scoped) */
+#teacher-attendance .td-chip {
+  cursor: pointer;
+  user-select: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+/* visual state on small button when selected */
+#teacher-attendance .td-chip.selected {
+  box-shadow: 0 0 6px rgba(16,185,129,0.5); /* green glow for Present */
+}
+#teacher-attendance .td-chip.danger.selected {
+  box-shadow: 0 0 6px rgba(239,68,68,0.5); /* red glow for Absent */
+}
+
+/* soft row highlights */
+#teacher-attendance tbody tr.present-row {
+  background: rgba(16,185,129,0.06) !important;
+  transition: background-color .22s ease;
+}
+#teacher-attendance tbody tr.absent-row {
+  background: rgba(239,68,68,0.06) !important;
+  transition: background-color .22s ease;
+}
+
+/* slightly stronger tint on hover-after-selection */
+#teacher-attendance tbody tr.present-row:hover {
+  background: rgba(16,185,129,0.09) !important;
+}
+#teacher-attendance tbody tr.absent-row:hover {
+  background: rgba(239,68,68,0.09) !important;
+}
+
+/* make sure chips stay visually buttonlike on dark/light themes */
+#teacher-attendance .td-chip.success { border-color: rgba(16,185,129,.18); }
+#teacher-attendance .td-chip.danger  { border-color: rgba(239,68,68,.18); }
+
+/* Search box wrapper */
+#teacher-attendance .td-search-box {
+  margin-bottom: 1rem;
+  text-align: right; /* aligns it to top-right */
+}
+
+#teacher-attendance .td-search-box input {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--ta-border);
+  background: var(--ta-surface);
+  color: var(--ta-text);
+  font-size: 0.9rem;
+  width: 220px;
+  transition: all 0.2s ease;
+}
+
+#teacher-attendance .td-search-box input::placeholder {
+  color: var(--ta-muted);
+  font-size: 0.85rem;
+}
+
+#teacher-attendance .td-search-box input:focus {
+  outline: none;
+  border-color: var(--ta-accent);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.25); /* accent glow */
+}
+
+/* Row highlight states */
+#teacher-attendance .present-row {
+  background-color: rgba(16,185,129,0.12) !important;
+}
+#teacher-attendance .absent-row {
+  background-color: rgba(239,68,68,0.12) !important;
+}
+
+/* Bulk action buttons */
+#markAllPresent, 
+#markAllAbsent {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 50px; /* pill-shaped */
+  transition: all 0.2s ease-in-out;
+}
+
+/* All Present */
+#markAllPresent {
+  color: var(--ta-success);
+  border: 1px solid var(--ta-success);
+  background: transparent;
+}
+#markAllPresent:hover {
+  background: var(--ta-success);
+  color: #fff;
+}
+
+/* All Absent */
+#markAllAbsent {
+  color: var(--ta-danger);
+  border: 1px solid var(--ta-danger);
+  background: transparent;
+}
+#markAllAbsent:hover {
+  background: var(--ta-danger);
+  color: #fff;
+}
+
+/* Align status column content */
+#teacher-attendance .td-table tbody td:nth-child(3) {
+  text-align: center;
+  padding-left: 1.5rem;       /* extra breathing space */
+  padding-right: 1.5rem;      /* optional symmetry */
+}
+
+#teacher-attendance .td-table tbody td:nth-child(3) .d-flex {
+  justify-content: center;    /* center horizontally */
+}
+
+/* TEACHER REPORTS */
+#teacher-reports {
+  /* inherit tokens */
+  --tr-radius: var(--td-radius, 18px);
+  --tr-shadow: var(--td-shadow, 0 8px 24px rgba(0,0,0,.12));
+  --tr-border: var(--td-border, rgba(140,146,160,.18));
+
+  --tr-bg: var(--td-bg, #0f141a);
+  --tr-surface: var(--td-surface, #151b22);
+  --tr-text: var(--td-text, #f3f4f6);
+  --tr-muted: var(--td-muted, #98a1b3);
+
+  --tr-accent: var(--td-accent, #3b82f6);      /* blue */
+  --tr-accent-2: var(--td-accent-2, #10b981);  /* green */
+  --tr-warn: var(--td-warn, #f59e0b);
+  --tr-danger: var(--td-danger, #ef4444);
+}
+
+body.light-mode #teacher-reports {
+  --tr-bg: var(--td-bg, #f6f7fb);
+  --tr-surface: var(--td-surface, #ffffff);
+  --tr-text: var(--td-text, #0f172a);
+  --tr-muted: var(--td-muted, #64748b);
+  --tr-border: var(--td-border, rgba(15,23,42,.08));
+  --tr-shadow: var(--td-shadow, 0 8px 24px rgba(2,6,23,.08));
+}
+
+/* Header (title + subtitle) */
+#teacher-reports h1.h4,
+#teacher-reports .reports-title {
+  color: var(--tr-text);
+  font-weight: 800;
+  font-size: 1.85rem;
+  letter-spacing: .2px;
+  margin: .30rem 0 1rem -22px;            /* subtle left nudge for alignment */
+  text-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+body.light-mode #teacher-reports h1.h4,
+body.light-mode #teacher-reports .reports-title { text-shadow: none; }
+
+#teacher-reports p.text-muted { color: var(--tr-muted) !important; }
+
+/* Cards */
+#teacher-reports .td-card {
+  background: var(--tr-surface);
+  border: 1px solid var(--tr-border);
+  border-radius: var(--tr-radius);
+  box-shadow: var(--tr-shadow);
+  padding: 1.1rem 1.25rem;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+#teacher-reports .td-card:hover { transform: translateY(-2px); }
+
+#teacher-reports .td-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .5rem;
+}
+#teacher-reports .td-card-header h5 {
+  color: var(--tr-text);
+  font-weight: 700;
+  margin: 0;
+}
+
+/*  Chips  */
+#teacher-reports .td-chip {
+  display: inline-block;
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  border: 1px solid var(--tr-border);
+  color: var(--tr-muted);
+  background: transparent;
+  white-space: nowrap;
+}
+
+/* Filter form - labels & controls */
+#teacher-reports .td-card .form-label {
+  color: var(--tr-muted) !important;
+  font-size: .78rem;
+  letter-spacing: .3px;
+  margin-bottom: .35rem;
+  opacity: .95;
+}
+
+#teacher-reports .form-control.rounded-pill,
+#teacher-reports .form-select.rounded-pill {
+  background: var(--tr-surface) !important;
+  color: var(--tr-text) !important;
+  border: 1px solid var(--tr-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+  transition: box-shadow .18s ease, border-color .18s ease, transform .08s ease;
+}
+#teacher-reports .form-control::placeholder,
+#teacher-reports .form-select option { color: var(--tr-muted); }
+
+#teacher-reports .form-control:focus,
+#teacher-reports .form-select:focus {
+  border-color: var(--tr-accent) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.28) !important; /* accent glow */
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Apply/Reset buttons in filter bar */
+#teacher-reports .btn.btn-primary,
+#teacher-reports .btn.btn-outline-secondary,
+#teacher-reports .btn.btn-outline-primary { border-radius: 999px; }
+
+#teacher-reports .btn-outline-primary {
+  color: var(--tr-accent);
+  border-color: var(--tr-accent);
+}
+#teacher-reports .btn-outline-primary:hover {
+  background: var(--tr-accent);
+  color: #fff;
+}
+#teacher-reports .btn-outline-secondary {
+  color: var(--tr-muted);
+  border-color: var(--tr-border);
+}
+#teacher-reports .btn-outline-secondary:hover {
+  background: color-mix(in srgb, var(--tr-muted) 18%, transparent);
+  color: var(--tr-text);
+}
+
+/* KPI gradients — apply to the row with class .kpi-row */
+#teacher-reports .kpi-row .col-6:nth-child(1) .td-card,
+#teacher-reports .kpi-row .col-md-3:nth-child(1) .td-card,
+#teacher-reports .kpi-row .col-lg-3:nth-child(1) .td-card {
+  background: linear-gradient(135deg, #10b981, #34d399) !important;
+  color: #fff;
+  border-color: transparent !important;
+}
+#teacher-reports .kpi-row .col-6:nth-child(2) .td-card,
+#teacher-reports .kpi-row .col-md-3:nth-child(2) .td-card,
+#teacher-reports .kpi-row .col-lg-3:nth-child(2) .td-card {
+  background: linear-gradient(135deg, #ef4444, #f87171) !important;
+  color: #fff;
+  border-color: transparent !important;
+}
+#teacher-reports .kpi-row .col-6:nth-child(3) .td-card,
+#teacher-reports .kpi-row .col-md-3:nth-child(3) .td-card,
+#teacher-reports .kpi-row .col-lg-3:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: #fff;
+  border-color: transparent !important;
+}
+#teacher-reports .kpi-row .col-6:nth-child(4) .td-card,
+#teacher-reports .kpi-row .col-md-3:nth-child(4) .td-card,
+#teacher-reports .kpi-row .col-lg-3:nth-child(4) .td-card {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #fff;
+  border-color: transparent !important;
+}
+
+/* Make text inside KPI cards readable on gradients */
+#teacher-reports .kpi-row .td-card .td-card-header h5,
+#teacher-reports .kpi-row .td-card .text-muted,
+#teacher-reports .kpi-row .td-card .display-6 {
+  color: #ffffff !important;
+  opacity: 0.95;
+}
+
+/* Center KPI content (title + number) */
+#teacher-reports .kpi-row .td-card {
+  text-align: center;              /* center text horizontally */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;         /* center vertically */
+  align-items: center;             /* ensure full centering */
+}
+
+/* Ensure the header title and number have clear spacing */
+#teacher-reports .kpi-row .td-card .td-card-header {
+  justify-content: center !important;
+  margin-bottom: 0.5rem;
+}
+
+#teacher-reports .kpi-row .td-card .td-card-header h5 {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #fff !important;  /* white text on gradients */
+}
+
+/* KPI value */
+#teacher-reports .kpi-row .td-card .display-6 {
+  font-size: 2.2rem;       /* increase slightly for presence */
+  font-weight: 700;
+  margin: 0;
+  color: #fff !important;
+  line-height: 1.1;
+}
+
+/* subtle subtitle or rate text */
+#teacher-reports .kpi-row .td-card .text-muted {
+  color: rgba(255,255,255,0.85) !important;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+/* Charts */
+#teacher-reports canvas {
+  display: block;
+  width: 100% !important;
+  height: 200px;
+  background: transparent;
+}
+@media (min-width: 992px) {
+  #teacher-reports #reportTrend { height: 220px; }
+  #teacher-reports #reportPie   { height: 220px; }
+}
+
+/* Table */
+#teacher-reports .table-responsive {
+  border-radius: var(--tr-radius);
+  overflow: hidden;
+}
+#teacher-reports .td-table{
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--tr-text);
+  --bs-table-border-color: var(--tr-border);
+  --bs-table-striped-bg: color-mix(in srgb, var(--tr-muted) 10%, transparent);
+  --bs-table-striped-color: var(--tr-text);
+  --bs-table-hover-bg: color-mix(in srgb, var(--tr-accent) 12%, transparent);
+  --bs-table-hover-color: var(--tr-text);
+  border-color: var(--tr-border) !important;
+  margin-bottom: 0;
+}
+#teacher-reports .td-table>:not(caption)>*>*{
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#teacher-reports .td-table thead th{
+  color: var(--tr-text) !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--tr-border) !important;
+  letter-spacing: .2px;
+}
+#teacher-reports .td-table tbody td{
+  color: var(--tr-text) !important;
+  border-top: 1px solid var(--tr-border) !important;
+  padding: .85rem .75rem;
+}
+
+/* Status badges */
+#teacher-reports .td-badge {
+  border-radius: 999px;
+  padding: .32rem .65rem;
+  font-size: .78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+#teacher-reports .td-badge-success {
+  color: #059669; background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.25);
+}
+#teacher-reports .td-badge-danger {
+  color: #dc2626; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.25);
+}
+#teacher-reports .td-badge-warn {
+  color: #b45309; background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.25);
+}
+
+/* Table search */
+#teacher-reports .td-search {
+  max-width: 220px;
+  border-radius: 999px;
+  background: var(--tr-surface);
+  border: 1px solid var(--tr-border);
+  color: var(--tr-text);
+}
+#teacher-reports .td-search::placeholder { color: var(--tr-muted); }
+
+/* Compact spacing on stacked screens */
+@media (max-width: 767px) {
+  #teacher-reports .td-card { padding: 1rem; }
+  #teacher-reports .td-card-header { flex-wrap: wrap; gap: .5rem; }
+  #teacher-reports .td-search { max-width: 100%; }
+}
+
+/* Print-friendly tweaks */
+@media print {
+  #teacher-reports .td-card { box-shadow: none !important; border-color: #ccc !important; }
+  #teacher-reports .btn, #teacher-reports .td-chip { display: none !important; }
+  body { background: #fff !important; }
+}
+
+/* Admin Dashboard (scoped) */
+/* KPI cards — */
+#admin-home .td-stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;         /* stack vertically */
+  text-align: center;
+  padding: 1.5rem 1.25rem;
+  height: 160px;                  /* taller card */
+  border-radius: 18px;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.28);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+#admin-home .td-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.35);
+}
+#admin-home .gradient-blue  { background: linear-gradient(145deg,#2563eb,#1d4ed8); }
+#admin-home .gradient-green { background: linear-gradient(145deg,#10b981,#059669); }
+#admin-home .gradient-red   { background: linear-gradient(145deg,#ef4444,#b91c1c); }
+#admin-home .stat-stack.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#admin-home .stat-stack .td-stat-label {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  margin-bottom: .25rem;
+  color: rgba(255,255,255,0.95);
+  text-transform: uppercase;
+}
+#admin-home .stat-stack .td-stat-value {
+  font-size: 2.2rem;               /* adjusted to slightly smaller */
+  font-weight: 600;                /* softer weight */
+  line-height: 1.1;
+  color: #f9fafb;                  /* slightly lighter white */
+  text-shadow: 0 1px 8px rgba(0,0,0,.25);  /* subtle glow */
+  margin: 0.25rem 0;
+}
+#admin-home .stat-stack .td-stat-meta {
+  font-size: .9rem;
+  opacity: .9;
+  color: #e5e7eb;
+}
+
+#admin-home h1,
+#admin-home h2,
+#admin-home h3 {
+  color: #eef2f7;          /* near-white for dark UI */
+  letter-spacing: .2px;
+}
+
+#admin-home p.text-muted {
+  color: #c7cfdb !important; /* brighter muted */
+  opacity: .95;
+}
+
+/* Light mode overrides to keep it readable there too */
+body.light-mode #admin-home h1,
+body.light-mode #admin-home h2,
+body.light-mode #admin-home h3 {
+  color: #111827;          /* slate-900 */
+}
+
+body.light-mode #admin-home p.text-muted {
+  color: #6b7280 !important; /* gray-600 */
+}
+
+/* Universal cards */
+#admin-home .td-card {
+  background: #1a1f27; 
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  color: #f3f4f6; /* visible, slightly warm white */
+}
+#admin-home .td-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+}
+
+#admin-home .td-card-header {
+  padding: 0.9rem 1.1rem 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-weight: 600;
+  color: #f9fafb;
+}
+#admin-home .td-card-body {
+  padding: 1rem 1.1rem;
+  color: #e5e7eb; /* readable mid-gray text */
+}
+
+/* ensure headings never clip the border line */
+#admin-home .td-card h5 {
+  margin: 0;
+  color: #f3f4f6; /* visible white but not harsh */
+}
+
+#admin-home .td-quick-box {
+  border-radius: 14px;
+  padding: 1.05rem;
+  background: #1a1f27;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.22);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  color: #f3f4f6;
+}
+#admin-home .td-quick-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, 0.3);
+  background: #222732; /* darker hover surface for tactile feel */
+}
+#admin-home .td-quick-box i {
+  font-size: 1.9rem;
+  color: inherit;
+}
+
+/* Status pulse */
+#admin-home .pulse-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: adminPulse 1.8s infinite;
+  margin: 0 auto;
+}
+@keyframes adminPulse {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.35); opacity: 1; }
+}
+
+/* Status card: better spacing/centering when it has the pulse-dot */
+#admin-home .td-card:has(.pulse-dot) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  min-height: 220px;
+  padding-block: 1.1rem;
+}
+
+/* Body layout inside the status card */
+#admin-home .td-card:has(.pulse-dot) .td-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+  padding: 1rem 1.1rem;
+}
+
+/* Title & subtitle in the status card */
+#admin-home .td-card:has(.pulse-dot) .fw-semibold {
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: #eaf0f6;
+  margin: .2rem 0 .1rem;
+}
+#admin-home .td-card:has(.pulse-dot) small {
+  color: #b8c2cf !important;
+}
+
+/* Icon sizing in the status card */
+#admin-home .td-card:has(.pulse-dot) .bi {
+  font-size: 2.1rem;
+  opacity: .95;
+  margin-top: .15rem;
+}
+
+/* Pulse dot spacing from top */
+#admin-home .td-card:has(.pulse-dot) .pulse-dot {
+  margin-top: .2rem;
+  margin-bottom: .50rem;
+}
+
+#admin-home .pulse-dot.ok   { background: #22c55e; } /* green */
+#admin-home .pulse-dot.warn { background: #ef4444; } /* red   */
+
+/* Admin Home — CPU Icon Subtle Inner Glow */
+#admin-home .bi-cpu {
+  transition: color 0.4s ease, filter 0.6s ease, opacity 0.4s ease;
+}
+
+/* Green = soft glow */
+#admin-home .bi-cpu.text-success {
+  color: #22c55e !important; /* emerald-500 */
+  filter:
+    brightness(1.15)
+    drop-shadow(0 0 1px rgba(34, 197, 94, 0.25))
+    drop-shadow(0 0 2px rgba(34, 197, 94, 0.15));
+  animation: cpuSoftGlowGreen 4s ease-in-out infinite alternate;
+}
+
+/* Red = ALERT glow */
+#admin-home .bi-cpu.text-danger {
+  color: #ef4444 !important; /* red-500 */
+  filter:
+    brightness(1.1)
+    drop-shadow(0 0 1px rgba(239, 68, 68, 0.25))
+    drop-shadow(0 0 2px rgba(239, 68, 68, 0.15));
+  animation: cpuSoftGlowRed 4s ease-in-out infinite alternate;
+}
+
+/* Subtle shimmer from within */
+@keyframes cpuSoftGlowGreen {
+  from {
+    filter:
+      brightness(1)
+      drop-shadow(0 0 1px rgba(34, 197, 94, 0.25))
+      drop-shadow(0 0 2px rgba(34, 197, 94, 0.10));
+  }
+  to {
+    filter:
+      brightness(1.25)
+      drop-shadow(0 0 2px rgba(34, 197, 94, 0.35))
+      drop-shadow(0 0 3px rgba(34, 197, 94, 0.25));
+  }
+}
+
+@keyframes cpuSoftGlowRed {
+  from {
+    filter:
+      brightness(1)
+      drop-shadow(0 0 1px rgba(239, 68, 68, 0.25))
+      drop-shadow(0 0 2px rgba(239, 68, 68, 0.10));
+  }
+  to {
+    filter:
+      brightness(1.2)
+      drop-shadow(0 0 2px rgba(239, 68, 68, 0.35))
+      drop-shadow(0 0 3px rgba(239, 68, 68, 0.25));
+  }
+}
+
+/* Accessibility - no animation if user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #admin-home .bi-cpu.text-success,
+  #admin-home .bi-cpu.text-danger {
+    animation: none;
+  }
+}
+
+/* Export button  */
+#admin-home .btn-gradient {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.48rem 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+#admin-home .btn-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+}
+
+/* Admin • Home – Mini Snapshot strip */
+#admin-home .td-mini-snapshot{
+  background: #1a1f27;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.22);
+  color: #f3f4f6;
+  margin-top: .25rem; /* tiny nudge */
+}
+
+body.light-mode #admin-home .td-mini-snapshot{
+  background: #ffffff;
+  border-color: rgba(0,0,0,.08);
+  color: #0f172a;
+}
+
+#admin-home .td-mini-snapshot .title{
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+#admin-home .td-mini-snapshot .chip-dot{
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--td-accent, #3b82f6);
+  display: inline-block;
+  box-shadow: 0 0 0 4px rgba(59,130,246,.10); /* subtle halo */
+}
+
+#admin-home .td-mini-snapshot .pill{
+  border-radius: 999px;
+  padding: .28rem .6rem;
+  font-size: .85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  display: inline-flex; align-items: center;
+  gap: .25rem;
+  white-space: nowrap;
+}
+
+#admin-home .td-mini-snapshot .pill-present{
+  color: #10b981; background: rgba(16,185,129,.12);
+  border-color: rgba(16,185,129,.26);
+}
+#admin-home .td-mini-snapshot .pill-absent{
+  color: #ef4444; background: rgba(239,68,68,.12);
+  border-color: rgba(239,68,68,.26);
+}
+#admin-home .td-mini-snapshot .pill-unmarked{
+  color: #8b5cf6; background: rgba(139,92,246,.12);
+  border-color: rgba(139,92,246,.26);
+}
+
+body.light-mode #admin-home .td-mini-snapshot .pill-present{
+  color: #065f46; background: #d1fae5; border-color: #a7f3d0;
+}
+body.light-mode #admin-home .td-mini-snapshot .pill-absent{
+  color: #7f1d1d; background: #fee2e2; border-color: #fecaca;
+}
+body.light-mode #admin-home .td-mini-snapshot .pill-unmarked{
+  color: #5b21b6; background: #ede9fe; border-color: #ddd6fe;
+}
+
+/* Admin • Home — mini recent feed */
+#admin-home .mini-feed__item{
+  padding: .55rem .25rem;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom: 1px dashed rgba(255,255,255,.06);
+}
+body.light-mode #admin-home .mini-feed__item{
+  border-bottom-color: rgba(15,23,42,.10);
+}
+#admin-home .mini-feed__item:last-child{ border-bottom: 0; }
+
+#admin-home .mini-feed__item .left{
+  display:flex; align-items:flex-start; gap:.4rem; min-width:0;
+}
+#admin-home .mini-feed__item .meta{ min-width:0; }
+#admin-home .mini-feed__item .line-1{
+  font-weight: 600; color: #f3f4f6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+body.light-mode #admin-home .mini-feed__item .line-1{ color:#0f172a; }
+#admin-home .mini-feed__item .dim{ opacity:.45; margin: 0 .35rem; }
+#admin-home .mini-feed__item .line-2{ margin-top: 2px; }
+#admin-home .mini-feed__empty{ padding:.5rem .25rem; }
+
+#admin-home #adminRecentEvents .td-card-body {
+  height: 146px;       /* lock the card height */
+  overflow-y: auto;    /* scroll if too many events */
+}
+
+/* no invisible headings in light mode (Admin Home) */
+body.light-mode #admin-home .td-card h5,
+body.light-mode #admin-home .td-card-header h5 {
+  color: #0f172a !important; /* slate-900 */
+}
+
+/* Make any small label text in headers readable too */
+body.light-mode #admin-home .td-card-header .text-muted,
+body.light-mode #admin-home .td-card .text-muted {
+  color: #475569 !important; /* slate-600 */
+}
+
+/* subtle inner glow via filter; applied only when online/offline */
+.glow-online  { filter: drop-shadow(0 0 6px rgba(16,185,129,.45)); color:#10b981 !important; }
+.glow-offline { filter: drop-shadow(0 0 6px rgba(239,68,68,.35));  color:#ef4444 !important; }
+
+/* Light mode */
+body.light-mode #admin-home .td-card,
+body.light-mode #admin-home .td-quick-box {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+}
+body.light-mode #admin-home .td-card-header {
+  color: #0f172a;
+}
+body.light-mode #admin-home .td-quick-box:hover {
+  background: #f8fafc;
+}
+
+/* Text visibility & subtle contrast fixes */
+#admin-home .td-card .text-muted {
+  color: #aeb6c2 !important;
+}
+#admin-home .td-card small {
+  color: #cbd5e1 !important;
+}
+#admin-home .td-card {
+  margin-bottom: 1.5rem;
+}
+
+/* Admin - Manage Teachers */
+#admin-teachers{
+  --at-radius: var(--td-radius, 16px);
+  --at-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.18));
+  --at-border: var(--td-border, rgba(140,146,160,.18));
+  --at-surface: var(--td-surface, #151b22);
+  --at-text: var(--td-text, #f8fafc);
+  --at-muted: var(--td-muted, #c7cfdb);
+  --at-accent: var(--td-accent, #3b82f6);
+  --at-accent-2: var(--td-accent-2, #10b981);
+  --at-danger: var(--td-danger, #ef4444);
+}
+
+/* Title + subtitle (bright & readable) */
+#admin-teachers .page-title,
+#admin-teachers h1.page-title,
+#admin-teachers h2.page-title,
+#admin-teachers h1,
+#admin-teachers h2 {
+  font-weight: 800 !important;
+  letter-spacing: .2px;
+  margin-bottom: .25rem;
+}
+#admin-teachers .page-subtitle{ color: var(--at-muted); }
+
+/* Force white heading inside Manage Teachers header */
+#admin-teachers h1,
+#admin-teachers h2,
+#admin-teachers h3,
+#admin-teachers h4 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,.35);
+}
+
+/* General muted overrides (footer "Showing 1 of 1", etc.) */
+#admin-teachers .text-muted,
+#admin-teachers small,
+#admin-teachers .td-card-footer{ color: var(--at-muted) !important; }
+
+/* Card shell — flat, no cloudy overlay */
+#admin-teachers .td-card{
+  background: var(--at-surface);
+  border: 1px solid var(--at-border);
+  border-radius: var(--at-radius);
+  min-height: 100px;
+  box-shadow: var(--at-shadow);
+  overflow: hidden;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+#admin-teachers .td-card:hover{ transform: translateY(-2px); }
+#admin-teachers .td-card-header{
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--at-border);
+  color: #eef2f7;
+}
+#admin-teachers .td-card-header h5,
+#admin-teachers .td-card-header .h5{ color:#eaf2ff; margin:0; }
+#admin-teachers .td-card-body{ padding: 1rem 1.1rem; }
+#admin-teachers .td-card-footer{
+  padding:.85rem 1.1rem; border-top:1px solid var(--at-border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+/* Top-right actions */
+#admin-teachers .btn-export,
+#admin-teachers .btn.btn-outline-primary{
+  background: transparent;
+  border: 1px solid var(--at-accent);
+  color: var(--at-accent);
+  border-radius: 12px;
+  padding: .5rem .9rem;
+  font-weight: 600;
+  transition: all .18s ease;
+}
+#admin-teachers .btn-export:hover,
+#admin-teachers .btn.btn-outline-primary:hover{
+  background: color-mix(in srgb, var(--at-accent) 12%, transparent);
+  box-shadow: none !important;
+}
+
+/* ADD TEACHER — tonning success button */
+#admin-teachers .btn-add,
+#admin-teachers .btn.btn-success{
+  background: #16a34a !important;   /* solid emerald */
+  color:#fff !important;
+  border:0 !important;
+  border-radius:999px !important;
+  padding:.54rem 1rem !important;
+  font-weight:700;
+  letter-spacing:.2px;
+  box-shadow:0 8px 18px rgba(22,163,74,.20);
+  transition:transform .16s ease, box-shadow .18s ease, background .18s ease;
+}
+#admin-teachers .btn-add:hover,
+#admin-teachers .btn.btn-success:hover{
+  transform: translateY(-2px);
+  background:#15803d !important;
+  box-shadow:0 12px 24px rgba(21,128,61,.24);
+}
+
+/* FILTERS — labels & layout */
+#admin-teachers .filters .form-label {
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: .82rem;
+  margin-bottom: .35rem;
+}
+
+/* Properly center the entire filter card content */
+#admin-teachers .filters {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.2rem;
+}
+
+/* Form layout inside the card */
+#admin-teachers .filters form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center; /* vertical centering */
+  gap: 12px 14px;
+  width: 100%;
+}
+
+/* Keeps label & input vertically balanced */
+#admin-teachers .filters form > [class*="col-"] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Push Apply/Reset buttons to the right */
+#admin-teachers .filters form > div:last-child {
+  margin-left: auto;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* inputs/selects (trim height & width) */
+#admin-teachers .filters .form-control,
+#admin-teachers .filters .form-select {
+  background: var(--at-surface) !important;
+  color: var(--at-text) !important;
+  border: 1px solid var(--at-border) !important;
+  border-radius: 14px;
+  height: 40px;
+  padding: .45rem .9rem;
+  font-size: .9rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+  transition: box-shadow .18s ease, border-color .18s ease, transform .08s ease;
+}
+#admin-teachers .filters .form-control{ max-width: none; width: 100%; }
+#admin-teachers .filters .form-select{  max-width: none; width: 100%; }
+
+#admin-teachers .filters .form-control::placeholder { color: var(--at-muted); }
+#admin-teachers .filters .form-control:focus,
+#admin-teachers .filters .form-select:focus {
+  border-color: var(--at-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--at-accent) 35%, transparent) !important;
+  transform: translateY(-1px);
+}
+
+/* Apply / Reset buttons (consistent & balanced) */
+#admin-teachers .filters .btn-apply,
+#admin-teachers .filters .btn.btn-primary {
+  background: var(--at-accent) !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: .55rem .9rem !important;
+  font-weight: 700;
+  width: auto !important;
+  max-width: 160px;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+#admin-teachers .filters .btn-apply:hover,
+#admin-teachers .filters .btn.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+#admin-teachers .filters .btn-reset,
+#admin-teachers .filters .btn.btn-outline-secondary {
+  border-radius: 12px !important;
+  color: var(--at-muted) !important;
+  border: 1px solid var(--at-border) !important;
+  background: transparent !important;
+  padding: .55rem .9rem !important;
+  width: auto !important;
+}
+#admin-teachers .filters .btn-reset:hover,
+#admin-teachers .filters .btn.btn-outline-secondary:hover {
+  color: var(--at-text) !important;
+  background: color-mix(in srgb, var(--at-muted) 16%, transparent) !important;
+}
+
+/* --- Manage Teachers: fix filter row layout --- */
+/* Lets Bootstrap grid control the layout */
+#admin-teachers .filters .td-card-body {
+  display: block;
+  padding: 1rem 1.1rem;
+}
+
+/* Keep Apply & Reset on one line, right aligned */
+#admin-teachers .filters .col-6.col-md-4 {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Prevents accidental stretching */
+#admin-teachers .filters .btn {
+  flex: 0 0 auto;
+}
+
+/* Keep the three columns on one line at md and up */
+@media (min-width: 768px){
+  #admin-teachers .filters form { flex-wrap: nowrap; }
+}
+
+@media (min-width: 768px){
+  /* Buttons alignment fix */
+#admin-teachers .filters form > .col-6.col-md-4 {
+  display: flex;
+  justify-content: flex-end; /* move slightly left from edge */
+  align-items: center; /* vertically center them */
+  padding-right: 30px; /* give breathing space from the card edge */
+}
+}
+
+#admin-teachers .modal,
+#admin-teachers .modal-backdrop {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* TABLE — higher contrast */
+#admin-teachers .td-table{
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--at-text);
+  --bs-table-border-color: var(--at-border);
+  --bs-table-striped-bg: color-mix(in srgb, var(--at-muted) 9%, transparent);
+  --bs-table-striped-color: var(--at-text);
+  --bs-table-hover-bg: color-mix(in srgb, var(--at-accent) 12%, transparent);
+  --bs-table-hover-color: var(--at-text);
+  margin:0;
+  border-color: var(--at-border) !important;
+}
+#admin-teachers .td-table>:not(caption)>*>*{
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#admin-teachers .td-table thead th{
+  color:#e7edf6 !important;
+  font-weight:700 !important;
+  border-bottom:1px solid var(--at-border) !important;
+  letter-spacing:.2px;
+  padding-top:.9rem; padding-bottom:.9rem;
+}
+#admin-teachers .td-table tbody td{
+  color:#f1f5f9 !important;
+  border-top:1px solid var(--at-border) !important;
+  padding:.95rem .75rem;
+}
+
+/* Actions column */
+#admin-teachers .btn-icon{
+  width:36px; height:36px;
+  display:grid; place-items:center;
+  border-radius:10px;
+  border:1px solid var(--at-border);
+  background:transparent; color:var(--at-text);
+  transition:all .16s ease;
+}
+#admin-teachers .btn-icon:hover{
+  background: color-mix(in srgb, var(--at-accent) 12%, transparent);
+  border-color: var(--at-accent);
+}
+#admin-teachers .btn-danger-soft{
+  border-color: color-mix(in srgb, var(--at-danger) 45%, transparent);
+  color: var(--at-danger);
+}
+#admin-teachers .btn-danger-soft:hover{
+  background: color-mix(in srgb, var(--at-danger) 16%, transparent);
+}
+
+/* Pagination */
+#admin-teachers .pagination .page-link{
+  background: transparent;
+  color: var(--at-text);
+  border:1px solid var(--at-border);
+  min-width:36px; text-align:center;
+  border-radius:8px; margin:0 .2rem;
+}
+#admin-teachers .pagination .page-item.active .page-link{
+  background: var(--at-accent);
+  color:#fff; border-color: var(--at-accent);
+}
+#admin-teachers .pagination .page-item.disabled .page-link{
+  color: var(--at-muted); opacity:.6;
+}
+
+/* Spacing fixes */
+#admin-teachers .td-card + .td-card{ margin-top:1rem; }
+#admin-teachers .filters-card{ margin-bottom:1rem; }
+#admin-teachers .table-card{ margin-top:.25rem; }
+
+/* Manage Teachers — light mode */
+body.light-mode #admin-teachers {
+  --at-surface: #fff;
+  --at-text: #0f172a;
+  --at-muted: #475569;
+  --at-border: rgba(15,23,42,.10);
+  --at-shadow: 0 10px 24px rgba(2,6,23,.08);
+}
+
+/* Title, card headers */
+#admin-teachers .page-title,
+#admin-teachers h1,
+#admin-teachers h2,
+#admin-teachers h3,
+#admin-teachers h4,
+#admin-teachers .td-card-header,
+#admin-teachers .td-card-header h5 {
+  color: var(--at-text) !important;
+  text-shadow: none;
+}
+
+#admin-teachers .text-muted,
+#admin-teachers small,
+#admin-teachers .td-card-footer {
+  color: var(--at-muted) !important;
+}
+
+/* Table headers & cells (compact, tokenized) */
+#admin-teachers .td-table thead th,
+#admin-teachers .td-table tbody td {
+  color: var(--at-text) !important;
+  border-color: var(--at-border) !important;
+}
+
+/* ADMIN – MANAGE STUDENTS */
+#admin-students {
+  /* tokens */
+  --as-radius: var(--td-radius, 16px);
+  --as-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.18));
+  --as-border: var(--td-border, rgba(140,146,160,.18));
+  --as-surface: var(--td-surface, #151b22);
+  --as-bg: var(--td-bg, #0f141a);
+  --as-text: var(--td-text, #f8fafc);
+  --as-muted: var(--td-muted, #c7cfdb);
+  --as-accent: var(--td-accent, #3b82f6);
+  --as-accent-2: var(--td-accent-2, #10b981); 
+  --as-danger: var(--td-danger, #ef4444);
+  --as-warn: var(--td-warn, #f59e0b);
+}
+
+/* Light mode overrides */
+body.light-mode #admin-students {
+  --as-surface: #ffffff;
+  --as-bg: #f6f7fb;
+  --as-text: #0f172a;
+  --as-muted: #475569;
+  --as-border: rgba(15,23,42,.10);
+  --as-shadow: 0 10px 24px rgba(2,6,23,.08);
+}
+
+/* Titles */
+#admin-students h1, 
+#admin-students h2, 
+#admin-students h3 {
+  color: var(--as-text) !important;
+  font-weight: 800;
+  letter-spacing: .2px;
+  text-shadow: 0 1px 6px rgba(0,0,0,.28);
+}
+body.light-mode #admin-students h1,
+body.light-mode #admin-students h2,
+body.light-mode #admin-students h3 { text-shadow: none; }
+
+/* Subtext */
+#admin-students .text-muted { color: var(--as-muted) !important; }
+
+/* Card shell */
+#admin-students .td-card{
+  background: var(--as-surface);
+  border: 1px solid var(--as-border);
+  border-radius: var(--as-radius);
+  min-height: 100px;
+  box-shadow: var(--as-shadow);
+  overflow: hidden;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+#admin-students .td-card:hover{ transform: translateY(-2px); }
+
+#admin-students .td-card-header{
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--as-border);
+  color: var(--as-text);
+  display: flex; align-items: center; justify-content: space-between;
+}
+#admin-students .td-card-header h5{ margin:0; font-weight:700; color: var(--as-text); }
+#admin-students .td-card-body{ padding: 1rem 1.1rem; color: var(--as-text); }
+#admin-students .td-card-footer{
+  padding:.85rem 1.1rem; border-top:1px solid var(--as-border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+
+/* Filters block - parity with #admin-teachers */
+#admin-students .filters { display:flex; align-items:center; padding: 1rem 1.2rem; }
+#admin-students .filters .form-label{
+  color: var(--as-muted);
+  font-weight: 600; font-size: .82rem; margin-bottom: .35rem;
+}
+#admin-students .filters form{
+  display:flex; flex-wrap:wrap; align-items:center; gap: 12px 14px; width:100%;
+}
+#admin-students .filters form > [class*="col-"]{
+  display:flex; flex-direction:column; justify-content:center;
+}
+#admin-students .filters form > div:last-child{
+  margin-left:auto; justify-content:flex-end; align-items:center;
+}
+
+/* Inputs/selects within filters */
+#admin-students .filters .form-control,
+#admin-students .filters .form-select{
+  background: var(--as-surface) !important;
+  color: var(--as-text) !important;
+  border: 1px solid var(--as-border) !important;
+  border-radius: 14px;
+  height: 40px;
+  padding: .45rem .9rem;
+  font-size: .9rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+  transition: box-shadow .18s ease, border-color .18s ease, transform .08s ease;
+}
+#admin-students .filters .form-control::placeholder { color: var(--as-muted); }
+#admin-students .filters .form-control:focus,
+#admin-students .filters .form-select:focus{
+  border-color: var(--as-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--as-accent) 35%, transparent) !important;
+  transform: translateY(-1px);
+}
+
+/* Apply / Reset buttons */
+#admin-students .filters .btn.btn-primary{
+  background: var(--as-accent) !important; color:#fff !important; border:0 !important;
+  border-radius: 12px !important; padding:.55rem .9rem !important; font-weight:700;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+#admin-students .filters .btn.btn-primary:hover{ transform: translateY(-1px); }
+
+#admin-students .filters .btn.btn-outline-secondary{
+  border-radius: 12px !important; color: var(--as-muted) !important;
+  border: 1px solid var(--as-border) !important; background: transparent !important;
+  padding: .55rem .9rem !important;
+}
+#admin-students .filters .btn.btn-outline-secondary:hover{
+  color: var(--as-text) !important;
+  background: color-mix(in srgb, var(--as-muted) 16%, transparent) !important;
+}
+
+/* Keep single-row layout at md+ */
+@media (min-width: 768px){
+  #admin-students .filters form{ flex-wrap: nowrap; }
+  #admin-students .filters form > .col-12.col-md-2,
+  #admin-students .filters form > .col-12.col-md-3,
+  #admin-students .filters form > .col-12.col-md-5{ min-width: 0; }
+}
+
+/* Table */
+#admin-students .td-table{
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--as-text);
+  --bs-table-border-color: var(--as-border);
+  --bs-table-striped-bg: color-mix(in srgb, var(--as-muted) 9%, transparent);
+  --bs-table-striped-color: var(--as-text);
+  --bs-table-hover-bg: color-mix(in srgb, var(--as-accent) 12%, transparent);
+  --bs-table-hover-color: var(--as-text);
+  margin:0; border-color: var(--as-border) !important;
+}
+#admin-students .td-table>:not(caption)>*>*{
+  background: transparent !important; box-shadow: none !important;
+}
+#admin-students .td-table thead th{
+  color: var(--as-text) !important; font-weight:700 !important;
+  border-bottom:1px solid var(--as-border) !important;
+  letter-spacing:.2px; padding-top:.9rem; padding-bottom:.9rem;
+}
+#admin-students .td-table tbody td{
+  color: var(--as-text) !important; border-top:1px solid var(--as-border) !important;
+  padding:.95rem .75rem;
+}
+
+/* Actions */
+#admin-students .btn-icon{
+  width:36px; height:36px; display:grid; place-items:center;
+  border-radius:10px; border:1px solid var(--as-border);
+  background:transparent; color:var(--as-text);
+  transition:all .16s ease;
+}
+#admin-students .btn-icon:hover{
+  background: color-mix(in srgb, var(--as-accent) 12%, transparent);
+  border-color: var(--as-accent);
+}
+#admin-students .btn-danger-soft{
+  border-color: color-mix(in srgb, var(--as-danger) 45%, transparent);
+  color: var(--as-danger);
+}
+#admin-students .btn-danger-soft:hover{
+  background: color-mix(in srgb, var(--as-danger) 16%, transparent);
+}
+
+/* Admin - Manage Students, Add Student button refinement */
+#admin-students .btn-add,
+#admin-students .btn.btn-success {
+  background: linear-gradient(135deg, #16a34a, #15803d) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 0.55rem 1.1rem !important;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.25);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* if icon is present */
+}
+
+#admin-students .btn-add:hover,
+#admin-students .btn.btn-success:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #15803d, #166534) !important;
+  box-shadow: 0 10px 22px rgba(21, 128, 61, 0.28);
+}
+
+/* Pagination */
+#admin-students .pagination .page-link{
+  background: transparent; color: var(--as-text);
+  border:1px solid var(--as-border); min-width:36px; text-align:center;
+  border-radius:8px; margin:0 .2rem;
+}
+#admin-students .pagination .page-item.active .page-link{
+  background: var(--as-accent); color:#fff; border-color: var(--as-accent);
+}
+#admin-students .pagination .page-item.disabled .page-link{
+  color: var(--as-muted); opacity:.6;
+}
+
+/* Spacing */
+#admin-students .td-card + .td-card{ margin-top:1rem; }
+#admin-students .filters-card{ margin-bottom:1rem; }
+#admin-students .table-card{ margin-top:.25rem; }
+
+/* KPI compact row */
+#admin-students .display-6{ line-height: 1.1; }
+#admin-students .kpi .td-card{
+  text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center;
+}
+
+/* Add Student Modal */
+#addStudentModal .modal-content{
+  background: var(--as-surface);
+  color: var(--as-text);
+  border: 1px solid var(--as-border);
+  border-radius: 16px;
+  box-shadow: var(--as-shadow);
+}
+#addStudentModal .modal-header{
+  border-bottom: 1px solid var(--as-border);
+}
+#addStudentModal .modal-title{
+  font-weight: 700; color: var(--as-text);
+}
+#addStudentModal .form-control{
+  background: var(--as-bg);
+  color: var(--as-text);
+  border: 1px solid var(--as-border);
+  border-radius: 50px;
+  padding: .65rem 1rem;
+}
+#addStudentModal .form-control::placeholder{ color: var(--as-muted); }
+#addStudentModal .form-control:focus{
+  border-color: var(--as-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--as-accent) 28%, transparent);
+}
+#addStudentModal .btn-primary{
+  background: var(--as-accent) !important; border: 0 !important; border-radius: 12px !important;
+  font-weight: 700; padding:.55rem .95rem !important;
+}
+#addStudentModal .btn-secondary{
+  border-radius: 12px !important;
+}
+
+/* Light-mode tweaks for modal */
+body.light-mode #addStudentModal .modal-content{ background:#fff; }
+body.light-mode #addStudentModal .form-control{ background:#fff; }
+
+/* Responsive niceties */
+@media (max-width: 767px){
+  #admin-students .td-card{ padding: .9rem .9rem; }
+  #admin-students .td-card-header{ padding: .8rem .9rem; }
+  #admin-students .td-card-body{ padding: .9rem; }
+  #admin-students .filters{ padding: .9rem; }
+}
+
+/* Fix Apply & Reset alignment  */
+#admin-students .filters form > div:last-child {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+#admin-students .filters .btn {
+  flex: 0 0 auto;
+  width: auto !important;
+}
+
+@media (max-width: 767px) {
+  /* Allow wrapping only on small screens */
+  #admin-students .filters form > div:last-child {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+#admin-students #studentReset { margin-right: 24px; }
+
+/*Add some colors*/
+#admin-students .td-badge{
+  border-radius: 999px; padding: .28rem .6rem;
+  font-size: .78rem; font-weight: 700; border:1px solid transparent;
+}
+#admin-students .td-badge-dept{
+  color: color-mix(in srgb, var(--as-accent) 92%, #fff 8%);
+  background: color-mix(in srgb, var(--as-accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--as-accent) 32%, transparent);
+}
+#admin-students .td-badge-year{
+  color: color-mix(in srgb, var(--as-accent-2) 92%, #fff 8%);
+  background: color-mix(in srgb, var(--as-accent-2) 14%, transparent);
+  border-color: color-mix(in srgb, var(--as-accent-2) 32%, transparent);
+}
+body.light-mode #admin-students .td-badge-dept,
+body.light-mode #admin-students .td-badge-year{
+  filter: saturate(1.05);
+}
+
+#admin-students .section-chip{
+  display:inline-block;
+  padding:.2rem .55rem; border-radius:999px; font-size:.72rem; font-weight:700;
+  color: var(--as-muted);
+  border:1px solid var(--as-border);
+  background: color-mix(in srgb, var(--as-muted) 8%, transparent);
+}
+
+/* header area */
+#admin-students .d-flex.align-items-center.justify-content-between.mb-3{
+  position: relative;
+}
+#admin-students .d-flex.align-items-center.justify-content-between.mb-3::after{
+  content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--as-accent) 35%, transparent),
+    color-mix(in srgb, var(--as-accent-2) 35%, transparent));
+  opacity:.35; border-radius: 2px;
+}
+
+#admin-students .section-chip {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  margin-top: 0.4rem;
+  transform: translateX(-58px);
+
+}
+
+/* Admin → Manage Students */
+#admin-students .kpi-row .td-card {
+  position: relative;
+  border: 1px solid var(--as-border);
+  border-radius: var(--as-radius);
+  box-shadow: 0 10px 28px rgba(0,0,0,.28);
+  color: #f9fafb;
+  text-align: center;
+  padding: 1.1rem 1.25rem;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+/* Smooth hover lift */
+#admin-students .kpi-row .td-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(0,0,0,.35);
+}
+
+/* Headings + numbers clarity */
+#admin-students .kpi-row .td-card h5 {
+  font-weight: 700;
+  color: #ffffff !important;
+  opacity: 0.95;
+}
+#admin-students .kpi-row .td-card .display-6 {
+  font-weight: 700;
+  font-size: 2rem;
+  color: #ffffff !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+}
+
+/* Gradient mapping  */
+
+/* Total Students — vivid emerald blue */
+#admin-students .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 55%, #60a5fa 100%);
+  border: none;
+}
+/* Departments — cool turquoise/green */
+#admin-students .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%);
+  border: none;
+}
+/* New (30d) — soft purple glow */
+#admin-students .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%);
+  border: none;
+}
+/* Assigned — Aqua-Teal Accent */
+#admin-students .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, #ec4899 0%, #f472b6 55%, #f9a8d4 100%);
+  color: #fff;
+}
+#admin-students .kpi-row > [class*="col-"]:nth-child(4) .td-card h5,
+#admin-students .kpi-row > [class*="col-"]:nth-child(4) .td-card .display-6 {
+  color: #ffffff !important;
+}
+/* Remove horizontal separator lines inside KPI cards */
+#admin-students .kpi-row .td-card-header,
+#admin-students .kpi-row .td-card-footer {
+  border: none !important;
+}
+
+/* Light Mode Adjustments */
+body.light-mode #admin-students .kpi-row .td-card {
+  box-shadow: 0 6px 18px rgba(0,0,0,.1);
+  color: #111827;
+}
+body.light-mode #admin-students .kpi-row .td-card h5,
+body.light-mode #admin-students .kpi-row .td-card .display-6 {
+  color: #111827 !important;
+  text-shadow: none;
+}
+body.light-mode #admin-students .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+}
+body.light-mode #admin-students .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, #10b981 0%, #6ee7b7 100%);
+}
+body.light-mode #admin-students .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #8b5cf6 0%, #c4b5fd 100%);
+}
+body.light-mode #admin-students .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, #ec4899 0%, #f9a8d4 100%) !important;
+  color: #111827;
+  border-color: transparent !important;
+}
+
+/* Subtle hover shimmer */
+#admin-students .kpi-row .td-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255,255,255,0.15) 0%, transparent 80%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  border-radius: inherit;
+}
+#admin-students .kpi-row .td-card:hover::after {
+  opacity: 1;
+}
+#admin-students .divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(139,92,246,0.25) 0%, rgba(139,92,246,0.6) 50%, rgba(139,92,246,0.25) 100%);
+  margin: 1.5rem 0;
+}
+
+/* ADMIN ATTENDANCE REPORTS */
+#admin-reports {
+  --ar-radius: var(--td-radius, 16px);
+  --ar-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.18));
+  --ar-border: var(--td-border, rgba(140,146,160,.18));
+  --ar-surface: var(--td-surface, #151b22);
+  --ar-text: var(--td-text, #f8fafc);
+  --ar-muted: var(--td-muted, #c7cfdb);
+  --ar-accent: var(--td-accent, #3b82f6);
+  --ar-accent-2: var(--td-accent-2, #10b981);
+  --ar-danger: var(--td-danger, #ef4444);
+}
+
+/* Section Header */
+#admin-reports .section-chip {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--ar-accent), var(--ar-accent-2));
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+  margin-bottom: 0.35rem;
+  margin-left: -4px;
+}
+#admin-reports .page-title {
+  font-weight: 800 !important;
+  letter-spacing: 0.2px;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+}
+#admin-reports p.text-muted {
+  color: var(--ar-muted) !important;
+}
+
+/* KPI CARDS */
+#admin-reports .kpi-row .td-card {
+  border: 1px solid var(--ar-border);
+  border-radius: var(--ar-radius);
+  box-shadow: var(--ar-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  text-align: center;
+  background: var(--ar-surface);
+  color: var(--ar-text);
+  padding: 1.1rem 1.25rem;
+}
+#admin-reports .kpi-row .td-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.25);
+}
+#admin-reports .kpi-row .td-card-header h5 {
+  font-weight: 700;
+  color: var(--ar-text);
+  margin: 0;
+}
+#admin-reports .kpi-row .td-card-body {
+  color: var(--ar-text);
+}
+#admin-reports .kpi-row .display-6 {
+  font-weight: 700;
+  font-size: 2.2rem;
+  margin: 0;
+}
+
+/* Gradient highlights for variety */
+#admin-reports .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+}
+#admin-reports .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+}
+#admin-reports .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+}
+#admin-reports .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, #d946ef, #a21caf) !important; /* fuchsia <- check */
+}
+#admin-reports .kpi-row .td-card * {
+  color: #fff !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+}
+
+/* FILTERS */
+#admin-reports .filters-card {
+  background: var(--ar-surface);
+  border: 1px solid var(--ar-border);
+  border-radius: var(--ar-radius);
+  box-shadow: var(--ar-shadow);
+}
+#admin-reports .filters-card .td-card-header {
+  border-bottom: 1px solid var(--ar-border);
+  padding: 0.9rem 1.2rem;
+  color: var(--ar-text);
+}
+#admin-reports .filters-card .td-card-body {
+  padding: 1rem 1.2rem;
+}
+#admin-reports .form-label {
+  color: var(--ar-muted);
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-bottom: 0.3rem;
+}
+#admin-reports .form-control,
+#admin-reports .form-select {
+  background: var(--ar-surface) !important;
+  color: var(--ar-text) !important;
+  border: 1px solid var(--ar-border) !important;
+  border-radius: 14px;
+  padding: 0.45rem 0.9rem;
+  height: 40px;
+  font-size: 0.9rem;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+#admin-reports .form-control:focus,
+#admin-reports .form-select:focus {
+  border-color: var(--ar-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ar-accent) 30%, transparent);
+}
+#admin-reports .td-search {
+  max-width: 220px;
+  border-radius: 999px;
+  border: 1px solid var(--ar-border);
+  background: var(--ar-surface);
+  color: var(--ar-text);
+}
+#admin-reports .btn.btn-primary {
+  background: var(--ar-accent);
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+}
+#admin-reports .btn.btn-primary:hover {
+  background: color-mix(in srgb, var(--ar-accent) 85%, black);
+}
+#admin-reports .btn.btn-outline-secondary {
+  border: 1px solid var(--ar-border);
+  color: var(--ar-muted);
+  border-radius: 12px;
+  background: transparent;
+}
+#admin-reports .btn.btn-outline-secondary:hover {
+  background: color-mix(in srgb, var(--ar-muted) 18%, transparent);
+  color: var(--ar-text);
+}
+
+/* CHART CARDS */
+#admin-reports canvas {
+  width: 100% !important;
+  height: 200px;
+  background: transparent;
+}
+#admin-reports .td-card {
+  background: var(--ar-surface);
+  border: 1px solid var(--ar-border);
+  border-radius: var(--ar-radius);
+  box-shadow: var(--ar-shadow);
+}
+#admin-reports .td-card-header {
+  color: var(--ar-text);
+  font-weight: 600;
+  border-bottom: 1px solid var(--ar-border);
+  padding: 0.9rem 1.1rem;
+}
+#admin-reports .td-card-body {
+  padding: 1rem 1.1rem;
+}
+
+/* TABLE */
+#admin-reports .td-table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ar-text);
+  --bs-table-border-color: var(--ar-border);
+  --bs-table-hover-bg: color-mix(in srgb, var(--ar-accent) 10%, transparent);
+  border-color: var(--ar-border) !important;
+}
+#admin-reports .td-table thead th {
+  color: var(--ar-text);
+  font-weight: 700;
+  border-bottom: 1px solid var(--ar-border);
+}
+#admin-reports .td-table tbody td {
+  color: var(--ar-text);
+  border-top: 1px solid var(--ar-border);
+}
+#admin-reports .td-badge {
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+#admin-reports .td-badge-success {
+  color: #059669;
+  background: rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.25);
+}
+#admin-reports .td-badge-danger {
+  color: #dc2626;
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.25);
+}
+#admin-reports .td-badge-warn {
+  color: #b45309;
+  background: rgba(245,158,11,0.18);
+  border-color: rgba(245,158,11,0.25);
+}
+
+/* DIVIDER */
+#admin-reports .divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(139,92,246,.65), transparent);
+  margin: 1.5rem 0;
+}
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode #admin-reports {
+  --ar-surface: #ffffff;
+  --ar-text: #0f172a;
+  --ar-muted: #475569;
+  --ar-border: rgba(15,23,42,.10);
+  --ar-shadow: 0 10px 24px rgba(2,6,23,.08);
+}
+
+/* light text + subtle cards */
+body.light-mode #admin-reports .page-title {
+  color: #111827 !important;
+  text-shadow: none;
+}
+body.light-mode #admin-reports .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6) !important;
+  color: #fff;
+}
+body.light-mode #admin-reports .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, #6ee7b7, #10b981) !important;
+  color: #fff;
+}
+body.light-mode #admin-reports .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #a5b4fc, #6366f1) !important;
+  color: #fff;
+}
+body.light-mode #admin-reports .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, #f0abfc, #d946ef) !important; /* light fuchsia */
+  color: #fff;
+}
+
+/* ADMIN • BIOMETRIC LOGS */
+#admin-bio-logs {
+  /* design tokens (inherits from teacher/admin when available) */
+  --bl-radius: var(--td-radius, 16px);
+  --bl-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.18));
+  --bl-border: var(--td-border, rgba(140,146,160,.18));
+
+  --bl-bg: var(--td-bg, #0f141a);
+  --bl-surface: var(--td-surface, #151b22);
+  --bl-text: var(--td-text, #f3f4f6);
+  --bl-muted: var(--td-muted, #98a1b3);
+
+  --bl-accent: var(--td-accent, #3b82f6);    /* blue */
+  --bl-success: var(--td-accent-2, #10b981); /* green */
+  --bl-danger: var(--td-danger, #ef4444);    /* red */
+  --bl-violet: #8b5cf6;                      /* violet/fuchsia */
+}
+
+/* Light mode overrides */
+body.light-mode #admin-bio-logs {
+  --bl-bg: #f6f7fb;
+  --bl-surface: #ffffff;
+  --bl-text: #0f172a;
+  --bl-muted: #64748b;
+  --bl-border: rgba(15,23,42,.10);
+  --bl-shadow: 0 10px 24px rgba(2,6,23,.08);
+}
+
+/* Make the H3 heading visible (white in dark mode) */
+#admin-bio-logs h1,
+#admin-bio-logs h2,
+#admin-bio-logs h3,
+#admin-bio-logs h4 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,.35);
+}
+
+/* Fixed visibility in header */
+#admin-bio-logs .td-card-header small.text-muted {
+  color: var(--bl-muted) !important;
+  opacity: 0.95;
+}
+
+#admin-bio-logs .page-subtitle, #admin-bio-logs p.text-muted { color: var(--bl-muted) !important; }
+
+/* Universal card shell */
+#admin-bio-logs .td-card {
+  background: var(--bl-surface);
+  border: 1px solid var(--bl-border);
+  border-radius: var(--bl-radius);
+  box-shadow: var(--bl-shadow);
+  color: var(--bl-text);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+#admin-bio-logs .td-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Card header/body/footer */
+#admin-bio-logs .td-card-header {
+  padding: .9rem 1.1rem .7rem;
+  border-bottom: 1px solid var(--bl-border);
+}
+#admin-bio-logs .td-card-header h5 { margin: 0; color: var(--bl-text); }
+#admin-bio-logs .td-card-body { padding: 1rem 1.1rem; }
+#admin-bio-logs .td-card-footer {
+  padding: .85rem 1.1rem;
+  border-top: 1px solid var(--bl-border);
+  color: var(--bl-muted) !important;
+}
+
+#admin-bio-logs .td-card-footer .text-muted,
+#admin-bio-logs .td-card-footer small { color: var(--bl-muted) !important; }
+
+/* KPI row */
+#admin-bio-logs .kpi-row .td-card {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 1.15rem 1rem 1.25rem;
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 8px 26px rgba(0,0,0,.32); /* soft depth */
+  background-blend-mode: overlay;
+  transition: transform .24s ease, box-shadow .24s ease, filter .24s ease;
+}
+
+/* subtle inner sheen and top light streak */
+#admin-bio-logs .kpi-row .td-card::before,
+#admin-bio-logs .kpi-row .td-card::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none; border-radius: inherit;
+}
+#admin-bio-logs .kpi-row .td-card::before { /* top-left light wash */
+  background: radial-gradient(120% 120% at -10% -20%, rgba(255,255,255,.16), transparent 50%);
+  mix-blend-mode: screen;
+}
+#admin-bio-logs .kpi-row .td-card::after { /* soft gloss sweep */
+  background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,0));
+}
+
+/* Hover: lift + slight brightness for tactility */
+#admin-bio-logs .kpi-row .td-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.42);
+  filter: brightness(1.06);
+}
+
+/* Header & value */
+#admin-bio-logs .kpi-row .td-card-header {
+  border-bottom: 0; margin-bottom: .5rem; padding: 0;
+}
+#admin-bio-logs .kpi-row .td-card-header h5 {
+  font-size: 1.06rem; font-weight: 700; letter-spacing: .3px; opacity: .95;
+}
+/* Softer numeric weight & refined contrast */
+#admin-bio-logs .kpi-row .display-6 {
+  font-size: 2.3rem; /* made slightly smaller for balance */
+  font-weight: 600;  /* was 800 — softer & cleaner */
+  letter-spacing: .2px;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.25); /* this keeps legibility on gradients */
+  opacity: 0.97;
+}
+
+/* Gradients (dark theme) */
+/* Total Scans */
+#admin-bio-logs .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+/* Matched */
+#admin-bio-logs .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: #fff;
+}
+/* Failed */
+#admin-bio-logs .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #ef4444, #f87171);
+  color: #fff;
+}
+/* Active Devices (violet/fuchsia tone) */
+#admin-bio-logs .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+  color: #fff;
+}
+
+/* Readability on gradients */
+#admin-bio-logs .kpi-row .td-card .display-6,
+#admin-bio-logs .kpi-row .td-card .text-muted,
+#admin-bio-logs .kpi-row .td-card h5 {
+  color: #ffffff !important; opacity: .96;
+}
+
+/* Light mode variants */
+body.light-mode #admin-bio-logs .kpi-row > [class*="col-"]:nth-child(1) .td-card {
+  background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+  color: #111827;
+}
+body.light-mode #admin-bio-logs .kpi-row > [class*="col-"]:nth-child(2) .td-card {
+  background: linear-gradient(135deg, #86efac 0%, #34d399 100%);
+  color: #0f172a;
+}
+body.light-mode #admin-bio-logs .kpi-row > [class*="col-"]:nth-child(3) .td-card {
+  background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
+  color: #111827;
+}
+body.light-mode #admin-bio-logs .kpi-row > [class*="col-"]:nth-child(4) .td-card {
+  background: linear-gradient(135deg, #f0abfc 0%, #e879f9 100%);
+  color: #111827;
+}
+
+/* Light mode polish: remove heavy shadows & gloss */
+body.light-mode #admin-bio-logs .kpi-row .td-card {
+  box-shadow: 0 8px 20px rgba(2,6,23,.10);
+}
+body.light-mode #admin-bio-logs .kpi-row .td-card::before {
+  background: radial-gradient(120% 120% at -10% -20%, rgba(255,255,255,.12), transparent 50%);
+}
+body.light-mode #admin-bio-logs .kpi-row .display-6 {
+  text-shadow: none; /* cleaner on light surfaces */
+}
+
+/* Filters card alignment & inputs */
+#admin-bio-logs .filters { padding: 1rem 1.1rem; }
+#admin-bio-logs .filters .form-label { color: var(--bl-muted) !important; font-size: .82rem; margin-bottom: .35rem; }
+#admin-bio-logs .filters .form-control.rounded-pill,
+#admin-bio-logs .filters .form-select.rounded-pill {
+  background: var(--bl-surface) !important;
+  color: var(--bl-text) !important;
+  border: 1px solid var(--bl-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .08s ease;
+}
+#admin-bio-logs .filters .form-control::placeholder { color: var(--bl-muted); }
+#admin-bio-logs .filters .form-control:focus,
+#admin-bio-logs .filters .form-select:focus {
+  border-color: var(--bl-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bl-accent) 30%, transparent) !important;
+  transform: translateY(-1px);
+}
+
+/* Keep Apply/Reset side-by-side and not clipped */
+#admin-bio-logs .filters .col-6.col-md-7 {
+  display: flex; justify-content: flex-end; align-items: center; gap: 10px;
+  padding-right: 18px; /* tiny breathing room from edge */
+}
+
+/* Table: dark/light tokenized */
+#admin-bio-logs .td-table{
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--bl-text);
+  --bs-table-border-color: var(--bl-border);
+  --bs-table-striped-bg: color-mix(in srgb, var(--bl-muted) 10%, transparent);
+  --bs-table-striped-color: var(--bl-text);
+  --bs-table-hover-bg: color-mix(in srgb, var(--bl-accent) 12%, transparent);
+  --bs-table-hover-color: var(--bl-text);
+  border-color: var(--bl-border) !important;
+  margin-bottom: 0;
+}
+#admin-bio-logs .td-table>:not(caption)>*>*{
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#admin-bio-logs .td-table thead th{
+  color: var(--bl-text) !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--bl-border) !important;
+  letter-spacing: .2px;
+}
+#admin-bio-logs .td-table tbody td{
+  color: var(--bl-text) !important;
+  border-top: 1px solid var(--bl-border) !important;
+  padding: .9rem .75rem;
+}
+
+/* Status chips (reuse your badge pattern) */
+#admin-bio-logs .td-badge {
+  border-radius: 999px; padding: .32rem .65rem; font-size: .78rem; font-weight: 700;
+  border: 1px solid transparent;
+}
+#admin-bio-logs .td-badge-success {
+  color: #059669; background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.25);
+}
+#admin-bio-logs .td-badge-danger {
+  color: #dc2626; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.25);
+}
+#admin-bio-logs .td-badge-warn {
+  color: #b45309; background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.25);
+}
+
+/* Pagination */
+#admin-bio-logs .pagination .page-link{
+  background: transparent;
+  color: var(--bl-text);
+  border:1px solid var(--bl-border);
+  min-width:36px; text-align:center;
+  border-radius:8px; margin:0 .2rem;
+}
+#admin-bio-logs .pagination .page-item.active .page-link{
+  background: var(--bl-accent); color:#fff; border-color: var(--bl-accent);
+}
+#admin-bio-logs .pagination .page-item.disabled .page-link{
+  color: var(--bl-muted); opacity:.6;
+}
+
+/* Export button stylistic match */
+#admin-bio-logs #btnBioLogsExport {
+  border-radius: 12px;
+  border: 1px solid var(--bl-accent);
+  color: var(--bl-accent);
+  background: transparent;
+  padding: .5rem .9rem;
+  font-weight: 600;
+  transition: all .18s ease;
+}
+#admin-bio-logs #btnBioLogsExport:hover {
+  background: color-mix(in srgb, var(--bl-accent) 12%, transparent);
+}
+
+/* Makes R307S • Live feed chip align with tone */
+#admin-bio-logs .td-chip {
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  border: 1px solid var(--bl-border);
+  color: var(--bl-muted);
+}
+
+/* Responsiveness */
+@media (max-width: 767px){
+  #admin-bio-logs .td-card { padding: .9rem; }
+  #admin-bio-logs .filters .col-6.col-md-7 {
+    justify-content: stretch; padding-right: 0;
+  }
+  #admin-bio-logs #btnBioLogsExport { width: 100%; }
+}
+
+/* Print tweaks */
+@media print {
+  #admin-bio-logs .td-card { box-shadow: none !important; border-color: #ccc !important; }
+  #admin-bio-logs .btn, #admin-bio-logs .td-chip { display: none !important; }
+  body { background: #fff !important; }
+}
+
+#admin-bio-logs#admin-bio-logs .page-title,
+#admin-bio-logs :is(h1,h2,h3,h4).page-title {
+  color: #ffffff !important;
+  text-shadow: 0 1px 6px rgba(0,0,0,.35);
+}
+
+/* ADMIN • SYSTEM SETTINGS */
+#admin-settings {
+  --as-radius: var(--td-radius, 16px);
+  --as-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.18));
+  --as-border: var(--td-border, rgba(140,146,160,.18));
+  --as-bg: var(--td-bg, #0f141a);
+  --as-surface: var(--td-surface, #151b22);
+  --as-text: var(--td-text, #f3f4f6);
+  --as-muted: var(--td-muted, #98a1b3);
+  --as-accent: var(--td-accent, #3b82f6);
+  --as-success: var(--td-accent-2, #10b981);
+  --as-danger: var(--td-danger, #ef4444);
+  --as-info: #06b6d4;
+  --as-violet: #8b5cf6;
+}
+
+/* Light-mode overrides */
+body.light-mode #admin-settings {
+  --as-bg: #f6f7fb;
+  --as-surface: #ffffff;
+  --as-text: #0f172a;
+  --as-muted: #64748b;
+  --as-border: rgba(15,23,42,0.10);
+  --as-shadow: 0 10px 24px rgba(2,6,23,0.08);
+}
+
+/* Header styles */
+#admin-settings h3 {
+  color: var(--as-text);
+  font-weight: 800;
+  letter-spacing: .2px;
+  margin-right: 355px;
+}
+#admin-settings p.text-muted,
+#admin-settings .text-muted {
+  color: var(--as-muted) !important;
+  opacity: 0.95 !important; /* ensures visibility */
+}
+
+/* Card shell */
+#admin-settings .td-card {
+  background: var(--as-surface);
+  border: 1px solid var(--as-border);
+  border-radius: var(--as-radius);
+  box-shadow: var(--as-shadow);
+  color: var(--as-text);
+  transition: transform .16s ease, box-shadow .16s ease;
+  overflow: hidden;
+}
+#admin-settings .td-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Card header / footer / body */
+#admin-settings .td-card-header {
+  padding: .9rem 1.1rem;
+  border-bottom: 1px solid var(--as-border);
+  background: color-mix(in srgb, var(--as-bg) 85%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#admin-settings .td-card-header h5 {
+  margin: 0;
+  color: var(--as-text);
+  font-weight: 700;
+}
+#admin-settings .td-card-body {
+  padding: 1rem 1.1rem;
+}
+#admin-settings .td-card-footer {
+  padding: .85rem 1.1rem;
+  border-top: 1px solid var(--as-border);
+  color: var(--as-muted);
+  font-size: .88rem;
+}
+
+/* Panel collapse toggle */
+#admin-settings .settings-collapse {
+  border-radius: 10px;
+  border: 1px solid var(--as-border);
+  color: var(--as-muted);
+  background: transparent;
+  transition: all .18s ease;
+}
+#admin-settings .settings-collapse:hover {
+  color: var(--as-accent);
+  border-color: var(--as-accent);
+}
+
+/* Form control styling */
+#admin-settings .form-control.rounded-pill,
+#admin-settings .form-select.rounded-pill {
+  background: var(--as-surface) !important;
+  color: var(--as-text) !important;
+  border: 1px solid var(--as-border) !important;
+  border-radius: 50px;
+  padding: .55rem 1rem;
+  font-size: .9rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+#admin-settings .form-control::placeholder {
+  color: var(--as-muted);
+}
+#admin-settings .form-control:focus,
+#admin-settings .form-select:focus {
+  border-color: var(--as-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--as-accent) 30%, transparent) !important;
+  outline: none;
+}
+
+/* Toggle switches */
+#admin-settings .form-check-input {
+  width: 2.5rem;
+  height: 1.3rem;
+  background-color: rgba(255,255,255,0.15);
+  border-color: var(--as-border);
+  cursor: pointer;
+  transition: all .18s ease;
+}
+#admin-settings .form-check-input:checked {
+  background-color: var(--as-success);
+  border-color: var(--as-success);
+}
+body.light-mode #admin-settings .form-check-input {
+  background-color: rgba(0,0,0,0.05);
+}
+
+/* Accent chips */
+#admin-settings .accent-chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.3);
+  cursor: pointer;
+  transition: all .18s ease;
+}
+#admin-settings .accent-chip.active {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.35);
+}
+
+/* Small status chip */
+#admin-settings .td-chip {
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  border: 1px solid var(--as-border);
+  color: var(--as-muted);
+}
+#admin-settings .td-chip-success {
+  background: rgba(16,185,129,.12);
+  color: var(--as-success);
+  border-color: rgba(16,185,129,.25);
+}
+
+/* Buttons */
+#admin-settings .btn-outline-primary {
+  color: var(--as-accent);
+  border-color: var(--as-accent);
+}
+#admin-settings .btn-outline-primary:hover {
+  background: var(--as-accent);
+  color: #fff;
+}
+#admin-settings .btn-outline-success {
+  color: var(--as-success);
+  border-color: var(--as-success);
+}
+#admin-settings .btn-outline-success:hover {
+  background: var(--as-success);
+  color: #fff;
+}
+#admin-settings .btn-outline-secondary {
+  color: var(--as-muted);
+  border-color: var(--as-border);
+}
+#admin-settings .btn-outline-secondary:hover {
+  background: color-mix(in srgb, var(--as-muted) 15%, transparent);
+  color: var(--as-text);
+}
+
+/* Mini system log */
+#admin-settings .system-log {
+  background: var(--as-surface);
+  border: 1px solid var(--as-border);
+  border-radius: 12px;
+  padding: .6rem .75rem;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: .88rem;
+}
+#admin-settings .system-log .log-line {
+  color: var(--as-text);
+  padding: .25rem 0;
+  border-bottom: 1px dashed var(--as-border);
+}
+#admin-settings .system-log .log-line:last-child {
+  border-bottom: 0;
+}
+#admin-settings .system-log .text-muted {
+  color: var(--as-muted) !important;
+}
+
+/* Section spacing */
+#admin-settings .td-card + .td-card {
+  margin-top: 1rem;
+}
+
+/* Animations for collapsibles */
+#admin-settings .td-card-body,
+#admin-settings .td-card-footer {
+  transition: opacity .2s ease, max-height .3s ease;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  #admin-settings .td-card-body {
+    padding: .8rem;
+  }
+  #admin-settings .td-card-header h5 {
+    font-size: 1rem;
+  }
+  #admin-settings .btn {
+    width: 100%;
+  }
+}
+
+/* Print */
+@media print {
+  #admin-settings .btn, 
+  #admin-settings .form-check-input, 
+  #admin-settings .accent-chip {
+    display: none !important;
+  }
+  #admin-settings .td-card {
+    box-shadow: none !important;
+    border-color: #ccc !important;
+  }
+  body { background: #fff !important; }
+}
+
+/* PROFILE PAGE — Consistent with Admin Theme */
+#profile-page {
+  /* Inherit token system from admin/teacher dashboards */
+  --pp-radius: var(--td-radius, 16px);
+  --pp-shadow: var(--td-shadow, 0 10px 24px rgba(2,6,23,.18));
+  --pp-border: var(--td-border, rgba(140,146,160,.18));
+  --pp-bg: var(--td-bg, #0f141a);
+  --pp-surface: var(--td-surface, #151b22); /* cards = dark surface */
+  --pp-text: var(--td-text, #f3f4f6);
+  --pp-muted: var(--td-muted, #98a1b3);
+  --pp-accent: var(--td-accent, #3b82f6);
+  --pp-success: var(--td-accent-2, #10b981);
+  --pp-danger: var(--td-danger, #ef4444);
+}
+
+/* Light mode overrides (to stay aligned with admin sections) */
+body.light-mode #profile-page {
+  --pp-bg: #f6f7fb;
+  --pp-surface: #ffffff;
+  --pp-text: #0f172a;
+  --pp-muted: #64748b;
+  --pp-border: rgba(15,23,42,.10);
+  --pp-shadow: 0 10px 24px rgba(2,6,23,.08);
+}
+
+/* Layout & Card Shells */
+#profile-page .td-card {
+  background: var(--pp-surface);
+  border: 1px solid var(--pp-border);
+  border-radius: var(--pp-radius);
+  box-shadow: var(--pp-shadow);
+  color: var(--pp-text);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+#profile-page .td-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
+}
+#profile-page .td-card-header {
+  padding: .9rem 1.1rem .7rem;
+  border-bottom: 1px solid var(--pp-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#profile-page .td-card-header h5 {
+  color: var(--pp-text);
+  margin: 0;
+}
+#profile-page .td-card-body { padding: 1rem 1.1rem; }
+
+/* Profile Header */
+#profile-page .profile-header {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-top: .5rem;
+}
+#profile-page .profile-avatar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, var(--pp-accent), transparent 75%);
+  padding: 3px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pp-accent) 18%, transparent);
+}
+#profile-page .profile-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--pp-border);
+  background: var(--pp-bg);
+}
+#profile-page .role-badge {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  background: var(--pp-accent);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--pp-accent) 45%, transparent);
+}
+#profile-page .role-badge.role-admin { background: var(--pp-danger); }
+#profile-page .role-badge.role-teacher { background: #f59e0b; }
+#profile-page .role-badge.role-student { background: var(--pp-success); }
+
+#profile-page .profile-name {
+  color: var(--pp-text);
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+#profile-page .profile-email {
+  color: var(--pp-muted);
+  opacity: .9;
+}
+
+/* Section Titles */
+#profile-page .section-title {
+  color: var(--pp-text);
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: .3px;
+  margin: 1rem 0 .75rem;
+  position: relative;
+  text-transform: uppercase;
+}
+#profile-page .section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 60px;
+  height: 3px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--pp-accent), transparent);
+  opacity: .9;
+}
+
+/* Overview (Info list) */
+#profile-page .overview-item {
+  display: flex;
+  justify-content: space-between;
+  padding: .65rem 0;
+  border-bottom: 1px solid var(--pp-border);
+  color: var(--pp-muted);
+  font-size: .95rem;
+}
+#profile-page .overview-item strong {
+  color: var(--pp-text);
+}
+
+/* Form Elements */
+#profile-page .form-control,
+#profile-page .form-select {
+  background: color-mix(in srgb, var(--pp-bg) 92%, white 8%);
+  border: 1px solid var(--pp-border);
+  color: var(--pp-text);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02);
+  transition: all .18s ease;
+}
+#profile-page .form-control::placeholder {
+  color: var(--pp-muted);
+}
+#profile-page .form-control:focus,
+#profile-page .form-select:focus {
+  border-color: var(--pp-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pp-accent) 30%, transparent);
+  transform: translateY(-1px);
+}
+
+/* Buttons */
+#profile-page .btn-primary {
+  background: var(--pp-accent);
+  border: 0;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: .45rem .9rem;
+  transition: transform .16s ease;
+  box-shadow: none; /* no glow */
+}
+#profile-page .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: none; /* keep it flat even on hover */
+}
+
+#profile-page .btn-danger {
+  background: var(--pp-danger);
+  border: 0;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+}
+#profile-page .btn-outline-secondary {
+  border: 1px solid var(--pp-border);
+  color: var(--pp-muted);
+  border-radius: 12px;
+}
+#profile-page .btn-outline-secondary:hover {
+  background: color-mix(in srgb, var(--pp-muted) 18%, transparent);
+  color: var(--pp-text);
+}
+
+/*Chips + Dividers*/
+#profile-page .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .25rem .6rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--pp-text);
+  background: color-mix(in srgb, var(--pp-accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pp-accent) 35%, transparent);
+}
+#profile-page .soft-divider {
+  position: relative;
+  height: 1.5px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--pp-accent) 20%, transparent) 0%,
+    color-mix(in srgb, #8b5cf6 50%, var(--pp-accent) 50%) 50%,
+    color-mix(in srgb, var(--pp-success) 25%, transparent) 100%
+  );
+  opacity: 0.95;
+  border-radius: 2px;
+  box-shadow: 0 0 4px color-mix(in srgb, var(--pp-accent) 25%, transparent);
+  margin: 1.2rem 0;
+}
+
+/* Profile page visibility & clarity */
+#profile-page h1,
+#profile-page h2,
+#profile-page h3,
+#profile-page h4,
+#profile-page h5,
+#profile-page h6 {
+  color: #ffffff !important;
+}
+
+/* Section titles */
+#profile-page .glass-card h5,
+#profile-page .glass-card h6,
+#profile-page .glass-card .card-title {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Subheadings and helper text */
+#profile-page .text-muted,
+#profile-page .form-text,
+#profile-page small {
+  color: rgba(255,255,255,0.85) !important;
+  opacity: 1;
+}
+
+/* Makes only the email and its description slightly dimmer */
+#profile-page .profile-email,
+#profile-page .email-note,
+#profile-page input[readonly][type="email"],
+#profile-page label[for="email"] + .form-text {
+  color: rgba(255,255,255,0.65) !important; 
+}
+
+/* Hero area (top section) */
+#profile-page .profile-header .title,
+#profile-page .profile-header h1,
+#profile-page .profile-header h2,
+#profile-page .profile-header h3 {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+#profile-page .profile-header p,
+#profile-page .profile-header .subtitle {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* Readonly input clarity (email row) */
+#profile-page .form-control[readonly] {
+  color: rgba(255,255,255,0.75) !important;
+  background: rgba(255,255,255,0.05);
+  cursor: not-allowed;
+}
+
+/* Card aesthetics */
+#profile-page .glass-card {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* Make email + its note subtly secondary */
+#profile-page .profile-email,
+#profile-page .form-text,
+#profile-page input[readonly][type="email"] {
+  color: rgba(255, 255, 255, 0.65) !important; /* soft dull white */
+  opacity: 0.9;
+}
+
+/* PROFILE (light-mode visibility fixes done) */
+body.light-mode #profile-page h1,
+body.light-mode #profile-page h2,
+body.light-mode #profile-page h3,
+body.light-mode #profile-page h4,
+body.light-mode #profile-page h5,
+body.light-mode #profile-page h6,
+body.light-mode #profile-page .section-title,
+body.light-mode #profile-page .td-card-header h5,
+body.light-mode #profile-page .profile-header .title {
+  color: var(--pp-text) !important;
+}
+
+body.light-mode #profile-page .text-muted,
+body.light-mode #profile-page .form-text,
+body.light-mode #profile-page small,
+body.light-mode #profile-page .td-card-header .text-muted {
+  color: var(--pp-muted) !important;
+  opacity: 1;
+}
+
+/* make email + its note slightly dull in light mode */
+body.light-mode #profile-page .profile-email,
+body.light-mode #profile-page .email-note,
+body.light-mode #profile-page input[readonly][type="email"],
+body.light-mode #profile-page label[for="email"] + .form-text {
+  color: color-mix(in srgb, var(--pp-text) 35%, var(--pp-muted) 65%) !important;
+}
+
+/*Responsive Tweaks*/
+@media (max-width: 767px) {
+  #profile-page .td-card-body { padding: .9rem; }
+  #profile-page .section-title { font-size: .98rem; }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

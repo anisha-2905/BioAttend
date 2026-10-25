@@ -1,0 +1,12 @@
+{% extends "dashboard_base.html" %}
+
+{% block dashboard_content %}
+  <div id="main-content">
+    <!-- Teacher-specific content will load here via partials -->
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <!-- Any teacher-specific JS if needed -->
+{% endblock %}

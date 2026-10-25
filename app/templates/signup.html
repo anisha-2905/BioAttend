@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100" style="padding: 1rem;">
+  <div class="card p-4 shadow w-100 fade-in-up" style="max-width: 400px; border-radius: 20px;">
+
+    <div class="text-center mb-4">
+      <h5 class="text-muted">STUDENT ATTENDANCE SYSTEM</h5>
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="signup-logo">
+    </div>
+
+
+      <h4 class="text-center mb-4">Student Sign Up</h4>
+
+    <form method="POST" action="{{ url_for('routes.signup') }}">
+
+      <div class="mb-3 position-relative">
+  <input type="text" class="form-control pe-5" name="full_name" placeholder="Enter Full Name" value="{{ full_name or '' }}">
+  <span class="position-absolute" style="top: 50%; right: 16px; transform: translateY(-50%); cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="left" title="Enter your full legal name as per college records.">
+    <i class="bi bi-info-circle text-muted"></i>
+  </span>
+</div>
+
+      <div class="mb-3 position-relative">
+  <input type="text" class="form-control pe-5" name="roll" placeholder="Enter Roll Number" value="{{ roll or '' }}">
+  
+  <span class="position-absolute top-50 end-0 translate-middle-y me-3" 
+        data-bs-toggle="tooltip" 
+        data-bs-placement="left" 
+        title="Enter your college-issued roll number.">
+    <i class="bi bi-info-circle text-muted"></i>
+  </span>
+</div>
+
+<!-- Department -->
+<div class="mb-3 position-relative">
+  <input type="text" class="form-control pe-5" name="department" placeholder="Enter Department" required  value="{{ department or '' }}">
+  <span class="position-absolute" style="top: 50%; right: 16px; transform: translateY(-50%); cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="left" title="E.g., IT, Finance, etc.">
+    <i class="bi bi-info-circle text-muted"></i>
+  </span>
+</div>
+
+<!-- Email -->
+<div class="mb-3 position-relative">
+  <input type="email" class="form-control pe-5" name="email" placeholder="Enter Email Address" value="{{ email or '' }}">
+  <span class="position-absolute" style="top: 50%; right: 16px; transform: translateY(-50%); cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="left" title="Use your institutional or personal email for login.">
+    <i class="bi bi-info-circle text-muted"></i>
+  </span>
+</div>
+
+<!-- Password -->
+<div class="mb-3 position-relative">
+  <input type="password" class="form-control pe-5 {% if 'password' in shake_fields %}shake{% endif %}" name="password" id="password" placeholder="Enter Password" required>
+
+  <!-- Tooltip icon -->
+  <span class="position-absolute" style="top: 50%; right: 40px; transform: translateY(-50%); cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="left" title="Must be at least 8 characters, include a number and special character.">
+    <i class="bi bi-info-circle text-muted"></i>
+  </span>
+
+  <!-- Eye icon -->
+  <span class="position-absolute" style="top: 50%; right: 16px; transform: translateY(-50%); cursor: pointer;" onclick="togglePassword('password', 'toggleIcon1')">
+    <i id="toggleIcon1" class="bi bi-eye-slash text-muted"></i>
+  </span>
+</div>
+
+<!-- Confirm Password -->
+<div class="mb-3 position-relative">
+  <input type="password"  class="form-control pe-5 {% if 'confirm_password' in shake_fields %}shake{% endif %}" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+
+  <!-- Tooltip icon -->
+  <span class="position-absolute" style="top: 50%; right: 40px; transform: translateY(-50%); cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="left" title="Re-enter the same password to confirm.">
+    <i class="bi bi-info-circle text-muted"></i>
+  </span>
+
+  <!-- Eye icon -->
+  <span class="position-absolute" style="top: 50%; right: 16px; transform: translateY(-50%); cursor: pointer;" onclick="togglePassword('confirm_password', 'toggleIcon2')">
+    <i id="toggleIcon2" class="bi bi-eye-slash text-muted"></i>
+  </span>
+</div>
+<div class="text-danger text-center small mb-3" style="min-height: 1.2rem;">
+  {% if errors.confirm_password %}
+    {{ errors.confirm_password }}
+  {% else %}
+    &nbsp;  
+  {% endif %}
+</div>
+      <button type="submit" class="btn btn-success w-100 ripple-btn">Sign Up</button>
+    </form>
+
+    <p class="text-center mt-3">Already have an Account?
+      <a href="{{ url_for('routes.login') }}">Log in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

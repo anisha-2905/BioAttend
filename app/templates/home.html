@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Welcome to BioAttend</h1>
+<p><a href="{{ url_for('main.login') }}" class="btn btn-primary">Login</a>
+<a href="{{ url_for('main.signup') }}" class="btn btn-secondary">Signup</a></p>
+{% endblock %}

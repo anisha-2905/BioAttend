@@ -1,0 +1,494 @@
+<div id="teacher-attendance" class="p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title">Attendance</h2>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Card -->
+    <div class="col-md-4">
+      <div class="td-card h-100">
+        <div class="td-card-header">
+          <h5>Class & Date</h5>
+        </div>
+        <div class="td-card-body">
+          <div class="mb-3">
+            <label class="form-label">Select Class</label>
+            <select id="taDepartment" class="form-select rounded-pill">
+              <option value="">Choose Class</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control rounded-pill" id="taDate">
+          </div>
+
+          <div class="attendance-stats mt-4">
+            <div class="d-flex justify-content-between">
+              <span>Present</span>
+              <span class="fw-bold present-count" style="color: var(--ta-success);">0</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Absent</span>
+              <span class="fw-bold absent-count" style="color: var(--ta-danger);">0</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <span>Total</span>
+              <span class="fw-bold total-count">0</span>
+            </div>
+            <hr>
+<div class="d-flex justify-content-between align-items-center">
+  <span class="fw-bold">Progress</span>
+  <span class="progress-label">70% Present</span>
+</div>
+<div class="attendance-progress mt-2">
+  <div class="present" style="width: 70%;">70%</div>
+  <div class="absent" style="width: 30%;"></div>
+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Right Card -->
+<div class="col-md-8">
+  <div class="td-card h-100">
+    
+    <!-- Title row -->
+    <div class="td-card-header border-0 pb-0">
+      <h5 class="mb-4 text-start">Mark Attendance</h5>
+    </div>
+
+    <!-- Controls row -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 px-3 pb-2">
+      <!-- Left side - search -->
+      <input 
+        type="text" 
+        id="studentSearch" 
+        class="form-control form-control-sm"
+        placeholder="🔍 Search by name or roll no..."
+        style="max-width: 220px;"
+      />
+      
+      <!-- Right side - bulk & reset -->
+      <div class="d-flex align-items-center gap-2">
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-success" id="markAllPresent">All Present</button>
+          <button class="btn btn-outline-danger" id="markAllAbsent">All Absent</button>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary">Reset</button>
+      </div>
+    </div>
+    <div>
+        <div class="td-card-body">
+          <div class="table-responsive">
+            <table class="table td-table align-middle table-hover">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+  {% for student in students %}
+    <tr data-student-id="{{ student.id }}" data-attendance-status="{{ student.today_status or 'unmarked' }}">
+      <td>{{ student.roll_number }}</td>
+      <td>{{ student.full_name }}</td>
+      <td>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm td-chip success btn-present">Present</button>
+          <button class="btn btn-sm td-chip danger btn-absent">Absent</button>
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+</tbody>
+            </table>
+          </div>
+        </div>
+        </div>
+
+        <div class="td-card-footer d-flex justify-content-end gap-2">
+          <button class="btn btn-secondary">Cancel</button>
+          <button class="btn btn-primary">Save Attendance</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance Trends -->
+  <div class="row g-4 mt-3">
+    <div class="col-12">
+      <div class="td-card">
+        <div class="td-card-header d-flex justify-content-between align-items-center">
+          <h5>Today’s Attendance Trend</h5>
+          <small class="text-muted">Live updates</small>
+        </div>
+        <div class="td-card-body">
+          <canvas id="attendanceTrendChart" height="120"></canvas>
+          <div class="chart-legend">
+  <span><span class="dot present"></span> Present</span>
+  <span><span class="dot absent"></span> Absent</span>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function () {
+  const container = document.getElementById('teacher-attendance') || document.documentElement;
+  const style = getComputedStyle(container);
+
+  const accent  = (style.getPropertyValue('--ta-accent')  || '#3b82f6').trim();
+  const muted   = (style.getPropertyValue('--ta-muted')   || '#98a1b3').trim();
+  const surface = (style.getPropertyValue('--ta-surface') || '#151b22').trim();
+
+  const canvas = document.getElementById('attendanceTrendChart');
+  if (!canvas || typeof Chart === "undefined") return;
+
+  const ctx = canvas.getContext('2d');
+
+  // helper to convert hex (#rrggbb) to rgba string with alpha
+  function hexToRgba(hex, alpha) {
+    hex = (hex || '').replace('#','').trim();
+    if (hex.length === 3) hex = hex.split('').map(h => h + h).join('');
+    const r = parseInt(hex.substring(0,2),16) || 0;
+    const g = parseInt(hex.substring(2,4),16) || 0;
+    const b = parseInt(hex.substring(4,6),16) || 0;
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+// builds a vertical gradient for a subtle ribbon under the blue line
+const g = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
+g.addColorStop(0.00, hexToRgba(accent, 0.26));
+g.addColorStop(0.12, hexToRgba(accent, 0.12));
+g.addColorStop(0.20, hexToRgba(accent, 0.05));
+g.addColorStop(1.00, hexToRgba(accent, 0.00));
+
+const gRed = ctx.createLinearGradient(0, 0, 0, canvas.height || 300);
+gRed.addColorStop(0.00, hexToRgba('#ef4444', 0.26));
+gRed.addColorStop(0.12, hexToRgba('#ef4444', 0.12));
+gRed.addColorStop(0.20, hexToRgba('#ef4444', 0.05));
+gRed.addColorStop(1.00, hexToRgba('#ef4444', 0.00));
+
+// drawing a soft shadow right under the Present line
+const softShadow = {
+  id: 'softShadow',
+  afterDatasetsDraw(chart) {
+    const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.dataset) return;
+
+    const line = meta.dataset;
+    const { ctx } = chart;
+
+    ctx.save();
+    ctx.shadowColor = hexToRgba(accent, 0.28); 
+    ctx.shadowBlur = 16;                      
+    ctx.shadowOffsetY = 8;                     
+    ctx.lineWidth = line.options.borderWidth;
+    ctx.strokeStyle = line.options.borderColor;
+
+    // stroke the same path as the line
+    if (typeof line.path === 'function') {
+      line.path(ctx);
+      ctx.stroke();
+    } else {
+      // fallback for older Chart.js
+      line.draw(ctx);
+    }
+    ctx.restore();
+  }
+};
+
+const endpoint = "{{ url_for('routes.teacher_trend_api') }}?days=7";
+
+function drawChart(labels, present, absent) {
+  const existing = Chart.getChart(canvas);
+  if (existing) existing.destroy();
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Present',
+          data: present,
+          borderColor: accent,
+          backgroundColor: g,   
+          fill: true,
+          tension: 0.36,
+          pointBackgroundColor: surface,
+          pointBorderColor: accent,
+          pointRadius: 3,
+          borderWidth: 2
+        },
+        {
+          label: 'Absent',
+          data: absent,
+          borderColor: '#ef4444',
+          backgroundColor: gRed, 
+          fill: true,
+          tension: 0.36,
+          pointBackgroundColor: surface,
+          pointBorderColor: '#ef4444',
+          pointRadius: 3,
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: muted } },
+        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: muted } }
+      },
+      elements: { line: { tension: 0.36 } }
+    },
+    plugins: [softShadow] //soft fade
+  });
+}
+
+  async function loadTrend() {
+    try {
+      const r = await fetch(endpoint, { cache: 'no-store' });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.msg || 'Failed to load trend');
+      drawChart(j.labels, j.present, j.absent);
+    } catch (e) {
+      // fallback to empty series if API fails
+      drawChart(['-', '-', '-', '-', '-', '-', '-'], [0,0,0,0,0,0,0], [0,0,0,0,0,0,0]);
+      console.warn('teacher_trend_api failed:', e);
+    }
+  }
+
+  loadTrend();
+})();
+</script>
+<script>
+(function () {
+  const root  = document.getElementById('teacher-attendance');
+  if (!root) return;
+
+  const tbody = root.querySelector('tbody');
+  const inpSearch = document.getElementById('studentSearch');
+  const btnAllP = document.getElementById('markAllPresent');
+  const btnAllA = document.getElementById('markAllAbsent');
+  const btnReset = root.querySelector('.td-card .btn.btn-sm.btn-outline-secondary'); 
+  const btnSave = root.querySelector('.td-card-footer .btn.btn-primary');            
+  const dateInput = root.querySelector('input[type="date"]');
+  const btnCancel = root.querySelector('.td-card-footer .btn.btn-secondary');
+
+  // helpers
+  function findPresentBtn(tr){
+    return tr.querySelector('.btn-present') || tr.querySelector('.td-chip.success');
+  }
+  function findAbsentBtn(tr){
+    return tr.querySelector('.btn-absent') || tr.querySelector('.td-chip.danger');
+  }
+
+  function setRowState(tr, state) {
+    tr.dataset.attendanceStatus = state;               
+    tr.classList.toggle('present-row', state === 'present');
+    tr.classList.toggle('absent-row',  state === 'absent');
+
+    const p = findPresentBtn(tr);
+    const a = findAbsentBtn(tr);
+    [p,a].forEach(b => b && b.classList.remove('selected'));
+    if (state === 'present' && p) p.classList.add('selected');
+    if (state === 'absent'  && a) a.classList.add('selected');
+  }
+
+  function updateCounts() {
+    const present = tbody.querySelectorAll('tr[data-student-id][data-attendance-status="present"]:not([hidden])').length;
+    const absent  = tbody.querySelectorAll('tr[data-student-id][data-attendance-status="absent"]:not([hidden])').length;
+    const total   = tbody.querySelectorAll('tr[data-student-id]:not([hidden])').length;
+  }
+
+  // refreshs summary card strictly from saved backend data
+  async function refreshSummaryFromServer() {
+    const dateStr = (dateInput && dateInput.value) ? dateInput.value : todayLocalISO();
+    try {
+      const res = await fetch(`/api/teacher/attendance/day?date=${dateStr}`, { cache: "no-store" });
+      const json = await res.json();
+      if (!json.ok) return;
+      const box = root.querySelector('.attendance-stats');
+      if (box) {
+        const pc = box.querySelector('.present-count');
+        const ac = box.querySelector('.absent-count');
+        const tc = box.querySelector('.total-count');
+        if (pc) pc.textContent = json.present;
+        if (ac) ac.textContent = json.absent;
+        if (tc) tc.textContent = json.total;
+
+        const progPresent = box.closest('.td-card-body')?.querySelector('.attendance-progress .present');
+        const progAbsent  = box.closest('.td-card-body')?.querySelector('.attendance-progress .absent');
+        const pct = json.percent ?? 0;
+        if (progPresent) { progPresent.style.width = pct + '%'; progPresent.textContent = pct + '%'; }
+        if (progAbsent)  { progAbsent.style.width  = (100 - pct) + '%'; }
+        const label = box.closest('.td-card-body')?.querySelector('.progress-label');
+        if (label) label.textContent = `${pct}% Present`;
+      }
+    } catch (e) {
+      console.warn('Failed to refresh summary from server:', e);
+    }
+  }
+
+  function todayLocalISO() {
+    const d = new Date();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${d.getFullYear()}-${mm}-${dd}`;
+  }
+
+  // initial hydrate from existing rows
+  tbody.querySelectorAll('tr[data-student-id]').forEach(tr => {
+    if (!tr.dataset.initialStatus) {
+      tr.dataset.initialStatus = tr.dataset.attendanceStatus || 'unmarked';
+    }
+
+    setRowState(tr, tr.dataset.attendanceStatus || 'unmarked');
+
+    const p = findPresentBtn(tr);
+    const a = findAbsentBtn(tr);
+
+    if (p) p.addEventListener('click', () => { setRowState(tr, 'present'); });
+    if (a) a.addEventListener('click', () => { setRowState(tr, 'absent');  });
+  });
+
+  // search 
+  if (inpSearch) {
+    inpSearch.addEventListener('input', () => {
+      const q = inpSearch.value.trim().toLowerCase();
+      tbody.querySelectorAll('tr[data-student-id]').forEach(tr => {
+        const roll = (tr.children[0]?.textContent || '').toLowerCase();
+        const name = (tr.children[1]?.textContent || '').toLowerCase();
+        const show = !q || roll.includes(q) || name.includes(q);
+        tr.hidden = !show;
+      });
+    });
+  }
+
+  // bulk controls
+  btnAllP && btnAllP.addEventListener('click', () => {
+    tbody.querySelectorAll('tr[data-student-id]').forEach(tr => setRowState(tr, 'present'));
+  });
+  btnAllA && btnAllA.addEventListener('click', () => {
+    tbody.querySelectorAll('tr[data-student-id]').forEach(tr => setRowState(tr, 'absent'));
+  });
+  btnReset && btnReset.addEventListener('click', () => {
+    tbody.querySelectorAll('tr[data-student-id]').forEach(tr => setRowState(tr, 'unmarked'));
+  });
+
+  // Cancel & restore each row to its initial on-load state
+  btnCancel && btnCancel.addEventListener('click', (e) => {
+    e.preventDefault();
+    tbody.querySelectorAll('tr[data-student-id]').forEach(tr => {
+      const initial = tr.dataset.initialStatus || 'unmarked';
+      setRowState(tr, initial);
+    });
+  });
+
+  // save 
+  btnSave && btnSave.addEventListener('click', async () => {
+    const records = [];
+    tbody.querySelectorAll('tr[data-student-id]').forEach(tr => {
+      records.push({
+        id: tr.getAttribute('data-student-id'),
+        status: tr.dataset.attendanceStatus || 'unmarked'
+      });
+    });
+
+    const dateStr = (dateInput && dateInput.value) ? dateInput.value : todayLocalISO();
+
+    try {
+      const res = await fetch('/teacher/attendance/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: dateStr, records })
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || 'Save failed');
+      alert('Attendance saved.');
+
+      // refresh summary card after succesful save
+      await refreshSummaryFromServer();
+
+    } catch (e) {
+      alert(e.message || 'Save failed');
+    }
+  });
+
+  // refresh saved data summary on date change
+  if (dateInput) {
+    dateInput.addEventListener('change', refreshSummaryFromServer);
+  }
+
+  // initial load — show saved data for today
+  refreshSummaryFromServer();
+
+  window.__teacherAttendanceUpdateCounts = updateCounts;
+})();
+</script>
+<script>
+(function () {
+  const root = document.getElementById('teacher-attendance');
+  if (!root) return;
+
+  const inpDate   = document.getElementById('taDate');
+  const cntP      = root.querySelector('.attendance-stats .present-count');
+  const cntA      = root.querySelector('.attendance-stats .absent-count');
+  const cntT      = root.querySelector('.attendance-stats .total-count');
+  const progLabel = root.querySelector('.attendance-stats .progress-label');
+  const progBar   = root.querySelector('.attendance-progress .present');
+
+  function ymd(d) {
+    // format Date -> YYYY-MM-DD
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+
+  async function loadCountsFor(dateStr) {
+    const url = new URL("{{ url_for('routes.teacher_attendance_day_api') }}", window.location.origin);
+    if (dateStr) url.searchParams.set("date", dateStr);
+    const r = await fetch(url.toString(), { cache: "no-store" });
+    const j = await r.json();
+
+    if (!j.ok) throw new Error(j.msg || "Failed to load counts");
+
+    // numbers
+    if (cntP) cntP.textContent = j.present ?? 0;
+    if (cntA) cntA.textContent = j.absent ?? 0;
+    if (cntT) cntT.textContent = j.total ?? 0;
+
+    // progress
+    const pct = Math.max(0, Math.min(100, j.percent ?? 0));
+    if (progLabel) progLabel.textContent = `${pct}% Present`;
+    if (progBar) {
+      progBar.style.width = pct + "%";
+      progBar.textContent = pct + "%";
+    }
+  }
+
+  // when user changes the date -> fetch that day
+  if (inpDate) {
+    inpDate.addEventListener('change', () => {
+      const val = inpDate.value; // native is YYYY-MM-DD
+      loadCountsFor(val).catch(err => console.warn(err));
+    });
+
+    // prefill with today visually
+    if (!inpDate.value) {
+      const today = new Date();
+      inpDate.value = ymd(today);
+    }
+  }
+})();
+</script>
+</div>

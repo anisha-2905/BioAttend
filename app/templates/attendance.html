@@ -1,0 +1,34 @@
+{% extends "dashboard_base.html" %}
+
+{% block title %}Attendance Records{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Attendance Records</h2>
+
+<table class="table table-bordered table-striped">
+  <thead class="table-dark">
+    <tr>
+      <th>Date</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for record in records %}
+      <tr>
+        <td>{{ record.date.strftime('%Y-%m-%d') }}</td>
+        <td>
+          {% if record.status == 'present' %}
+            <span class="badge bg-success">Present</span>
+          {% else %}
+            <span class="badge bg-danger">Absent</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="2" class="text-center">No attendance records found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

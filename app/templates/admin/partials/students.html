@@ -1,0 +1,429 @@
+<div id="admin-students">
+  <!-- Header -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="fw-bold mb-1">Manage Students</h3>
+      <small class="section-chip" style="margin-left: -2px;">Admin • Students</small>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-primary" id="btnExportStudents"
+         href="{{ url_for('routes.admin_students_export', q=q, department=department, year=year) }}">
+        <i class="bi bi-download me-1"></i> Export CSV
+      </a>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+        <i class="bi bi-plus-circle me-1"></i> Add Student
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="td-card mb-3 filters">
+    <form id="studentFilter" class="row g-3 align-items-center">
+      <div class="col-12 col-md-4">
+        <label class="form-label small mb-1">Search</label>
+        <input class="form-control rounded-pill" name="q" placeholder="Search name/email/roll/department"
+               value="{{ q or '' }}">
+      </div>
+
+      <div class="col-6 col-md-3">
+        <label class="form-label small mb-1">Department</label>
+        <select class="form-select rounded-pill" name="department">
+          <option value="">All</option>
+          {% for d in (departments or []) %}
+            <option value="{{ d }}" {{ 'selected' if department==d else '' }}>{{ d }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">Year</label>
+        <select class="form-select rounded-pill" name="year">
+          <option value="">All</option>
+          {% for y in (years or []) %}
+            <option value="{{ y }}" {{ 'selected' if year==y else '' }}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-12 col-md-3 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">Apply</button>
+        <a class="btn btn-outline-secondary" id="studentReset">Reset</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- KPI row  -->
+  {% if kpis %}
+  <div class="row kpi-row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Total</h5></div>
+        <div class="td-card-body"><span class="display-6">{{ kpis.total }}</span></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Departments</h5></div>
+        <div class="td-card-body"><span class="display-6">{{ kpis.departments }}</span></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">New (30d)</h5></div>
+        <div class="td-card-body"><span class="display-6">{{ kpis.recent }}</span></div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="td-card text-center py-3">
+        <div class="td-card-header"><h5 class="mb-0">Assigned</h5></div>
+        <div class="td-card-body"><span class="display-6">{{ kpis.assigned }}</span></div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="divider"></div>
+
+  <!-- Table -->
+  <div class="td-card">
+    <div class="td-card-header d-flex align-items-center justify-content-between">
+      <h5 class="mb-0">Students</h5>
+      {% if pagination %}
+        <small class="text-muted">Page {{ pagination.page }} of {{ pagination.pages or 1 }}</small>
+      {% endif %}
+    </div>
+
+    <div class="table-responsive">
+      <table class="table td-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Year</th>
+            <th>Created</th>
+            <th class="text-end" style="width:120px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody">
+          {% for s in (students or []) %}
+          <tr data-id="{{ s.id }}">
+            <td class="fw-semibold">{{ s.roll_number }}</td>
+            <td>{{ s.full_name }}</td>
+            <td class="text-muted">{{ s.email }}</td>
+            <td>
+            <span class="td-badge td-badge-dept">{{ s.department }}</span>
+            </td>
+            <td>
+            <span class="td-badge td-badge-year">{{ s.year or '—' }}</span>
+            </td>
+            <td>{{ (s.created_at.strftime('%Y-%m-%d %H:%M') if s.created_at else '-') }}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-danger btnDeleteStudent">
+                <i class="bi bi-trash"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary btnAssignStudent" data-student-id="{{ s.id }}">
+                <i class="bi bi-link-45deg"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+          {% if not students %}
+          <tr><td colspan="7" class="text-muted py-4 text-center">No students found.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="td-card-footer d-flex justify-content-between align-items-center">
+      <div class="text-muted small">
+        {% if pagination %}
+          Showing {{ (students|length) if students is not none else 0 }} of {{ pagination.total }}
+        {% else %}
+          <!-- If pagination not provided yet -->
+          Showing {{ (students|length) if students is not none else 0 }}
+        {% endif %}
+      </div>
+
+      {% if pagination and pagination.pages > 1 %}
+      <nav aria-label="Students pagination">
+        <ul class="pagination pagination-sm mb-0">
+          <!-- Prev -->
+          <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="#" data-page="{{ pagination.prev_num if pagination.has_prev else 1 }}">Prev</a>
+          </li>
+
+          {# Compute window manually to avoid Jinja min/max #}
+          {% set start = 1 if pagination.page <= 3 else pagination.page - 2 %}
+          {% set end = pagination.pages if pagination.page >= pagination.pages - 2 else pagination.page + 2 %}
+          {% if start < 1 %}{% set start = 1 %}{% endif %}
+          {% if end > pagination.pages %}{% set end = pagination.pages %}{% endif %}
+
+          <!-- Page numbers -->
+          {% for p in range(start, end + 1) %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="#" data-page="{{ p }}">{{ p }}</a>
+            </li>
+          {% endfor %}
+
+          <!-- Next -->
+          <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="#" data-page="{{ pagination.next_num if pagination.has_next else pagination.pages }}">Next</a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Add Student Modal -->
+  <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content" id="addStudentForm" method="POST" action="{{ url_for('routes.admin_student_create') }}">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Student</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small">Full Name</label>
+            <input type="text" class="form-control" name="full_name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Roll Number</label>
+            <input type="text" class="form-control" name="roll_number" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Department</label>
+            <input type="text" class="form-control" name="department" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Year (optional)</label>
+            <input type="text" class="form-control" name="year" placeholder="FY / SY / TY or 1 / 2 / 3">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Email</label>
+            <input type="email" class="form-control" name="email" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Password</label>
+            <input type="password" class="form-control" name="password" minlength="8" required>
+            <div class="form-text">Min 8 chars, include a number & special character.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-check2-circle me-1"></i> Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal fade" id="assignStudentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="assignStudentForm">
+      <div class="modal-header">
+        <h5 class="modal-title">Assign to Teacher</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="student_id" id="assignStudentId">
+        <label class="form-label small mb-2">Teacher</label>
+        <select class="form-select" name="teacher_id" id="assignTeacherSelect" required>
+          <option value="">Select a teacher…</option>
+          {% for t in (all_teachers or teachers or []) %}
+            <option value="{{ t.id }}">{{ t.full_name }} — {{ t.department }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit">Assign</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+
+<script>
+(function initAdminStudents() {
+  const scope = document.getElementById('admin-students');
+  if (!scope) return;
+
+  const mainContent = document.getElementById('main-content');
+
+  // Helper to reload list with current params via AJAX into #main-content , Build + fetch the partial
+  function reloadList(params = null) {
+  const base = new URL("{{ url_for('routes.admin_students_partial') }}", window.location.origin);
+
+  if (params === null) {
+    // read current form values
+    const form = scope.querySelector('#studentFilter');
+    if (form) {
+      const fd = new FormData(form);
+      for (const [k, v] of fd.entries()) {
+        const val = (v || "").toString().trim();
+        if (val !== "") base.searchParams.set(k, val);
+      }
+    }
+  } else {
+    // uses only what’s passed doesnt read the form
+    Object.entries(params).forEach(([k, v]) => {
+      const val = (v ?? "").toString().trim();
+      if (val !== "") base.searchParams.set(k, val);
+    });
+  }
+
+  // bust cache
+  base.searchParams.set("_", Date.now());
+
+  fetch(base.toString())
+    .then(r => r.text())
+    .then(html => {
+      mainContent.innerHTML = html;
+      // RE-RUN any inline/external scripts contained in the loaded partial
+      mainContent.querySelectorAll("script").forEach(oldScript => {
+        const s = document.createElement("script");
+        if (oldScript.src) {
+          s.src = oldScript.src;
+          s.async = false;
+        } else {
+          s.textContent = oldScript.textContent;
+        }
+        document.body.appendChild(s);
+        s.remove();
+      });
+    })
+    .catch(err => {
+      console.error('Failed to reload students:', err);
+      alert('Failed to refresh list.');
+    });
+  }
+
+  // Filter form
+  const filterForm = scope.querySelector('#studentFilter');
+  if (filterForm) {
+    filterForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(filterForm);
+      const params = Object.fromEntries(fd.entries());
+      params.page = 1;
+      reloadList(params);
+    });
+  }
+
+  // Reset filters
+  const resetBtn = scope.querySelector('#studentReset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      // Clear visible controls without reverting to old server-rendered defaults
+      const form = scope.querySelector('#studentFilter');
+      if (form) {
+        form.querySelectorAll('input, select').forEach(el => {
+          if (el.tagName === 'SELECT') el.selectedIndex = 0;
+          else el.value = '';
+        });
+      }
+
+      // Load with only page=1 & no q/department/year sent
+      reloadList({ page: 1 });
+
+      // Clean the URL's query string
+      const clean = new URL(window.location.href);
+      clean.search = '';
+      window.history.replaceState({}, '', clean.toString());
+    });
+  }
+
+  // Pagination
+  scope.querySelectorAll('.pagination a.page-link').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = a.getAttribute('data-page');
+      const fd = new FormData(filterForm);
+      const params = Object.fromEntries(fd.entries());
+      params.page = page || 1;
+      reloadList(params);
+    });
+  });
+
+  // Add Student (AJAX)
+  const addForm = scope.querySelector('#addStudentForm');
+  if (addForm) {
+    addForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(addForm);
+      fetch("{{ url_for('routes.admin_student_create') }}", {
+        method: 'POST',
+        body: fd
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (!json.ok) throw new Error(json.msg || 'Failed to add student');
+        const modalEl = document.getElementById('addStudentModal');
+        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.hide();
+        addForm.reset();
+        reloadList();
+        history.replaceState({}, "", location.pathname + location.hash);
+      })
+      .catch(err => alert(err.message));
+    });
+  }
+
+// Open assign modal
+scope.querySelectorAll('.btnAssignStudent').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.closest('tr')?.dataset.id || btn.getAttribute('data-student-id');
+    if (!id) return;
+    document.getElementById('assignStudentId').value = id;
+    const m = new bootstrap.Modal(document.getElementById('assignStudentModal'));
+    m.show();
+  });
+});
+
+// Submit assign
+const assignForm = document.getElementById('assignStudentForm');
+if (assignForm) {
+  assignForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(assignForm);
+    fetch("{{ url_for('routes.admin_student_assign') }}", { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(j => {
+        if (!j.ok) throw new Error(j.msg || 'Assign failed');
+        bootstrap.Modal.getInstance(document.getElementById('assignStudentModal')).hide();
+        reloadList(); // reuse existing reloader to refresh the table
+      })
+      .catch(err => alert(err.message));
+  });
+}
+
+  // Delete Student (AJAX)
+  scope.querySelectorAll('.btnDeleteStudent').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tr = btn.closest('tr');
+      const id = tr?.dataset.id;
+      if (!id) return;
+      if (!confirm('Delete this student? This cannot be undone.')) return;
+
+      fetch(`{{ url_for('routes.admin_student_delete', student_id=0) }}`.replace('0', id), {
+        method: 'POST'
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (!json.ok) throw new Error(json.msg || 'Delete failed');
+        reloadList();
+      })
+      .catch(err => alert(err.message));
+    });
+  });
+})();
+</script>
